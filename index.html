@@ -155,6 +155,8 @@ textarea{min-height:90px;resize:vertical}
 .pv{width:100%;border-radius:14px;border:1px solid var(--line);display:block}
 
 /* ===== v2 premium ===== */
+.tk .gl{grid-column:1/4;display:grid;gap:4px;border-top:1px dashed var(--line);padding-top:8px;margin-top:2px;font-size:13.5px}
+.tk .gl div{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;text-align:center}.tk .gl span:first-child{text-align:left}.tk .gl span:last-child{text-align:right}.tk .gl b{font-family:var(--f-d);color:var(--navy)}
 .crest{flex:none;border-radius:50%;object-fit:cover;background:#fff;box-shadow:0 0 0 2px #fff,0 0 0 3px var(--line);display:inline-grid;place-items:center;color:#fff;font:700 15px/1 var(--f-d);vertical-align:middle}
 .crest.ini{text-shadow:0 1px 2px rgba(0,0,0,.25)}
 .tn{display:flex;align-items:center;gap:9px}
@@ -304,17 +306,24 @@ td:nth-child(2) .tn{justify-content:flex-start;text-align:left}
   function doneM(m) { return m.st === 'done'; }
   function standings(t, ms) {
     var r = {}; (t.parts || []).forEach(function (p) { r[p.id] = { id: p.id, n: p.n, logo: p.logo || '', p: 0, w: 0, d: 0, l: 0, f: 0, a: 0, pt: 0, fm: [] }; });
-    ms.filter(function (m) { return m.stage === 'league' && doneM(m); }).sort(function (x, y) { return (x.dt || 0) - (y.dt || 0); }).forEach(function (m) {
-      var A = r[m.a], B = r[m.b]; if (!A || !B) return; var as = +m.as, bs = +m.bs;
-      A.p++; B.p++; A.f += as; A.a += bs; B.f += bs; B.a += as;
-      if (as > bs) { A.w++; B.l++; A.pt += 3; A.fm.push('W'); B.fm.push('L'); }
-      else if (as < bs) { B.w++; A.l++; B.pt += 3; B.fm.push('W'); A.fm.push('L'); }
-      else { A.d++; B.d++; A.pt++; B.pt++; A.fm.push('D'); B.fm.push('D'); }
+    ms.filter(function (m) { return m.stage === 'league' && ((m.g || []).length || doneM(m)); }).sort(function (x, y) { return (x.dt || 0) - (y.dt || 0); }).forEach(function (m) {
+      var A = r[m.a], B = r[m.b]; if (!A || !B) return;
+      function pl(as, bs) {
+        A.p++; B.p++; A.f += as; A.a += bs; B.f += bs; B.a += as;
+        if (as > bs) { A.w++; B.l++; A.pt += 3; A.fm.push('W'); B.fm.push('L'); }
+        else if (as < bs) { B.w++; A.l++; B.pt += 3; B.fm.push('W'); A.fm.push('L'); }
+        else { A.d++; B.d++; A.pt++; B.pt++; A.fm.push('D'); B.fm.push('D'); }
+      }
+      if ((m.g || []).length) m.g.slice().sort(function (x, y) { return (x.ts || 0) - (y.ts || 0); }).forEach(function (g) { pl(+g.as, +g.bs); });
+      else pl(+m.as, +m.bs);
     });
     var rows = Object.keys(r).map(function (k) { var x = r[k]; x.unb = x.p > 0 && x.l === 0; return x; });
     rows.sort(function (x, y) { return y.pt - x.pt || ((y.unb ? 1 : 0) - (x.unb ? 1 : 0)) || (y.f - y.a) - (x.f - x.a) || y.f - x.f || String(x.n).localeCompare(String(y.n)); });
     return rows;
   }
+  function tpts(gs) { var r = { a: 0, b: 0, aw: 0, ad: 0, al: 0 }; (gs || []).forEach(function (g) { var x = +g.as, y = +g.bs; if (x > y) { r.a += 3; r.aw++; } else if (x < y) { r.b += 3; r.al++; } else { r.a++; r.b++; r.ad++; } }); return r; }
+  function gamesGoals(x) { var o = []; (x.g || []).forEach(function (g) { if (+g.as > 0) o.push({ n: g.pa, g: +g.as }); if (+g.bs > 0) o.push({ n: g.pb, g: +g.bs }); }); return o; }
+  function matchGoals(m) { return (m.g || []).length ? m.g.reduce(function (s, g) { return s + (+g.as || 0) + (+g.bs || 0); }, 0) : (+m.as || 0) + (+m.bs || 0); }
   function winnerOf(m) { if (!doneM(m)) return null; var as = +m.as, bs = +m.bs; if (as > bs) return m.a; if (bs > as) return m.b; return m.pw === 'a' ? m.a : m.pw === 'b' ? m.b : null; }
   function loserOf(m) { var w = winnerOf(m); return w ? (w === m.a ? m.b : m.a) : null; }
   function roundRobin(ids, double) {
@@ -341,7 +350,7 @@ td:nth-child(2) .tn{justify-content:flex-start;text-align:left}
   }
   function scorersText(a) { return (a || []).map(function (x) { return x.n + (x.g > 1 ? ' x' + x.g : ''); }).join(', '); }
   function topScorers(ms) {
-    var m = {}; ms.filter(doneM).forEach(function (x) { (x.sa || []).concat(x.sb || []).forEach(function (s) { var k = norm(s.n); m[k] = m[k] || { n: s.n, g: 0 }; m[k].g += s.g; }); });
+    var m = {}; ms.forEach(function (x) { (doneM(x) ? (x.sa || []).concat(x.sb || []) : []).concat(gamesGoals(x)).forEach(function (s) { var k = norm(s.n); m[k] = m[k] || { n: s.n, g: 0 }; m[k].g += s.g; }); });
     return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return b.g - a.g || a.n.localeCompare(b.n); });
   }
   function motmBoard(ms) {
@@ -517,17 +526,19 @@ td:nth-child(2) .tn{justify-content:flex-start;text-align:left}
     return w;
   }
   function ticket(t, m) {
-    var as = m.as, bs = m.bs, d = doneM(m), w = winnerOf(m), pa = partMap(t)[m.a] || { n: '—' }, pb = partMap(t)[m.b] || { n: '—' };
-    var el = h('button', { type: 'button', class: 'tk' + (d ? ' done' : ''), onclick: function () { if (S.canWrite) openResult(t, m); else if (!d) openSubmit(t, m); }, 'aria-label': pa.n + ' বনাম ' + pb.n },
+    var gm = t.type === 'auction', gs = m.g || [], tp = gm && gs.length ? tpts(gs) : null, as = tp ? tp.a : m.as, bs = tp ? tp.b : m.bs, d = doneM(m), w = winnerOf(m), pa = partMap(t)[m.a] || { n: '—' }, pb = partMap(t)[m.b] || { n: '—' }, need = gm ? needGames(t, m) : 0;
+    var el = h('button', { type: 'button', class: 'tk' + (d ? ' done' : ''), onclick: function () { if (S.canWrite) (gm ? openAuctionResult : openResult)(t, m); else if (!d) openSubmit(t, m); }, 'aria-label': pa.n + ' বনাম ' + pb.n },
       h('div', { class: 'tm' + (w === m.a ? ' w' : '') }, crest(pa, 44), h('span', null, pa.n)),
-      h('div', { class: 'sc' + (d ? '' : ' vs') }, d ? as + ' – ' + bs : 'VS'),
+      h('div', { class: 'sc' + (d || tp ? '' : ' vs') }, d || tp ? as + ' – ' + bs : 'VS'),
       h('div', { class: 'tm' + (w === m.b ? ' w' : '') }, crest(pb, 44), h('span', null, pb.n)));
     var ex = [];
-    if (d && +as === +bs && m.pw) ex.push('পেনাল্টিতে জয়: ' + pname(t, m.pw === 'a' ? m.a : m.b));
-    if (d && (m.sa || []).length + (m.sb || []).length) ex.push('⚽ ' + (m.sa || []).concat(m.sb || []).map(function (s) { return s.n + (s.g > 1 ? ' x' + s.g : ''); }).join(', '));
+    if (gm && !d) ex.push('⏳ ' + gs.length + (need ? '/' + need : '') + ' টি প্লেয়ার ম্যাচ হয়েছে');
+    if (d && +as === +bs && m.pw) ex.push('টাইব্রেকে জয়: ' + pname(t, m.pw === 'a' ? m.a : m.b));
+    if (!gm && d && (m.sa || []).length + (m.sb || []).length) ex.push('⚽ ' + (m.sa || []).concat(m.sb || []).map(function (s) { return s.n + (s.g > 1 ? ' x' + s.g : ''); }).join(', '));
     if (d && m.motm) ex.push('⭐ MOTM: ' + m.motm);
     if (ex.length) el.append(h('div', { class: 'ex' }, ex.join('  ·  ')));
-    var hint = d ? (S.canWrite ? '✎ রেজাল্ট এডিট' : '') : (S.canWrite ? '📝 রেজাল্ট সাবমিট করুন' : '＋ রেজাল্ট জমা দিন');
+    if (gm && gs.length) el.append(h('div', { class: 'gl' }, gs.map(function (g) { return h('div', null, h('span', null, g.pa), h('b', null, g.as + '–' + g.bs), h('span', null, g.pb)); })));
+    var hint = d ? (S.canWrite ? '✎ রেজাল্ট এডিট' : '') : S.canWrite ? (gm ? '📝 প্লেয়ার রেজাল্ট দিন' : '📝 রেজাল্ট সাবমিট করুন') : (gm ? '＋ আপনার গেমের রেজাল্ট জমা দিন' : '＋ রেজাল্ট জমা দিন');
     if (hint) el.append(h('div', { class: 'ex hint' }, hint));
     return el;
   }
@@ -554,7 +565,7 @@ td:nth-child(2) .tn{justify-content:flex-start;text-align:left}
     function board(title, rows, unit) { var c = h('div', { class: 'card' }, h('div', { class: 'd', style: 'color:var(--navy);margin-bottom:6px' }, title)); if (!rows.length) c.append(h('div', { class: 'note' }, 'এখনো কোনো ডেটা নেই')); rows.slice(0, 8).forEach(function (r, i) { c.append(h('div', { class: 'mini' }, h('span', { class: 'pos p' + (i + 1) }, i + 1), h('span', { class: 'n' }, r.n), h('b', null, (r.g != null ? r.g : r.c) + ' ' + unit))); }); return c; }
     if (type === 'auction') w.append(board('🥾 Golden Boot', sc, 'গোল'));
     w.append(board('⭐ Man of the Match', mm, 'বার'));
-    var tot = ms.filter(function (m) { return doneM(m); }), goals = tot.reduce(function (s, m) { return s + (+m.as || 0) + (+m.bs || 0); }, 0);
+    var tot = ms.filter(function (m) { return doneM(m); }), goals = tot.reduce(function (s, m) { return s + matchGoals(m); }, 0);
     w.append(h('div', { class: 'stats', style: 'margin-top:12px' }, h('div', { class: 'stat' }, h('b', null, tot.length), h('span', null, 'ম্যাচ')), h('div', { class: 'stat' }, h('b', null, goals), h('span', null, 'গোল')), h('div', { class: 'stat' }, h('b', null, tot.length ? (goals / tot.length).toFixed(1) : '0'), h('span', null, 'গড়/ম্যাচ'))));
     return w;
   }
@@ -901,6 +912,7 @@ td:nth-child(2) .tn{justify-content:flex-start;text-align:left}
   /* ---- result submit (public) + approval ---- */
   function openSubmit(t, m) {
     if (doneM(m)) { toast('এই ম্যাচের রেজাল্ট দেওয়া হয়ে গেছে'); return; }
+    if (t.type === 'auction') { openAuctionSubmit(t, m); return; }
     var ko = m.stage !== 'league', A = pname(t, m.a), B = pname(t, m.b), shot = '';
     var as = h('input', { type: 'number', inputmode: 'numeric', min: '0', max: '99', 'aria-label': A + ' গোল' }), bs = h('input', { type: 'number', inputmode: 'numeric', min: '0', max: '99', 'aria-label': B + ' গোল' });
     var pw = '', pwBox = h('div', { class: 'chips', style: 'margin-top:8px' });
@@ -913,7 +925,7 @@ td:nth-child(2) .tn{justify-content:flex-start;text-align:left}
       if (!by.value.trim()) { toast('আপনার নাম দিন'); return; } if (as.value === '' || bs.value === '') { toast('দুই দলের স্কোর দিন'); return; }
       var x = +as.value, y = +bs.value; if (ko && x === y && !pw) { toast('পেনাল্টি বিজয়ী বাছুন'); return; } if (!shot) { toast('ম্যাচ শেষের স্কোরবোর্ডের স্ক্রিনশট দিন'); return; }
       go.disabled = true;
-      try { await db.collection('submissions').add({ tid: t.id, mid: m.id, gA: x, gB: y, pw: ko && x === y ? pw : '', scA: t.type === 'auction' ? sa.value.trim() : '', scB: t.type === 'auction' ? sb.value.trim() : '', motm: motm.value.trim(), by: by.value.trim(), shot: shot, ts: Date.now() }); closeSheet(); toast('জমা হয়েছে ✅ অ্যাডমিন যাচাই করে প্রকাশ করবেন'); }
+      try { await db.collection('submissions').add({ tid: t.id, mid: m.id, pa: '', pb: '', gA: x, gB: y, pw: ko && x === y ? pw : '', scA: t.type === 'auction' ? sa.value.trim() : '', scB: t.type === 'auction' ? sb.value.trim() : '', motm: motm.value.trim(), by: by.value.trim(), shot: shot, ts: Date.now() }); closeSheet(); toast('জমা হয়েছে ✅ অ্যাডমিন যাচাই করে প্রকাশ করবেন'); }
       catch (e) { go.disabled = false; wfail(e); }
     } }, 'রেজাল্ট জমা দিন');
     openSheet(h('div', null, xbtn(), h('h3', null, 'রেজাল্ট জমা দিন'), h('div', { class: 'note' }, stageLabel(m)), h('div', { class: 'sg', style: 'margin-top:8px' }, h('div', null, h('b', null, A)), h('div', null, 'vs'), h('div', null, h('b', null, B))),
@@ -925,9 +937,11 @@ td:nth-child(2) .tn{justify-content:flex-start;text-align:left}
   function findMatch(id) { return S.mt.auction.concat(S.mt.solo).filter(function (x) { return x.id === id; })[0]; }
   async function approveSub(s) {
     var t = S.tours.filter(function (x) { return x.id === s.tid; })[0]; if (!t) { toast('টুর্নামেন্ট পাওয়া যায়নি'); return; }
-    if (S.tid[t.type] !== t.id) { S.tid[t.type] = t.id; syncMatchListeners(); toast('ম্যাচ লোড হচ্ছে, কয়েক সেকেন্ড পরে আবার চাপুন'); return; }
-    var m = findMatch(s.mid); if (!m) { toast('ম্যাচ লোড হয়নি, আবার চাপুন'); return; }
+    var m = findMatch(s.mid);
+    if (!m) { S.tid[t.type] = t.id; syncMatchListeners(); toast('ম্যাচ লোড হচ্ছে…'); for (var k = 0; k < 20 && !m; k++) { await new Promise(function (r) { setTimeout(r, 250); }); m = findMatch(s.mid); } }
+    if (!m) { toast('ম্যাচ পাওয়া যায়নি, আবার চাপুন'); return; }
     if (doneM(m)) { toast('এই ম্যাচের রেজাল্ট আগেই দেওয়া আছে'); return; }
+    if (t.type === 'auction') { if (hasPlayed(m, s.pa) || hasPlayed(m, s.pb)) { toast('এই প্লেয়ার আগেই খেলেছে, বাতিল বা এডিট করুন'); return; } var ok2 = await addGame(t, m, { pa: s.pa, pb: s.pb, as: +s.gA, bs: +s.gB, by: s.by || '' }); if (ok2) await db.collection('submissions').doc(s.id).delete().catch(wfail); return; }
     var ko = m.stage !== 'league', x = +s.gA, y = +s.gB; if (ko && x === y && !s.pw) { toast('ড্র, "এডিট" চেপে বিজয়ী দিন'); return; }
     var ok = await saveResult(t, m, { st: 'done', as: x, bs: y, pw: ko && x === y ? s.pw : '', sa: t.type === 'auction' ? parseScorers(s.scA || '') : [], sb: t.type === 'auction' ? parseScorers(s.scB || '') : [], motm: String(s.motm || '').slice(0, 40) });
     if (ok) await db.collection('submissions').doc(s.id).delete().catch(wfail);
@@ -935,14 +949,14 @@ td:nth-child(2) .tn{justify-content:flex-start;text-align:left}
   function subCard(s) {
     var t = S.tours.filter(function (x) { return x.id === s.tid; })[0], m = findMatch(s.mid), lbl = t ? t.name : 'টুর্নামেন্ট';
     var A = t && m ? pname(t, m.a) : 'দল A', B = t && m ? pname(t, m.b) : 'দল B', box = h('div', { class: 'sub' });
-    box.append(h('div', { class: 'note' }, lbl + (m ? ' · ' + stageLabel(m) : '') + ' · ' + fmtDate(s.ts)), h('div', { class: 'sg', style: 'margin-top:6px' }, h('div', null, h('b', null, A)), h('div', { class: 'd', style: 'font-size:30px;color:var(--navy)' }, s.gA + ' – ' + s.gB), h('div', null, h('b', null, B))));
+    var PA = s.pa ? s.pa : A, PB = s.pb ? s.pb : B; box.append(h('div', { class: 'note' }, lbl + (m ? ' · ' + stageLabel(m) + ' (' + A + ' vs ' + B + ')' : '') + ' · ' + fmtDate(s.ts)), h('div', { class: 'sg', style: 'margin-top:6px' }, h('div', null, h('b', null, PA)), h('div', { class: 'd', style: 'font-size:30px;color:var(--navy)' }, s.gA + ' – ' + s.gB), h('div', null, h('b', null, PB))));
     if (s.pw) box.append(h('div', { class: 'note' }, 'পেনাল্টি: ' + (s.pw === 'a' ? A : B)));
     if (s.scA || s.scB) box.append(h('div', { class: 'note' }, '⚽ ' + [s.scA, s.scB].filter(Boolean).join(' | ')));
     if (s.motm) box.append(h('div', { class: 'note' }, '⭐ ' + s.motm));
     box.append(h('div', { class: 'note' }, 'জমা দিয়েছেন: ' + s.by));
     if (s.shot) box.append(h('img', { class: 'shot', src: s.shot, alt: 'স্ক্রিনশট', onclick: function () { openSheet(h('div', null, xbtn(), h('img', { src: s.shot, style: 'width:100%;border-radius:12px', alt: '' }))); } }));
     box.append(h('div', { class: 'row', style: 'margin-top:10px' }, h('button', { class: 'btn sm', onclick: function () { approveSub(s); } }, '✅ অনুমোদন'),
-      m && t ? h('button', { class: 'btn ghost sm', onclick: function () { openResult(t, m); } }, '✎ এডিট') : null,
+      m && t ? h('button', { class: 'btn ghost sm', onclick: function () { (t.type === 'auction' ? openAuctionResult : openResult)(t, m); } }, '✎ এডিট') : null,
       h('button', { class: 'btn warn sm', onclick: function () { if (confirm('বাতিল করবেন?')) db.collection('submissions').doc(s.id).delete().catch(wfail); } }, '✕ বাতিল')));
     return box;
   }
@@ -1002,6 +1016,76 @@ td:nth-child(2) .tn{justify-content:flex-start;text-align:left}
   }
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () { /* ignore */ }); });
 
+
+  /* ---- auction: player-wise games ---- */
+  function needGames(t, m) { var pm = partMap(t), a = pm[m.a], b = pm[m.b], x = ((a && a.sq) || []).length, y = ((b && b.sq) || []).length; return x && y ? Math.min(x, y) : 0; }
+  function hasPlayed(m, name) { var k = norm(name); return (m.g || []).some(function (g) { return norm(g.pa) === k || norm(g.pb) === k; }); }
+  async function addGame(t, m, g) {
+    var gs = (m.g || []).concat([Object.assign({ id: uid(), ts: Date.now() }, g)]), r = tpts(gs), need = needGames(t, m), ko = m.stage !== 'league';
+    var finish = need > 0 && gs.length >= need && !(ko && r.a === r.b && !m.pw);
+    var ok = await saveResult(t, m, { g: gs, as: r.a, bs: r.b, st: finish ? 'done' : 'pending', pw: finish && ko && r.a === r.b ? m.pw : '' });
+    if (ok && finish && m.stage === 'final') confetti();
+    if (ok && need && gs.length >= need && !finish) toast('টিম পয়েন্ট সমান, অ্যাডমিন বিজয়ী বাছবে');
+    return ok;
+  }
+  function openAuctionSubmit(t, m) {
+    var A = pname(t, m.a), B = pname(t, m.b), pm = partMap(t), side = 'a', shot = '';
+    var me = h('input', { type: 'text', list: 'dlme', maxlength: '40', placeholder: 'আপনার নাম' }), op = h('input', { type: 'text', list: 'dlop', maxlength: '40', placeholder: 'প্রতিপক্ষ প্লেয়ারের নাম' });
+    var dlme = h('datalist', { id: 'dlme' }), dlop = h('datalist', { id: 'dlop' }), sides = h('div', { class: 'chips' }), mg = h('input', { type: 'number', inputmode: 'numeric', min: '0', max: '99' }), og = h('input', { type: 'number', inputmode: 'numeric', min: '0', max: '99' });
+    function left(p) { return ((p && p.sq) || []).filter(function (n) { return !hasPlayed(m, n); }); }
+    function fill() {
+      dlme.replaceChildren(); dlop.replaceChildren(); sides.replaceChildren();
+      left(pm[side === 'a' ? m.a : m.b]).forEach(function (n) { dlme.append(h('option', { value: n })); }); left(pm[side === 'a' ? m.b : m.a]).forEach(function (n) { dlop.append(h('option', { value: n })); });
+      [['a', A], ['b', B]].forEach(function (x) { sides.append(h('button', { type: 'button', class: 'cp' + (side === x[0] ? ' on' : ''), onclick: function () { side = x[0]; me.value = ''; op.value = ''; fill(); } }, x[1])); });
+    }
+    fill();
+    var pv = h('div'), fin = h('input', { type: 'file', accept: 'image/*', style: 'display:none' });
+    fin.onchange = async function () { if (!fin.files[0]) return; pv.replaceChildren(h('span', { class: 'note' }, 'ছবি প্রস্তুত হচ্ছে…')); try { shot = await shrink(fin.files[0], 1000, 75000); pv.replaceChildren(h('img', { class: 'shot', src: shot, alt: '' })); } catch (e) { toast('ছবি পড়া যায়নি'); pv.replaceChildren(); } };
+    var go = h('button', { class: 'btn', style: 'width:100%;margin-top:14px', onclick: async function () {
+      var a = me.value.trim(), b = op.value.trim(); if (!a || !b) { toast('নিজের ও প্রতিপক্ষের নাম দিন'); return; } if (norm(a) === norm(b)) { toast('দুই নাম আলাদা হতে হবে'); return; }
+      if (hasPlayed(m, a) || hasPlayed(m, b)) { toast('এই প্লেয়ারের গেম আগেই জমা হয়েছে'); return; }
+      if (mg.value === '' || og.value === '') { toast('দুজনের গোল দিন'); return; } if (!shot) { toast('ম্যাচ শেষের স্কোরবোর্ডের স্ক্রিনশট দিন'); return; }
+      var x = +mg.value, y = +og.value, d = side === 'a' ? { pa: a, pb: b, gA: x, gB: y } : { pa: b, pb: a, gA: y, gB: x }; go.disabled = true;
+      try { await db.collection('submissions').add({ tid: t.id, mid: m.id, pa: d.pa, pb: d.pb, gA: d.gA, gB: d.gB, pw: '', scA: '', scB: '', motm: '', by: a, shot: shot, ts: Date.now() }); closeSheet(); toast('জমা হয়েছে ✅ অ্যাডমিন যাচাই করে যোগ করবেন'); }
+      catch (e) { go.disabled = false; wfail(e); }
+    } }, 'আমার গেমের রেজাল্ট জমা দিন');
+    openSheet(h('div', null, xbtn(), h('h3', null, 'আপনার গেমের রেজাল্ট'), h('div', { class: 'note' }, stageLabel(m) + ' · ' + A + ' vs ' + B), dlme, dlop,
+      h('div', { class: 'rdh' }, 'আপনি কোন টিমের?'), sides, field('আপনার নাম', me), field('প্রতিপক্ষ প্লেয়ার', op), h('div', { class: 'sg', style: 'margin-top:10px' }, mg, h('div', { class: 'd' }, '–'), og), h('p', { class: 'note' }, 'বাঁয়ে আপনার গোল, ডানে প্রতিপক্ষের গোল।'),
+      h('div', { class: 'rdh' }, 'স্ক্রিনশট (প্রমাণ)'), h('button', { type: 'button', class: 'btn ghost sm', onclick: function () { fin.click(); } }, '📷 স্ক্রিনশট বাছুন'), fin, pv, h('p', { class: 'note', style: 'margin-top:8px' }, 'অ্যাডমিন যাচাই করলে আপনার গেম টিমের হিসাবে যোগ হবে।'), go));
+  }
+  function openAuctionResult(t, m0) {
+    var m = Object.assign({}, findMatch(m0.id) || m0), ko = m.stage !== 'league', A = pname(t, m.a), B = pname(t, m.b), pm = partMap(t), busy = false;
+    async function persist(data) {
+      if (busy) return; busy = true; var gs = data.g || m.g || [], r = tpts(gs), d = Object.assign({ g: gs, as: r.a, bs: r.b }, data);
+      var ok = await saveResult(t, m, d); busy = false; if (ok) { Object.assign(m, d); render(); if (d.st === 'done' && m.stage === 'final') confetti(); }
+    }
+    function dl(id, p) { return h('datalist', { id: id }, ((p && p.sq) || []).filter(function (n) { return !hasPlayed(m, n); }).map(function (n) { return h('option', { value: n }); })); }
+    function render() {
+      var gs = m.g || [], r = tpts(gs), done = doneM(m), tie = ko && gs.length && r.a === r.b, need = needGames(t, m);
+      var na = h('input', { type: 'text', list: 'dla', maxlength: '40', placeholder: A + ' এর প্লেয়ার' }), nb = h('input', { type: 'text', list: 'dlb', maxlength: '40', placeholder: B + ' এর প্লেয়ার' });
+      var sa = h('input', { type: 'number', inputmode: 'numeric', min: '0', max: '99', placeholder: 'গোল' }), sb = h('input', { type: 'number', inputmode: 'numeric', min: '0', max: '99', placeholder: 'গোল' });
+      var add = h('button', { class: 'btn', style: 'width:100%;margin-top:12px', onclick: function () {
+        var x = na.value.trim(), y = nb.value.trim(); if (!x || !y || sa.value === '' || sb.value === '') { toast('দুই প্লেয়ারের নাম ও স্কোর দিন'); return; }
+        if (hasPlayed(m, x) || hasPlayed(m, y)) { toast('এই প্লেয়ারের গেম আগেই আছে'); return; }
+        persist({ g: gs.concat([{ id: uid(), pa: x, pb: y, as: +sa.value, bs: +sb.value, ts: Date.now() }]) });
+      } }, '＋ প্লেয়ারের রেজাল্ট যোগ করুন');
+      var list = h('div', null, gs.length ? null : h('div', { class: 'note' }, 'এখনো কোনো প্লেয়ার-ম্যাচের রেজাল্ট নেই'), gs.map(function (g) {
+        return h('div', { class: 'mini' }, h('span', { class: 'n' }, g.pa), h('b', null, g.as + ' – ' + g.bs), h('span', { class: 'n', style: 'text-align:right' }, g.pb),
+          done ? null : h('button', { class: 'btn ghost sm', 'aria-label': 'মুছুন', onclick: function () { if (confirm('এই রেজাল্ট মুছবেন?')) persist({ g: gs.filter(function (z) { return z.id !== g.id; }) }); } }, '✕'));
+      }));
+      var tot = h('div', { class: 'card', style: 'margin-top:8px' }, h('div', { class: 'sg' }, h('div', null, h('b', null, A), h('div', { class: 'd', style: 'font-size:38px;color:var(--navy)' }, r.a), h('small', { class: 'note' }, 'জয় ' + r.aw + ' · ড্র ' + r.ad + ' · হার ' + r.al)), h('div', { class: 'note' }, 'পয়েন্ট'), h('div', null, h('b', null, B), h('div', { class: 'd', style: 'font-size:38px;color:var(--navy)' }, r.b), h('small', { class: 'note' }, 'জয় ' + r.al + ' · ড্র ' + r.ad + ' · হার ' + r.aw))));
+      var pen = h('div', { class: 'chips', style: 'margin-top:8px' });
+      if (tie && !done) { pen.append(h('span', { class: 'note', style: 'width:100%' }, 'পয়েন্ট সমান, বিজয়ী কে?')); [['a', A], ['b', B]].forEach(function (x) { pen.append(h('button', { type: 'button', class: 'cp' + (m.pw === x[0] ? ' on' : ''), onclick: function () { m.pw = x[0]; render(); } }, x[1])); }); }
+      var fin = done ? h('button', { class: 'btn ghost', style: 'width:100%;margin-top:10px', onclick: function () { persist({ st: 'pending', pw: '' }); } }, 'আবার খুলুন (এডিট করতে)')
+        : h('button', { class: 'btn alt', style: 'width:100%;margin-top:10px;border:1.5px solid var(--green)', onclick: function () {
+          if (!gs.length) { toast('আগে অন্তত একটা রেজাল্ট দিন'); return; } if (tie && !m.pw) { toast('বিজয়ী বাছুন'); return; }
+          if (confirm('ম্যাচ শেষ করবেন? এরপর রাউন্ড নিচে চলে যাবে।')) persist({ st: 'done', pw: tie ? m.pw : '' });
+        } }, '✅ ম্যাচ শেষ করুন');
+      openSheet(h('div', null, xbtn(), h('h3', null, stageLabel(m)), h('div', { class: 'note' }, 'প্লেয়ার ম্যাচ: ' + gs.length + (need ? ' / ' + need + ' (সব শেষ হলে অটো সম্পূর্ণ)' : '')), tot, h('div', { class: 'rdh' }, 'প্লেয়ার ম্যাচ'), list,
+        done ? h('p', { class: 'note', style: 'margin-top:10px' }, '🔒 ম্যাচ শেষ। বদলাতে "আবার খুলুন" চাপুন।') : h('div', null, h('div', { class: 'rdh' }, 'নতুন রেজাল্ট'), dl('dla', pm[m.a]), dl('dlb', pm[m.b]), field(A, na), field(B, nb), h('div', { class: 'sg', style: 'margin-top:10px' }, sa, h('div', { class: 'd' }, '–'), sb), add), pen, fin));
+    }
+    render();
+  }
   function init() {
     var cfg = window.GH_CONFIG && window.GH_CONFIG.firebase;
     if (!window.firebase || !cfg || !cfg.apiKey || String(cfg.apiKey).indexOf('PASTE') === 0) { setupScreen(); return; }
