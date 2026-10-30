@@ -1,1 +1,16 @@
-{"name":"The Goal Hunters — eFootball Group","short_name":"Goal Hunters","description":"Auction ও Solo টুর্নামেন্ট, প্লেয়ার্স আর Champions Hall","start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#0E2250","theme_color":"#0E2250","lang":"bn","icons":[{"src":"logo.webp","sizes":"192x192 512x512","type":"image/webp","purpose":"any"},{"src":"apple-touch-icon.png","sizes":"180x180","type":"image/png"}]}
+{
+  "name": "The Goal Hunters",
+  "short_name": "Goal Hunters",
+  "description": "The Goal Hunters eFootball Group: Auction ও Solo টুর্নামেন্ট",
+  "lang": "bn",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0E2250",
+  "theme_color": "#0E2250",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
