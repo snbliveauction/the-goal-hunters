@@ -733,13 +733,13 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
     var em = h('input', { type: 'email', placeholder: 'ইমেইল', autocomplete: 'username', inputmode: 'email' }), pw = h('input', { type: 'password', placeholder: 'পাসওয়ার্ড', autocomplete: 'current-password' }), msg = h('p', { class: 'note', style: 'margin-top:8px' });
     var go = h('button', { class: 'btn', style: 'width:100%;margin-top:14px', onclick: async function () {
       go.disabled = true; msg.textContent = '';
-      try { await auth.signInWithEmailAndPassword(em.value.trim(), pw.value); closeSheet(); } catch (e) { msg.textContent = 'লগইন হয়নি। ইমেইল বা পাসওয়ার্ড ঠিক আছে কি দেখুন।'; go.disabled = false; }
+      try { await auth.signInWithEmailAndPassword(em.value.trim(), pw.value); closeSheet(); } catch (e) { var c = (e && e.code) || ''; msg.textContent = 'লগইন হয়নি (' + c + ')। ' + (c === 'auth/operation-not-allowed' ? 'Firebase-এ Email/Password চালু করা নেই।' : c === 'auth/too-many-requests' ? 'কিছুক্ষণ পরে চেষ্টা করুন।' : c === 'auth/network-request-failed' ? 'ইন্টারনেট চেক করুন।' : 'ইমেইল বা পাসওয়ার্ড ঠিক আছে কি দেখুন।'); go.disabled = false; }
     } }, 'লগইন');
     var gg = h('button', { class: 'btn ghost', style: 'width:100%;margin-top:10px', onclick: async function () {
       var p = new firebase.auth.GoogleAuthProvider();
       try { await auth.signInWithPopup(p); closeSheet(); } catch (e) { if (e && (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment')) { auth.signInWithRedirect(p); } else if (!e || e.code !== 'auth/popup-closed-by-user') msg.textContent = 'Google লগইন হয়নি। ইমেইল-পাসওয়ার্ড দিয়ে চেষ্টা করুন।'; }
     } }, 'Google দিয়ে লগইন');
-    openSheet(h('div', null, xbtn(), h('h3', null, 'অ্যাডমিন লগইন'), field('ইমেইল', em), field('পাসওয়ার্ড', pw), go, gg, msg, h('p', { class: 'note', style: 'margin-top:8px' }, 'শুধু অ্যাডমিন তালিকায় থাকা ইমেইল এডিট করতে পারবে।')));
+    openSheet(h('div', null, xbtn(), h('h3', null, 'অ্যাডমিন লগইন'), field('ইমেইল', em), field('পাসওয়ার্ড', pw), go, gg, msg, h('button', { type: 'button', class: 'btn ghost sm', style: 'margin-top:8px', onclick: function () { if (!em.value.trim()) { msg.textContent = 'আগে ইমেইল লিখুন।'; return; } auth.sendPasswordResetEmail(em.value.trim()).then(function () { msg.textContent = 'রিসেট ইমেইল পাঠানো হয়েছে। Inbox ও Spam দেখুন।'; }).catch(function (e) { msg.textContent = 'পাঠানো যায়নি (' + ((e && e.code) || '') + ')'; }); } }, 'পাসওয়ার্ড ভুলে গেছেন?'), h('p', { class: 'note', style: 'margin-top:8px' }, 'শুধু অ্যাডমিন তালিকায় থাকা ইমেইল এডিট করতে পারবে।')));
   }
   function openNotice() {
     var ta = h('textarea', { placeholder: 'ঘোষণা লিখুন…', maxlength: '300' });
