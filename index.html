@@ -261,6 +261,7 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
 .pc.np .ph{background:repeating-linear-gradient(45deg,#EEF2F8,#EEF2F8 10px,#E6ECF5 10px,#E6ECF5 20px)}
 .pc .ph img{object-position:50% 0}
 .prow{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line)}.prow:last-child{border:0}.prow small{color:var(--mute)}.prow b{text-align:right;overflow-wrap:anywhere}
+.pc .tr.rn{right:auto;left:8px;background:linear-gradient(135deg,#E9EEF6,#AEB9CC);color:#26324a}
 </style>
 </head>
 <body>
@@ -687,7 +688,7 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
         var p = r.p, img = p && (p.card || p.photo), tc = trophyCount(r.name);
         grid.append(h('button', { class: 'pc' + (p ? '' : ' np'), onclick: function () { if (p) openPlayer(p, r.teams); else if (S.canWrite) openPlayerForm(null, r.name); else toast('প্রোফাইল কার্ড শীঘ্রই আসছে'); } },
           h('div', { class: 'ph' }, img ? h('img', { src: img, alt: r.name, loading: 'lazy' }) : h('span', null, String(r.name).charAt(0).toUpperCase())),
-          tc.c ? h('span', { class: 'tr' }, '🏆 ' + tc.c) : null,
+          tc.c ? h('span', { class: 'tr' }, '🏆 ' + tc.c) : null, tc.r ? h('span', { class: 'tr rn' }, '🥈 ' + tc.r) : null,
           h('div', { class: 'nm' }, h('b', null, r.name), h('small', null, p ? (p.club || (r.teams[0] && r.teams[0].team) || p.pos || 'প্লেয়ার') : (r.teams[0] ? r.teams[0].team + ' · ' : '') + (S.canWrite ? '＋ প্রোফাইল যোগ করুন' : 'প্রোফাইল আসছে')))));
       });
     }
@@ -702,7 +703,7 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
     function sp(v) { if ('letterSpacing' in x) x.letterSpacing = v + 'px'; }
     try { await Promise.all([document.fonts.load('700 60px Oswald'), document.fonts.load('500 30px Oswald'), document.fonts.load('700 40px Cinzel')]); } catch (e) { /* ignore */ }
     var tm = teams && teams[0], ph = p.photo ? await loadImg(p.photo).catch(function () { return null; }) : null, cd = (!p.photo && p.card) ? await loadImg(p.card).catch(function () { return null; }) : null, lg = await loadImg(AUC_LOGO).catch(function () { return null; }), tl = tm && tm.logo ? await loadImg(tm.logo).catch(function () { return null; }) : null;
-    if (!ph && cd) { var cc = document.createElement('canvas'), csx = cd.width * 0.088, csy = cd.height * 0.472, csw = cd.width * 0.335, csh = cd.height * 0.195; cc.width = 600; cc.height = Math.round(600 * csh / csw); cc.getContext('2d').drawImage(cd, csx, csy, csw, csh, 0, 0, cc.width, cc.height); ph = cc; }
+    if (!ph && cd) { var cc = document.createElement('canvas'), csw = Math.min(cd.width * 0.8, cd.height * 0.8 * 390 / 440), csh = csw * 440 / 390, csx = (cd.width - csw) / 2, csy = Math.min(cd.height * 0.12, cd.height - csh); cc.width = 600; cc.height = Math.round(600 * csh / csw); cc.getContext('2d').drawImage(cd, csx, csy, csw, csh, 0, 0, cc.width, cc.height); ph = cc; }
     var g = x.createLinearGradient(0, 0, W * 0.4, H); g.addColorStop(0, '#050E24'); g.addColorStop(0.45, '#0B2C66'); g.addColorStop(1, '#061230'); x.fillStyle = g; x.fillRect(0, 0, W, H);
     var r1 = x.createRadialGradient(W / 2, 250, 20, W / 2, 250, 700); r1.addColorStop(0, 'rgba(130,200,255,.40)'); r1.addColorStop(1, 'rgba(130,200,255,0)'); x.fillStyle = r1; x.fillRect(0, 0, W, H);
     var r2 = x.createRadialGradient(W / 2, H + 60, 40, W / 2, H + 60, 700); r2.addColorStop(0, 'rgba(255,200,80,.26)'); r2.addColorStop(1, 'rgba(255,200,80,0)'); x.fillStyle = r2; x.fillRect(0, 0, W, H);
@@ -803,20 +804,22 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
     var ty = h('select', null, h('option', { value: 'auction', selected: type === 'auction' }, 'Auction'), h('option', { value: 'solo', selected: type === 'solo' }, 'Solo'));
     var cn = tx(ch.n, solo ? 'চ্যাম্পিয়ন প্লেয়ার' : 'চ্যাম্পিয়ন টিম'), cm = tx(ch.mgr, 'ম্যানেজারের নাম'), rn = tx(ru.n, solo ? 'রানার্স আপ প্লেয়ার' : 'রানার্স আপ টিম'), rm = tx(ru.mgr, 'ম্যানেজারের নাম'), tn = tx(th.n, '৩য় স্থান (ঐচ্ছিক)');
     var st = { clg: ch.logo || '', cmp: ch.mp || '', rlg: ru.logo || '', rmp: ru.mp || '' };
+    var csq = h('textarea', { placeholder: 'প্লেয়ারদের নাম, কমা দিয়ে (যেমন: Abid, Sami)', style: 'min-height:56px' }), rsq = h('textarea', { placeholder: 'প্লেয়ারদের নাম, কমা দিয়ে', style: 'min-height:56px' }); csq.value = (ch.sq || []).join(', '); rsq.value = (ru.sq || []).join(', ');
+    function sqOf(v) { return v.split(/[,،\n]/).map(function (z) { return z.trim(); }).filter(Boolean).slice(0, 20); }
     function pick(key, fn, label) { var pv = h('span', { class: 'note' }, st[key] ? '✅ আছে' : ''), i = h('input', { type: 'file', accept: 'image/*', style: 'display:none' }); i.onchange = async function () { if (!i.files[0]) return; try { st[key] = await fn(i.files[0]); pv.textContent = '✅ যোগ হয়েছে'; } catch (e) { toast('ছবি পড়া যায়নি'); } }; return h('div', { class: 'row', style: 'align-items:center;gap:10px' }, h('button', { type: 'button', class: 'btn ghost sm', onclick: function () { i.click(); } }, '🖼 ' + label), pv, st[key] ? h('button', { type: 'button', class: 'btn ghost sm', onclick: function () { st[key] = ''; pv.textContent = 'মুছে গেছে'; } }, 'মুছুন') : null, i); }
     var photoLbl = solo ? 'প্লেয়ারের ছবি' : 'ম্যানেজারের ছবি', lg = function (f) { return logoUrl(f, 144); }, ph = function (f) { return sqPhoto(f, 360); };
     var go = h('button', { class: 'btn', style: 'width:100%;margin-top:14px', onclick: async function () {
       if (busy) return; if (!nm.value.trim() || !cn.value.trim()) { toast('টুর্নামেন্টের নাম ও চ্যাম্পিয়ন দিন'); return; }
       var d = { tid: c ? c.tid : 'manual_' + uid(), type: ty.value, name: nm.value.trim(), season: String(season.value || ''),
-        champ: Object.assign({}, ch, { n: cn.value.trim(), mgr: cm.value.trim(), mp: st.cmp, logo: st.clg, sq: ch.sq || [] }),
-        runner: rn.value.trim() ? Object.assign({}, ru, { n: rn.value.trim(), mgr: rm.value.trim(), mp: st.rmp, logo: st.rlg }) : null,
+        champ: Object.assign({}, ch, { n: cn.value.trim(), mgr: cm.value.trim(), mp: st.cmp, logo: st.clg, sq: solo ? [] : sqOf(csq.value) }),
+        runner: rn.value.trim() ? Object.assign({}, ru, { n: rn.value.trim(), mgr: rm.value.trim(), mp: st.rmp, logo: st.rlg, sq: solo ? [] : sqOf(rsq.value) }) : null,
         third: tn.value.trim() ? Object.assign({}, th, { n: tn.value.trim() }) : null, ts: c ? c.ts : (Date.parse(season.value + '-06-30') || Date.now()) };
       busy = true; go.disabled = true;
       try { if (c) await db.collection('champions').doc(c.id).set(d, { merge: true }); else await db.collection('champions').add(d); toast('সেভ হয়েছে ✅'); closeSheet(); } catch (e) { busy = false; go.disabled = false; wfail(e); }
     } }, 'সেভ');
     openSheet(h('div', null, xbtn(), h('h3', null, c ? 'চ্যাম্পিয়ন এডিট' : 'আগের চ্যাম্পিয়ন যোগ'), field('টুর্নামেন্টের নাম', nm), field('মৌসুম / সাল', season), field('ধরন', ty),
-      h('div', { class: 'rdh' }, '🏆 চ্যাম্পিয়ন'), field(solo ? 'প্লেয়ারের নাম' : 'টিমের নাম', cn), solo ? null : field('টিম ম্যানেজার', cm), field(photoLbl, pick('cmp', ph, photoLbl)), solo ? null : field('টিম লোগো', pick('clg', lg, 'লোগো')),
-      h('div', { class: 'rdh' }, '🥈 রানার্স আপ'), field(solo ? 'প্লেয়ারের নাম' : 'টিমের নাম', rn), solo ? null : field('ম্যানেজার', rm), field(photoLbl, pick('rmp', ph, photoLbl)), solo ? null : field('টিম লোগো', pick('rlg', lg, 'লোগো')),
+      h('div', { class: 'rdh' }, '🏆 চ্যাম্পিয়ন'), field(solo ? 'প্লেয়ারের নাম' : 'টিমের নাম', cn), solo ? null : field('টিম ম্যানেজার', cm), field(photoLbl, pick('cmp', ph, photoLbl)), solo ? null : field('টিম লোগো', pick('clg', lg, 'লোগো')), solo ? null : field('চ্যাম্পিয়ন টিমের প্লেয়ার (ট্রফি তাদের প্রোফাইলে যাবে)', csq),
+      h('div', { class: 'rdh' }, '🥈 রানার্স আপ'), field(solo ? 'প্লেয়ারের নাম' : 'টিমের নাম', rn), solo ? null : field('ম্যানেজার', rm), field(photoLbl, pick('rmp', ph, photoLbl)), solo ? null : field('টিম লোগো', pick('rlg', lg, 'লোগো')), solo ? null : field('রানার্স আপ টিমের প্লেয়ার', rsq),
       h('div', { class: 'rdh' }, '🥉 ৩য় স্থান'), field('নাম', tn), go,
       c ? h('button', { class: 'btn warn sm', style: 'margin-top:10px', onclick: function () { if (confirm('মুছবেন?')) db.collection('champions').doc(c.id).delete().then(closeSheet).catch(wfail); } }, '🗑 মুছুন') : null));
   }
@@ -947,6 +950,25 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
       }; fr.readAsDataURL(file);
     });
   }
+  function faceCrop(onPhoto) {
+    var CW = 300, CH = 339, cv = h('canvas', { width: CW, height: CH, style: 'width:100%;max-width:300px;border-radius:16px;border:2px solid var(--line);touch-action:none;cursor:grab;display:block;margin:8px auto 0' }), x = cv.getContext('2d'), im = null, z = 1.5, cx = 0, cy = 0;
+    var zoom = h('input', { type: 'range', min: '1', max: '4', step: '0.05', value: '1.5', style: 'width:100%;margin-top:8px' }), el = h('div', { style: 'display:none' }, h('div', { class: 'note' }, 'ড্র্যাগ করে মুখ ফ্রেমে আনুন, স্লাইডার দিয়ে জুম করুন। এটাই কার্ডে প্লেয়ারের ছবি হবে।'), cv, zoom);
+    function bs() { return Math.max(CW / im.width, CH / im.height); }
+    function clamp() { var sc = bs() * z, vw = CW / sc, vh = CH / sc; cx = Math.min(im.width - vw / 2, Math.max(vw / 2, cx)); cy = Math.min(im.height - vh / 2, Math.max(vh / 2, cy)); }
+    function paint(ctx, W, H, guide) { var sc = bs() * z, vw = CW / sc, vh = CH / sc; ctx.drawImage(im, cx - vw / 2, cy - vh / 2, vw, vh, 0, 0, W, H); if (guide) { ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.setLineDash([6, 6]); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(W / 2, H * 0.38, W * 0.2, H * 0.24, 0, 0, 7); ctx.stroke(); ctx.setLineDash([]); } }
+    function draw() { clamp(); paint(x, CW, CH, true); }
+    function emit() { clamp(); var o = document.createElement('canvas'); o.width = 420; o.height = 474; paint(o.getContext('2d'), 420, 474, false); var q = 0.85, u = o.toDataURL('image/jpeg', q); while (u.length > 110000 && q > 0.4) { q -= 0.1; u = o.toDataURL('image/jpeg', q); } onPhoto(u); }
+    var drag = null; cv.onpointerdown = function (e) { if (!im) return; drag = { x: e.clientX, y: e.clientY }; try { cv.setPointerCapture(e.pointerId); } catch (er) { /* ignore */ } cv.style.cursor = 'grabbing'; };
+    cv.onpointermove = function (e) { if (!drag || !im) return; var k = CW / cv.getBoundingClientRect().width, sc = bs() * z; cx -= (e.clientX - drag.x) * k / sc; cy -= (e.clientY - drag.y) * k / sc; drag = { x: e.clientX, y: e.clientY }; draw(); };
+    cv.onpointerup = cv.onpointercancel = function () { if (drag) { drag = null; cv.style.cursor = 'grab'; emit(); } };
+    zoom.oninput = function () { z = +zoom.value; draw(); }; zoom.onchange = function () { emit(); };
+    async function load(src) {
+      im = await loadImg(src); z = 1.5; cx = im.width / 2; cy = im.height * 0.34;
+      try { if ('FaceDetector' in window) { var f = await new window.FaceDetector({ fastMode: true, maxDetectedFaces: 1 }).detect(im); if (f && f[0]) { var b = f[0].boundingBox; cx = b.x + b.width / 2; cy = b.y + b.height * 0.55; z = Math.min(4, Math.max(1, (0.4 * CW) / b.width * (1 / bs()) / 1)); } } } catch (e) { /* no detector */ }
+      zoom.value = String(z); el.style.display = ''; draw(); emit();
+    }
+    return { el: el, load: load };
+  }
   function openPlayerForm(p, preName) {
     function tx(v, ph, ml) { return h('input', { type: 'text', value: v || '', maxlength: String(ml || 40), placeholder: ph || '' }); }
     var name = tx(p ? p.name : preName, 'পুরো নাম'), gid = tx(p && p.gid, 'যেমন: ASLS-599-518-667', 30), club = tx(p && p.club, 'ক্লাবের নাম'), fb = tx(p && p.fb, 'https://facebook.com/… (প্রোফাইল লিংক)', 200);
@@ -955,16 +977,18 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
     var pos = h('select', null, ['', 'GK', 'DEF', 'MID', 'FWD'].map(function (x) { return h('option', { value: x, selected: p && p.pos === x }, x || 'পজিশন (ঐচ্ছিক)'); }));
     var bio = h('textarea', { placeholder: 'ছোট পরিচিতি (ঐচ্ছিক)', maxlength: '160', style: 'min-height:64px' }); bio.value = p && p.bio ? p.bio : '';
     var card = p && p.card ? p.card : '', cpv = h('img', { class: 'pv', alt: '', style: 'max-height:260px;object-fit:contain;margin-top:8px', hidden: !card }); if (card) cpv.src = card;
-    var cf = h('input', { type: 'file', accept: 'image/*' }); cf.onchange = async function () { if (!cf.files[0]) return; try { card = await shrink(cf.files[0], 1000, 230000); cpv.src = card; cpv.hidden = false; if (!photo) { var ci = await loadImg(card), cw = ci.width, chh = ci.height, cc = document.createElement('canvas'), sx = cw * 0.088, sy = chh * 0.472, sw = cw * 0.335, sh = chh * 0.195; cc.width = 420; cc.height = Math.round(420 * sh / sw); cc.getContext('2d').drawImage(ci, sx, sy, sw, sh, 0, 0, cc.width, cc.height); photo = cc.toDataURL('image/jpeg', 0.85); pv.src = photo; pv.hidden = false; toast('কার্ড থেকে ছোট ছবি অটো নেওয়া হয়েছে (দরকারে নিচে বদলান)'); } } catch (e) { toast('ছবি পড়া যায়নি'); } };
-    var photo = p && p.photo ? p.photo : '', pv = h('img', { class: 'pv', alt: '', style: 'max-height:160px;object-fit:cover;margin-top:8px', hidden: !photo }); if (photo) pv.src = photo;
-    var file = h('input', { type: 'file', accept: 'image/*' }); file.onchange = async function () { if (!file.files[0]) return; try { photo = await fileToDataUrl(file.files[0], 480); pv.src = photo; pv.hidden = false; } catch (e) { toast('ছবি পড়া যায়নি'); } };
+    var FC = faceCrop(function (u) { photo = u; pv.src = u; pv.hidden = true; });
+    var photo = p && p.photo ? p.photo : '', pv = h('img', { class: 'pv', alt: '', style: 'max-height:200px;object-fit:cover;margin-top:8px', hidden: !photo }); if (photo) pv.src = photo;
+    var cf = h('input', { type: 'file', accept: 'image/*' }); cf.onchange = async function () { if (!cf.files[0]) return; try { card = await shrink(cf.files[0], 1000, 230000); cpv.src = card; cpv.hidden = false; await FC.load(card); toast('কার্ড থেকে ছবি কাটা হয়েছে, দরকারে ড্র্যাগ করে ঠিক করুন'); } catch (e) { toast('ছবি পড়া যায়নি'); } };
+    var file = h('input', { type: 'file', accept: 'image/*' }); file.onchange = async function () { if (!file.files[0]) return; try { var u = await shrink(file.files[0], 1000, 230000); await FC.load(u); } catch (e) { toast('ছবি পড়া যায়নি'); } };
+    var fromCard = p && p.card ? h('button', { type: 'button', class: 'btn ghost sm', style: 'margin-top:8px', onclick: function () { FC.load(p.card).catch(function () { toast('ছবি পড়া যায়নি'); }); } }, '✂ কার্ড থেকে আবার মুখ বাছুন') : null;
     var go = h('button', { class: 'btn', style: 'width:100%;margin-top:14px', onclick: async function () {
       var n = name.value.trim(); if (!n) { toast('নাম দিন'); return; } go.disabled = true;
       var d = { name: n, no: no.value ? String(no.value).slice(0, 3) : '', pos: pos.value, bio: bio.value.trim().slice(0, 160), photo: photo || '', card: card || '', gid: gid.value.trim(), dev: dev.value, club: club.value.trim(), fb: fbUrl(fb.value) };
       try { if (p) await db.collection('players').doc(p.id).set(d, { merge: true }); else { d.ts = Date.now(); await db.collection('players').add(d); } toast('সেভ হয়েছে ✅'); closeSheet(); } catch (e) { go.disabled = false; wfail(e); }
     } }, 'সেভ');
     openSheet(h('div', null, xbtn(), h('h3', null, p ? 'প্রোফাইল এডিট' : 'নতুন প্লেয়ার প্রোফাইল'), field('নাম', name), field('প্রোফাইল কার্ডের ছবি (Player Introducing Card)', cf), cpv, field('ইউজার আইডি', gid), field('ডিভাইস', dev), field('ক্লাব', club), field('Facebook লিংক', fb),
-      field('পজিশন', pos), field('জার্সি নম্বর', no), field('ছোট ছবি (MOTM / Dream XI-তে ব্যবহার হয়)', file), pv, field('পরিচিতি', bio), go));
+      field('পজিশন', pos), field('জার্সি নম্বর', no), h('div', { class: 'rdh' }, 'প্লেয়ারের ছবি (কার্ড, MOTM, Dream XI-তে ব্যবহার হয়)'), FC.el, pv, fromCard, field('অন্য ছবি থেকে নিতে চাইলে (ঐচ্ছিক)', file), field('পরিচিতি', bio), go));
   }
 
   /* ================= champion card ================= */
