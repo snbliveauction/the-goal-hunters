@@ -257,6 +257,10 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
 .mtx{min-width:0;display:flex;flex-direction:column;gap:2px}.mtx small{color:#9DBBAB;font-size:11px;letter-spacing:.08em}
 .mtx b{font:700 28px/1.1 var(--f-d);text-transform:uppercase;letter-spacing:.02em}.mtx span{color:#BFD6C9}.mtx em{font-style:normal;color:#E8C26A;font-weight:700}
 .mdots{display:flex;justify-content:center;gap:6px;margin-top:6px}.mdots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3)}.mdots i.on{background:#E8C26A;width:18px;border-radius:4px}
+
+.pc.np .ph{background:repeating-linear-gradient(45deg,#EEF2F8,#EEF2F8 10px,#E6ECF5 10px,#E6ECF5 20px)}
+.pc .ph img{object-position:50% 0}
+.prow{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line)}.prow:last-child{border:0}.prow small{color:var(--mute)}.prow b{text-align:right;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -654,19 +658,52 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
   }
 
   /* ---- players ---- */
+  function partsOf(name) {
+    var n = norm(name), out = [];
+    S.tours.filter(function (t) { return t.type === 'auction'; }).forEach(function (t) { (t.parts || []).forEach(function (p) { if ((p.sq || []).some(function (x) { return norm(x) === n; })) out.push({ team: p.n, logo: p.logo || '', tour: t.name + (t.season ? ' · ' + t.season : ''), tid: t.id }); }); });
+    return out;
+  }
+  function fbUrl(v) { v = String(v || '').trim(); if (!v) return ''; if (!/^https?:\/\//i.test(v)) v = 'https://' + v.replace(/^\/+/, ''); return v.slice(0, 200); }
+  function rosterAll() {
+    var map = {}, out = [];
+    S.players.forEach(function (p) { var k = norm(p.name); map[k] = { name: p.name, p: p, teams: partsOf(p.name) }; out.push(map[k]); });
+    var extra = [];
+    S.tours.filter(function (t) { return t.type === 'auction'; }).forEach(function (t) { (t.parts || []).forEach(function (pt) { (pt.sq || []).forEach(function (nm) { var k = norm(nm); if (!k || map[k]) return; map[k] = { name: nm, p: null, teams: partsOf(nm) }; extra.push(map[k]); }); }); });
+    extra.sort(function (a, b) { return a.name.localeCompare(b.name); });
+    return out.concat(extra);
+  }
+  var pTour = '';
   function playersView() {
-    var w = h('div', { class: 'wrap' }); w.append(secTitle('প্লেয়ার্স', S.players.length + ' জন'));
-    var q = h('input', { type: 'search', placeholder: 'নাম খুঁজুন…', value: S.q, 'aria-label': 'প্লেয়ার খুঁজুন' });
+    var all = rosterAll(), w = h('div', { class: 'wrap' }); w.append(secTitle('অকশন প্লেয়ার্স', all.length + ' জন'));
+    var q = h('input', { type: 'search', placeholder: 'নাম / ক্লাব খুঁজুন…', value: S.q, 'aria-label': 'প্লেয়ার খুঁজুন' });
+    var tours = S.tours.filter(function (t) { return t.type === 'auction'; }), sel = null;
+    if (tours.length > 1) { sel = h('select', { style: 'margin-top:10px', 'aria-label': 'টুর্নামেন্ট' }, h('option', { value: '' }, 'সব টুর্নামেন্ট')); tours.forEach(function (t) { sel.append(h('option', { value: t.id, selected: pTour === t.id }, t.name + (t.season ? ' · ' + t.season : ''))); }); sel.onchange = function () { pTour = sel.value; fill(); }; }
     var grid = h('div', { class: 'pg', style: 'margin-top:12px' });
-    function fill() { grid.replaceChildren(); var v = norm(S.q); var list = S.players.filter(function (p) { return !v || norm(p.name).indexOf(v) >= 0; }); if (!list.length) grid.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, S.ready.players ? 'কোনো প্লেয়ার পাওয়া যায়নি' : 'লোড হচ্ছে…')); list.forEach(function (p) { var tc = trophyCount(p.name); grid.append(h('button', { class: 'pc', onclick: function () { openPlayer(p); } }, h('div', { class: 'ph' }, p.photo ? h('img', { src: p.photo, alt: p.name, loading: 'lazy' }) : h('span', null, esc(p.name).charAt(0).toUpperCase())), p.no ? h('span', { class: 'no' }, p.no) : null, tc.c ? h('span', { class: 'tr' }, '🏆 ' + tc.c) : null, h('div', { class: 'nm' }, h('b', null, p.name), h('small', null, p.pos || 'প্লেয়ার')))); }); }
+    function fill() {
+      grid.replaceChildren(); var v = norm(S.q);
+      var list = all.filter(function (r) { var okT = !pTour || r.teams.some(function (t) { return t.tid === pTour; }); return okT && (!v || norm(r.name).indexOf(v) >= 0 || norm((r.p && r.p.club) || '').indexOf(v) >= 0); });
+      if (!list.length) grid.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, S.ready.players ? 'কোনো প্লেয়ার পাওয়া যায়নি' : 'লোড হচ্ছে…'));
+      list.forEach(function (r) {
+        var p = r.p, img = p && (p.card || p.photo), tc = trophyCount(r.name);
+        grid.append(h('button', { class: 'pc' + (p ? '' : ' np'), onclick: function () { if (p) openPlayer(p, r.teams); else if (S.canWrite) openPlayerForm(null, r.name); else toast('প্রোফাইল কার্ড শীঘ্রই আসছে'); } },
+          h('div', { class: 'ph' }, img ? h('img', { src: img, alt: r.name, loading: 'lazy' }) : h('span', null, String(r.name).charAt(0).toUpperCase())),
+          tc.c ? h('span', { class: 'tr' }, '🏆 ' + tc.c) : null,
+          h('div', { class: 'nm' }, h('b', null, r.name), h('small', null, p ? (p.club || (r.teams[0] && r.teams[0].team) || p.pos || 'প্লেয়ার') : (r.teams[0] ? r.teams[0].team + ' · ' : '') + (S.canWrite ? '＋ প্রোফাইল যোগ করুন' : 'প্রোফাইল আসছে')))));
+      });
+    }
     q.oninput = function () { S.q = q.value; fill(); }; fill();
-    w.append(q); if (S.canWrite) w.append(h('button', { class: 'btn sm', style: 'margin-top:10px', onclick: function () { openPlayerForm(null); } }, '＋ নতুন প্লেয়ার'));
+    w.append(q); if (sel) w.append(sel); if (S.canWrite) w.append(h('button', { class: 'btn sm', style: 'margin-top:10px', onclick: function () { openPlayerForm(null); } }, '＋ নতুন প্লেয়ার প্রোফাইল'));
     w.append(grid); return w;
   }
-  function openPlayer(p) {
-    var tc = trophyCount(p.name), inner = h('div', null, h('button', { class: 'x', onclick: closeSheet, 'aria-label': 'বন্ধ' }, '✕'), h('h3', null, p.name),
-      p.photo ? h('img', { class: 'pv', src: p.photo, alt: p.name, style: 'max-height:60vh;object-fit:cover' }) : null,
-      h('div', { class: 'row', style: 'margin-top:12px' }, p.no ? h('span', { class: 'chip nv' }, '#' + p.no) : null, p.pos ? h('span', { class: 'chip nv' }, p.pos) : null, h('span', { class: 'chip gd' }, '🏆 ' + tc.c + ' টাইটেল'), h('span', { class: 'chip' }, '🥈 ' + tc.r + ' রানার্স আপ')),
+  function openPlayer(p, teams) {
+    teams = teams || partsOf(p.name); var tc = trophyCount(p.name), fb = /^https?:\/\//i.test(p.fb || '') ? p.fb : '';
+    function row(l, v) { return v ? h('div', { class: 'prow' }, h('small', null, l), h('b', null, v)) : null; }
+    var inner = h('div', null, xbtn(), h('h3', null, p.name),
+      (p.card || p.photo) ? h('img', { class: 'pv', src: p.card || p.photo, alt: p.name, style: 'max-height:none' }) : null,
+      h('div', { class: 'card', style: 'margin-top:12px' }, row('নাম', p.name), row('ইউজার আইডি', p.gid), row('ডিভাইস', p.dev), row('ক্লাব', p.club), row('পজিশন', p.pos), row('জার্সি', p.no ? '#' + p.no : '')),
+      fb ? h('a', { class: 'btn', href: fb, target: '_blank', rel: 'noopener noreferrer', style: 'display:block;text-align:center;margin-top:10px;text-decoration:none' }, '📘 Facebook প্রোফাইল দেখুন') : null,
+      teams.length ? h('div', { style: 'margin-top:12px' }, h('div', { class: 'rdh' }, 'অংশগ্রহণ'), teams.map(function (t) { return h('div', { class: 'mini', style: 'justify-content:flex-start;gap:8px' }, h('b', null, t.team), h('small', { class: 'note' }, t.tour)); })) : null,
+      h('div', { class: 'row', style: 'margin-top:12px' }, h('span', { class: 'chip gd' }, '🏆 ' + tc.c + ' টাইটেল'), h('span', { class: 'chip' }, '🥈 ' + tc.r + ' রানার্স আপ')),
       p.bio ? h('p', { style: 'margin-top:10px' }, p.bio) : null,
       S.canWrite ? h('div', { class: 'row', style: 'margin-top:14px' }, h('button', { class: 'btn sm', onclick: function () { openPlayerForm(p); } }, '✎ এডিট'), h('button', { class: 'btn warn sm', onclick: function () { if (confirm(p.name + ' কে মুছবেন?')) { db.collection('players').doc(p.id).delete().then(closeSheet).catch(wfail); } } }, '🗑 মুছুন')) : null);
     openSheet(inner);
@@ -850,18 +887,24 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
       }; fr.readAsDataURL(file);
     });
   }
-  function openPlayerForm(p) {
-    var name = h('input', { type: 'text', value: p ? p.name : '', maxlength: '40', placeholder: 'পুরো নাম' }), no = h('input', { type: 'number', inputmode: 'numeric', value: p && p.no ? String(p.no) : '', placeholder: 'জার্সি নম্বর (ঐচ্ছিক)' });
+  function openPlayerForm(p, preName) {
+    function tx(v, ph, ml) { return h('input', { type: 'text', value: v || '', maxlength: String(ml || 40), placeholder: ph || '' }); }
+    var name = tx(p ? p.name : preName, 'পুরো নাম'), gid = tx(p && p.gid, 'যেমন: ASLS-599-518-667', 30), club = tx(p && p.club, 'ক্লাবের নাম'), fb = tx(p && p.fb, 'https://facebook.com/… (প্রোফাইল লিংক)', 200);
+    var dev = h('select', null, ['', 'Android', 'iOS', 'PC', 'Console'].map(function (x) { return h('option', { value: x, selected: p && p.dev === x }, x || 'ডিভাইস (ঐচ্ছিক)'); }));
+    var no = h('input', { type: 'number', inputmode: 'numeric', value: p && p.no ? String(p.no) : '', placeholder: 'জার্সি নম্বর (ঐচ্ছিক)' });
     var pos = h('select', null, ['', 'GK', 'DEF', 'MID', 'FWD'].map(function (x) { return h('option', { value: x, selected: p && p.pos === x }, x || 'পজিশন (ঐচ্ছিক)'); }));
     var bio = h('textarea', { placeholder: 'ছোট পরিচিতি (ঐচ্ছিক)', maxlength: '160', style: 'min-height:64px' }); bio.value = p && p.bio ? p.bio : '';
-    var photo = p && p.photo ? p.photo : '', pv = h('img', { class: 'pv', alt: '', style: 'max-height:220px;object-fit:cover;margin-top:8px', hidden: !photo }); if (photo) pv.src = photo;
+    var card = p && p.card ? p.card : '', cpv = h('img', { class: 'pv', alt: '', style: 'max-height:260px;object-fit:contain;margin-top:8px', hidden: !card }); if (card) cpv.src = card;
+    var cf = h('input', { type: 'file', accept: 'image/*' }); cf.onchange = async function () { if (!cf.files[0]) return; try { card = await shrink(cf.files[0], 1000, 230000); cpv.src = card; cpv.hidden = false; } catch (e) { toast('ছবি পড়া যায়নি'); } };
+    var photo = p && p.photo ? p.photo : '', pv = h('img', { class: 'pv', alt: '', style: 'max-height:160px;object-fit:cover;margin-top:8px', hidden: !photo }); if (photo) pv.src = photo;
     var file = h('input', { type: 'file', accept: 'image/*' }); file.onchange = async function () { if (!file.files[0]) return; try { photo = await fileToDataUrl(file.files[0], 480); pv.src = photo; pv.hidden = false; } catch (e) { toast('ছবি পড়া যায়নি'); } };
     var go = h('button', { class: 'btn', style: 'width:100%;margin-top:14px', onclick: async function () {
       var n = name.value.trim(); if (!n) { toast('নাম দিন'); return; } go.disabled = true;
-      var d = { name: n, no: no.value ? String(no.value).slice(0, 3) : '', pos: pos.value, bio: bio.value.trim().slice(0, 160), photo: photo || '' };
+      var d = { name: n, no: no.value ? String(no.value).slice(0, 3) : '', pos: pos.value, bio: bio.value.trim().slice(0, 160), photo: photo || '', card: card || '', gid: gid.value.trim(), dev: dev.value, club: club.value.trim(), fb: fbUrl(fb.value) };
       try { if (p) await db.collection('players').doc(p.id).set(d, { merge: true }); else { d.ts = Date.now(); await db.collection('players').add(d); } toast('সেভ হয়েছে ✅'); closeSheet(); } catch (e) { go.disabled = false; wfail(e); }
     } }, 'সেভ');
-    openSheet(h('div', null, xbtn(), h('h3', null, p ? 'প্লেয়ার এডিট' : 'নতুন প্লেয়ার'), field('নাম', name), field('জার্সি নম্বর', no), field('পজিশন', pos), field('ছবি', file), pv, field('পরিচিতি', bio), go));
+    openSheet(h('div', null, xbtn(), h('h3', null, p ? 'প্রোফাইল এডিট' : 'নতুন প্লেয়ার প্রোফাইল'), field('নাম', name), field('প্রোফাইল কার্ডের ছবি (Player Introducing Card)', cf), cpv, field('ইউজার আইডি', gid), field('ডিভাইস', dev), field('ক্লাব', club), field('Facebook লিংক', fb),
+      field('পজিশন', pos), field('জার্সি নম্বর', no), field('ছোট ছবি (MOTM / Dream XI-তে ব্যবহার হয়)', file), pv, field('পরিচিতি', bio), go));
   }
 
   /* ================= champion card ================= */
