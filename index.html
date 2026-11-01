@@ -414,7 +414,7 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
   function trophyCount(name) {
     var n = norm(name), c = 0, r = 0;
     S.champs.forEach(function (x) {
-      var ch = (x.champ && (x.champ.sq || []).length ? x.champ.sq : x.champ ? [x.champ.n] : []).map(norm), ru = (x.runner && (x.runner.sq || []).length ? x.runner.sq : x.runner ? [x.runner.n] : []).map(norm);
+      var ch = (x.champ && (x.champ.sq || []).length ? x.champ.sq : x.champ ? [x.champ.n] : []).concat(x.champ && x.champ.mgr ? [x.champ.mgr] : []).map(norm), ru = (x.runner && (x.runner.sq || []).length ? x.runner.sq : x.runner ? [x.runner.n] : []).concat(x.runner && x.runner.mgr ? [x.runner.mgr] : []).map(norm);
       if (ch.indexOf(n) >= 0) c++; else if (ru.indexOf(n) >= 0) r++;
     });
     return { c: c, r: r };
@@ -797,6 +797,14 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
     Object.keys(by).sort().reverse().forEach(function (y) { w.append(h('div', { class: 'rdh' }, 'মৌসুম ' + y)); by[y].forEach(function (c) { w.append(champCard(c)); }); });
     return w;
   }
+  function namePicker(init) {
+    var sel = {}, names = []; (init || []).forEach(function (n) { sel[n] = 1; names.push(n); });
+    rosterAll().forEach(function (r) { if (!sel[r.name] && names.indexOf(r.name) < 0) names.push(r.name); });
+    var chips = h('div', { class: 'chips', style: 'max-height:170px;overflow:auto;margin-top:6px' }), add = h('input', { type: 'text', maxlength: '40', placeholder: 'তালিকায় নেই? নাম লিখে ＋ চাপুন' }), ab = h('button', { type: 'button', class: 'btn ghost sm', onclick: function () { var v = add.value.trim(); if (!v) return; if (names.indexOf(v) < 0) names.push(v); sel[v] = 1; add.value = ''; paint(); } }, '＋');
+    function paint() { chips.replaceChildren(); if (!names.length) chips.append(h('span', { class: 'note' }, 'কোনো প্লেয়ার নেই, নিচে নাম লিখে যোগ করুন')); names.forEach(function (n) { chips.append(h('button', { type: 'button', class: 'cp' + (sel[n] ? ' on' : ''), onclick: function () { if (sel[n]) delete sel[n]; else sel[n] = 1; paint(); } }, n)); }); }
+    paint();
+    return { el: h('div', null, chips, h('div', { class: 'row', style: 'margin-top:8px;gap:8px;flex-wrap:nowrap' }, add, ab)), val: function () { return names.filter(function (n) { return sel[n]; }); } };
+  }
   function openChamp(c) {
     var type = c ? c.type || 'auction' : hallT, ch = (c && c.champ) || {}, ru = (c && c.runner) || {}, th = (c && c.third) || {}, solo = type === 'solo', busy = false;
     function tx(v, ph) { return h('input', { type: 'text', value: v || '', maxlength: '40', placeholder: ph || '' }); }
@@ -804,22 +812,21 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
     var ty = h('select', null, h('option', { value: 'auction', selected: type === 'auction' }, 'Auction'), h('option', { value: 'solo', selected: type === 'solo' }, 'Solo'));
     var cn = tx(ch.n, solo ? 'চ্যাম্পিয়ন প্লেয়ার' : 'চ্যাম্পিয়ন টিম'), cm = tx(ch.mgr, 'ম্যানেজারের নাম'), rn = tx(ru.n, solo ? 'রানার্স আপ প্লেয়ার' : 'রানার্স আপ টিম'), rm = tx(ru.mgr, 'ম্যানেজারের নাম'), tn = tx(th.n, '৩য় স্থান (ঐচ্ছিক)');
     var st = { clg: ch.logo || '', cmp: ch.mp || '', rlg: ru.logo || '', rmp: ru.mp || '' };
-    var csq = h('textarea', { placeholder: 'প্লেয়ারদের নাম, কমা দিয়ে (যেমন: Abid, Sami)', style: 'min-height:56px' }), rsq = h('textarea', { placeholder: 'প্লেয়ারদের নাম, কমা দিয়ে', style: 'min-height:56px' }); csq.value = (ch.sq || []).join(', '); rsq.value = (ru.sq || []).join(', ');
-    function sqOf(v) { return v.split(/[,،\n]/).map(function (z) { return z.trim(); }).filter(Boolean).slice(0, 20); }
+    var CP = namePicker(ch.sq), RP = namePicker(ru.sq);
     function pick(key, fn, label) { var pv = h('span', { class: 'note' }, st[key] ? '✅ আছে' : ''), i = h('input', { type: 'file', accept: 'image/*', style: 'display:none' }); i.onchange = async function () { if (!i.files[0]) return; try { st[key] = await fn(i.files[0]); pv.textContent = '✅ যোগ হয়েছে'; } catch (e) { toast('ছবি পড়া যায়নি'); } }; return h('div', { class: 'row', style: 'align-items:center;gap:10px' }, h('button', { type: 'button', class: 'btn ghost sm', onclick: function () { i.click(); } }, '🖼 ' + label), pv, st[key] ? h('button', { type: 'button', class: 'btn ghost sm', onclick: function () { st[key] = ''; pv.textContent = 'মুছে গেছে'; } }, 'মুছুন') : null, i); }
     var photoLbl = solo ? 'প্লেয়ারের ছবি' : 'ম্যানেজারের ছবি', lg = function (f) { return logoUrl(f, 144); }, ph = function (f) { return sqPhoto(f, 360); };
     var go = h('button', { class: 'btn', style: 'width:100%;margin-top:14px', onclick: async function () {
       if (busy) return; if (!nm.value.trim() || !cn.value.trim()) { toast('টুর্নামেন্টের নাম ও চ্যাম্পিয়ন দিন'); return; }
       var d = { tid: c ? c.tid : 'manual_' + uid(), type: ty.value, name: nm.value.trim(), season: String(season.value || ''),
-        champ: Object.assign({}, ch, { n: cn.value.trim(), mgr: cm.value.trim(), mp: st.cmp, logo: st.clg, sq: solo ? [] : sqOf(csq.value) }),
-        runner: rn.value.trim() ? Object.assign({}, ru, { n: rn.value.trim(), mgr: rm.value.trim(), mp: st.rmp, logo: st.rlg, sq: solo ? [] : sqOf(rsq.value) }) : null,
+        champ: Object.assign({}, ch, { n: cn.value.trim(), mgr: cm.value.trim(), mp: st.cmp, logo: st.clg, sq: solo ? [] : CP.val() }),
+        runner: rn.value.trim() ? Object.assign({}, ru, { n: rn.value.trim(), mgr: rm.value.trim(), mp: st.rmp, logo: st.rlg, sq: solo ? [] : RP.val() }) : null,
         third: tn.value.trim() ? Object.assign({}, th, { n: tn.value.trim() }) : null, ts: c ? c.ts : (Date.parse(season.value + '-06-30') || Date.now()) };
       busy = true; go.disabled = true;
       try { if (c) await db.collection('champions').doc(c.id).set(d, { merge: true }); else await db.collection('champions').add(d); toast('সেভ হয়েছে ✅'); closeSheet(); } catch (e) { busy = false; go.disabled = false; wfail(e); }
     } }, 'সেভ');
     openSheet(h('div', null, xbtn(), h('h3', null, c ? 'চ্যাম্পিয়ন এডিট' : 'আগের চ্যাম্পিয়ন যোগ'), field('টুর্নামেন্টের নাম', nm), field('মৌসুম / সাল', season), field('ধরন', ty),
-      h('div', { class: 'rdh' }, '🏆 চ্যাম্পিয়ন'), field(solo ? 'প্লেয়ারের নাম' : 'টিমের নাম', cn), solo ? null : field('টিম ম্যানেজার', cm), field(photoLbl, pick('cmp', ph, photoLbl)), solo ? null : field('টিম লোগো', pick('clg', lg, 'লোগো')), solo ? null : field('চ্যাম্পিয়ন টিমের প্লেয়ার (ট্রফি তাদের প্রোফাইলে যাবে)', csq),
-      h('div', { class: 'rdh' }, '🥈 রানার্স আপ'), field(solo ? 'প্লেয়ারের নাম' : 'টিমের নাম', rn), solo ? null : field('ম্যানেজার', rm), field(photoLbl, pick('rmp', ph, photoLbl)), solo ? null : field('টিম লোগো', pick('rlg', lg, 'লোগো')), solo ? null : field('রানার্স আপ টিমের প্লেয়ার', rsq),
+      h('div', { class: 'rdh' }, '🏆 চ্যাম্পিয়ন'), field(solo ? 'প্লেয়ারের নাম' : 'টিমের নাম', cn), solo ? null : field('টিম ম্যানেজার', cm), field(photoLbl, pick('cmp', ph, photoLbl)), solo ? null : field('টিম লোগো', pick('clg', lg, 'লোগো')), solo ? null : field('চ্যাম্পিয়ন টিমের প্লেয়ার বাছুন (ট্রফি তাদের প্রোফাইলে যাবে)', CP.el),
+      h('div', { class: 'rdh' }, '🥈 রানার্স আপ'), field(solo ? 'প্লেয়ারের নাম' : 'টিমের নাম', rn), solo ? null : field('ম্যানেজার', rm), field(photoLbl, pick('rmp', ph, photoLbl)), solo ? null : field('টিম লোগো', pick('rlg', lg, 'লোগো')), solo ? null : field('রানার্স আপ টিমের প্লেয়ার বাছুন', RP.el),
       h('div', { class: 'rdh' }, '🥉 ৩য় স্থান'), field('নাম', tn), go,
       c ? h('button', { class: 'btn warn sm', style: 'margin-top:10px', onclick: function () { if (confirm('মুছবেন?')) db.collection('champions').doc(c.id).delete().then(closeSheet).catch(wfail); } }, '🗑 মুছুন') : null));
   }
