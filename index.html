@@ -1391,31 +1391,38 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     openSheet(h('div', null, xbtn(), h('h3', null, title), img, box, share));
   }
   async function drawTable(t, rows, kq) {
-    var W = 1080, rh = Math.max(78, Math.min(112, Math.floor(660 / Math.max(1, rows.length)))), H = Math.max(1350, 500 + rows.length * rh + 190), cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-    var x = cv.getContext('2d'), D = 'Oswald,"Arial Narrow",Impact,sans-serif', B = '"Hind Siliguri","Noto Sans Bengali",Arial,sans-serif';
+    var W = 1080, rh = 112, n = rows.length, H = Math.max(1350, 450 + n * rh + 210), cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    var x = cv.getContext('2d'), D = 'Oswald,"Hind Siliguri","Noto Sans Bengali","Arial Narrow",Arial,sans-serif';
     function ls(v) { if ('letterSpacing' in x) x.letterSpacing = v + 'px'; }
+    function rr(a, b, w, hh, r) { x.beginPath(); if (x.roundRect) x.roundRect(a, b, w, hh, r); else x.rect(a, b, w, hh); }
     try { await Promise.all([document.fonts.load('700 40px Oswald'), document.fonts.load('600 30px "Hind Siliguri"')]); } catch (e) { /* ignore */ }
     var imgs = await Promise.all(rows.map(function (r) { var src = r.logo || ((playerOf(r.n) || {}).photo); return src ? loadImg(src).catch(function () { return null; }) : null; })), lgo = await loadImg('logo.webp').catch(function () { return null; });
-    paintCard(x, W, H); x.textAlign = 'center';
-    if (lgo) { x.save(); x.beginPath(); x.arc(W / 2, 150, 70, 0, 7); x.clip(); x.drawImage(lgo, W / 2 - 70, 80, 140, 140); x.restore(); x.strokeStyle = '#fff'; x.lineWidth = 5; x.beginPath(); x.arc(W / 2, 150, 72, 0, 7); x.stroke(); }
-    x.fillStyle = '#E8C26A'; x.font = '500 26px ' + D; ls(8); x.fillText('THE GOAL HUNTERS', W / 2 + 4, 280);
-    x.fillStyle = '#fff'; x.font = '700 78px ' + D; ls(4); x.fillText('POINTS TABLE', W / 2 + 2, 365); ls(0);
-    x.fillStyle = '#E8C26A'; x.font = '500 30px ' + D; x.fillText((t.name + (t.season ? ' · ' + t.season : '')).toUpperCase(), W / 2, 415);
-    var cols = [['P', 615], ['W', 685], ['D', 755], ['L', 825], ['GD', 900], ['PTS', 972]];
-    x.fillStyle = 'rgba(255,255,255,.14)'; x.fillRect(70, 440, W - 140, 50); x.fillStyle = '#E8C26A'; x.font = '500 24px ' + D;
-    x.textAlign = 'left'; x.fillText('#', 92, 475); x.fillText(t.type === 'solo' ? 'PLAYER' : 'TEAM', 225, 475); x.textAlign = 'center'; cols.forEach(function (c) { x.fillText(c[0], c[1], 475); });
+    var g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#040A1B'); g.addColorStop(0.6, '#0A1C47'); g.addColorStop(1, '#06122E'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+    [1, -1].forEach(function (d) { var px = d > 0 ? 0 : W, cg = x.createLinearGradient(px, 0, W / 2, H * 0.7); cg.addColorStop(0, 'rgba(120,200,255,.35)'); cg.addColorStop(1, 'rgba(120,200,255,0)'); x.fillStyle = cg; x.beginPath(); x.moveTo(px, 0); x.lineTo(px + d * 160, 0); x.lineTo(W / 2 - d * 200, H * 0.8); x.lineTo(W / 2 - d * 420, H * 0.85); x.closePath(); x.fill(); });
+    x.strokeStyle = 'rgba(255,255,255,.07)'; x.lineWidth = 3; x.beginPath(); x.arc(W / 2, H - 60, 330, 0, 7); x.stroke(); x.beginPath(); x.moveTo(0, H - 60); x.lineTo(W, H - 60); x.stroke();
+    x.textAlign = 'center';
+    if (lgo) { x.save(); x.beginPath(); x.arc(W / 2, 118, 62, 0, 7); x.clip(); x.fillStyle = '#fff'; x.fillRect(W / 2 - 64, 54, 128, 128); x.drawImage(lgo, W / 2 - 62, 56, 124, 124); x.restore(); }
+    x.strokeStyle = '#7FD3FF'; x.lineWidth = 5; x.beginPath(); x.arc(W / 2, 118, 64, 0, 7); x.stroke();
+    x.fillStyle = '#7FD3FF'; x.font = '500 26px ' + D; ls(10); x.fillText('THE GOAL HUNTERS', W / 2 + 5, 235);
+    x.fillStyle = '#fff'; x.font = '700 96px ' + D; ls(6); x.fillText('POINTS TABLE', W / 2 + 3, 330); ls(0);
+    x.fillStyle = '#9FB6DD'; x.font = '500 28px ' + D; ls(4); x.fillText((t.name + (t.season ? ' · ' + t.season : '')).toUpperCase().slice(0, 40), W / 2, 380); ls(0);
+    x.fillStyle = '#8CA6D4'; x.font = '500 20px ' + D; [['P', 590], ['W', 656], ['D', 722], ['L', 788], ['GD', 862], ['PTS', 964]].forEach(function (c) { x.fillText(c[0], c[1], 418); });
     rows.forEach(function (r, i) {
-      var y = 496 + i * rh, cy = y + (rh - 6) / 2, gd = r.f - r.a;
-      x.fillStyle = i < kq ? 'rgba(46,158,72,.38)' : i % 2 ? 'rgba(255,255,255,.05)' : 'rgba(255,255,255,.09)'; x.fillRect(70, y, W - 140, rh - 6);
-      x.textAlign = 'center'; x.fillStyle = i === 0 ? '#F6D27A' : '#fff'; x.font = '700 34px ' + D; x.fillText(String(i + 1), 112, cy + 12);
-      x.save(); x.beginPath(); x.arc(178, cy, 28, 0, 7); x.clip();
-      if (imgs[i]) x.drawImage(imgs[i], 150, cy - 28, 56, 56); else { x.fillStyle = hue(r.n); x.fillRect(150, cy - 28, 56, 56); x.fillStyle = '#fff'; x.font = '700 28px ' + D; x.fillText(String(r.n).charAt(0).toUpperCase(), 178, cy + 10); }
+      var y = 430 + i * rh, cy = y + 48, gd = r.f - r.a;
+      x.fillStyle = 'rgba(255,255,255,.07)'; rr(70, y, W - 140, 98, 22); x.fill(); x.strokeStyle = 'rgba(127,211,255,.25)'; x.lineWidth = 2; x.stroke();
+      x.fillStyle = kq > 0 ? (i < kq ? '#3DDC84' : '#E5484D') : '#7FD3FF'; rr(70, y + 14, 8, 70, 4); x.fill();
+      x.textAlign = 'center'; x.fillStyle = i === 0 ? '#FFD66B' : '#fff'; x.font = '700 42px ' + D; x.fillText(String(i + 1), 122, cy + 14);
+      x.save(); x.beginPath(); x.arc(196, cy, 30, 0, 7); x.clip();
+      if (imgs[i]) x.drawImage(imgs[i], 166, cy - 30, 60, 60); else { x.fillStyle = hue(r.n); x.fillRect(166, cy - 30, 60, 60); x.fillStyle = '#fff'; x.font = '700 30px ' + D; x.fillText(String(r.n).charAt(0).toUpperCase(), 196, cy + 11); }
       x.restore();
-      x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = '600 32px ' + B; var nm = String(r.n); while (x.measureText(nm).width > 360 && nm.length > 3) nm = nm.slice(0, -1); if (nm !== r.n) nm += '…'; x.fillText(nm, 225, cy + 11);
-      x.textAlign = 'center'; x.font = '500 32px ' + D; x.fillStyle = '#fff'; [r.p, r.w, r.d, r.l, (gd > 0 ? '+' : '') + gd].forEach(function (v, k) { x.fillText(String(v), cols[k][1], cy + 11); });
-      x.fillStyle = '#E8C26A'; x.font = '700 40px ' + D; x.fillText(String(r.pt), 972, cy + 13);
+      x.textAlign = 'left'; x.fillStyle = '#fff'; x.font = '600 36px ' + D; var nm = String(r.n).toUpperCase(); while (x.measureText(nm).width > 320 && nm.length > 3) nm = nm.slice(0, -1); if (nm !== String(r.n).toUpperCase()) nm += '…'; x.fillText(nm, 246, cy + 13);
+      x.textAlign = 'center'; x.font = '500 30px ' + D; x.fillStyle = '#B9CBEA'; [r.p, r.w, r.d, r.l].forEach(function (v, k) { x.fillText(String(v), 590 + k * 66, cy + 11); });
+      x.fillStyle = gd > 0 ? '#7BE5A5' : gd < 0 ? '#FF8B8B' : '#B9CBEA'; x.fillText((gd > 0 ? '+' : '') + gd, 862, cy + 11);
+      x.fillStyle = '#7FD3FF'; rr(918, cy - 30, 92, 60, 30); x.fill(); x.fillStyle = '#04122E'; x.font = '700 40px ' + D; x.fillText(String(r.pt), 964, cy + 14);
     });
-    x.textAlign = 'center'; x.fillStyle = '#E8C26A'; x.font = '500 24px ' + D; ls(8); x.fillText('EFOOTBALL GROUP · #GOALHUNTERS', W / 2 + 4, H - 80); ls(0);
+    x.textAlign = 'center';
+    if (kq > 0 && kq < n) { x.font = '500 20px ' + D; ls(2); x.fillStyle = '#3DDC84'; x.fillText('● QUALIFIED', W / 2 - 90, H - 120); x.fillStyle = '#FF8B8B'; x.fillText('● OUT', W / 2 + 90, H - 120); ls(0); }
+    x.fillStyle = '#7FD3FF'; x.font = '500 24px ' + D; ls(8); x.fillText('EFOOTBALL GROUP · #GOALHUNTERS', W / 2 + 4, H - 80); ls(0);
     return new Promise(function (res, rej) { cv.toBlob(function (b) { b ? res(b) : rej(new Error('blob')); }, 'image/png'); });
   }
 
