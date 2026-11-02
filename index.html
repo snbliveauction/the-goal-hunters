@@ -292,6 +292,15 @@ html[data-theme=winter] .hero.wt{background:linear-gradient(160deg,#050E24 0%,#0
 html[data-theme=winter] .hero.wt:after{content:"";position:absolute;left:0;right:0;top:0;height:30px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='30' viewBox='0 0 22 30'%3E%3Cpath d='M0 0h22L11 30z' fill='%23E1F3FF'/%3E%3C/svg%3E") repeat-x;pointer-events:none;opacity:.92;z-index:2}
 html[data-theme=winter] .hero.wt h1 span{color:#F6D27A}
 html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(246,210,122,.5)}
+
+.evc{display:flex;align-items:center;gap:14px;margin-top:10px;padding:12px 14px;border-radius:18px;background:#fff;border:1px solid var(--line)}
+.evd{width:56px;flex:none;text-align:center;border-radius:14px;padding:6px 0;background:linear-gradient(160deg,#0B2C66,#061230);color:#fff;border:1px solid rgba(246,210,122,.6)}
+.evd b{display:block;font:700 26px/1 var(--f-d);color:#F6D27A}.evd span{font-size:12px}
+.evt{flex:1;min-width:0}.evt b{display:block;font-weight:700}.evt small{color:var(--mute)}
+.evl{flex:none;font:700 12px var(--f-b);color:#7a5200;background:#FFF1CC;border-radius:999px;padding:4px 10px}
+.abt{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.ab{text-align:left;padding:14px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#fff,#EEF5FF);display:flex;flex-direction:column;gap:3px}
+.ab i{font-style:normal;font-size:26px}.ab b{font:700 15px/1.25 var(--f-b);color:var(--navy)}.ab small{color:var(--mute);font-size:12.5px;line-height:1.35}
 </style>
 </head>
 <body>
@@ -608,26 +617,39 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
     if (!cuQ.length) return; var q = cuQ; cuQ = []; if (!(S.ready.tours && S.ready.players)) return; S.cuDone = true;
     var t0 = performance.now(); (function f(t) { var p = Math.min(1, (t - t0) / 1000), e = 1 - Math.pow(1 - p, 3); q.forEach(function (z) { if (z[0].isConnected) z[0].textContent = String(Math.round(z[1] * e)); }); if (p < 1) requestAnimationFrame(f); })(t0);
   }
-  function legendCard() {
-    var best = null; rosterAll().forEach(function (r) { if (!r.p) return; var tc = trophyCount(r.name), sc = tc.c * 10 + tc.r; if (sc > 0 && (!best || sc > best.sc)) best = { r: r, tc: tc, sc: sc }; });
-    if (!best) return null; var p = best.r.p, img = p.photo || p.card;
-    return h('div', null, secTitle('Season Legend', 'সবচেয়ে বেশি ট্রফি'), h('button', { class: 'legend', onclick: function () { openPlayer(p, best.r.teams); } },
-      h('div', { class: 'lph' }, img ? h('img', { src: img, alt: p.name }) : h('span', null, String(p.name).charAt(0).toUpperCase())),
-      h('div', { class: 'ltx' }, h('small', null, '👑 LEGEND'), h('b', null, p.name), h('span', null, p.club || (best.r.teams[0] && best.r.teams[0].team) || ''),
-        h('div', { class: 'row', style: 'margin-top:8px;gap:8px' }, h('span', { class: 'chip gd' }, '🏆 ' + best.tc.c + ' চ্যাম্পিয়ন'), best.tc.r ? h('span', { class: 'chip' }, '🥈 ' + best.tc.r + ' রানার্স আপ') : null))));
+  var BN_MON = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টে', 'অক্টো', 'নভে', 'ডিসে'];
+  function parseEvents(txt) {
+    var out = [], today = new Date(); today.setHours(0, 0, 0, 0);
+    String(txt || '').split('\n').forEach(function (ln) { var p = ln.split('|').map(function (z) { return z.trim(); }); if (p.length < 2) return; var d = new Date(p[0] + 'T00:00:00'); if (isNaN(d)) return; if (d < today) return; out.push({ d: d, t: p[1], n: p[2] || '', left: Math.round((d - today) / 864e5) }); });
+    return out.sort(function (a, b) { return a.d - b.d; }).slice(0, 4);
+  }
+  function eventsBox() {
+    var ev = parseEvents((S.settings || {}).events); if (!ev.length) return null;
+    var w = h('div', null, secTitle('আসন্ন ইভেন্ট', 'ক্যালেন্ডারে দাগ দিয়ে রাখুন'));
+    ev.forEach(function (e) {
+      w.append(h('div', { class: 'evc' }, h('div', { class: 'evd' }, h('b', null, String(e.d.getDate())), h('span', null, BN_MON[e.d.getMonth()])),
+        h('div', { class: 'evt' }, h('b', null, e.t), e.n ? h('small', null, e.n) : null), h('span', { class: 'evl' }, e.left === 0 ? '🔥 আজ' : e.left === 1 ? 'কাল' : e.left + ' দিন বাকি')));
+    }); return w;
+  }
+  function aboutBox() {
+    var T = [['🪙', 'Auction টুর্নামেন্ট', 'নিলামে দল গড়ে সরাসরি লড়াই', 'auction'], ['🎯', 'Solo টুর্নামেন্ট', 'একে একে মুখোমুখি, সেরা একজনই চ্যাম্পিয়ন', 'solo'], ['⭐', 'অটো রেটিং ও Dream XI', 'প্রতিটা ম্যাচের পর পারফরম্যান্স বিশ্লেষণ', 'auction'], ['🏆', 'Champions Hall', 'আমাদের সব চ্যাম্পিয়নের ইতিহাস এক জায়গায়', 'hall']];
+    var g = h('div', { class: 'abt' }); T.forEach(function (x) { g.append(h('button', { class: 'ab', onclick: function () { goTab(x[3]); } }, h('i', null, x[0]), h('b', null, x[1]), h('small', null, x[2]))); });
+    return h('div', null, secTitle('আমরা কী করি', 'The Goal Hunters'), g);
   }
   function openHomeSettings() {
     var st = S.settings || {}, theme = themeKey();
     function tx(v, ph, ml) { return h('input', { type: 'text', value: v || '', maxlength: String(ml || 160), placeholder: ph || '' }); }
     var season = tx(st.season, 'যেমন: WINTER SEASON 2026', 40), cdTo = h('input', { type: 'datetime-local', value: st.cdTo || '' }), cdLabel = tx(st.cdLabel, 'যেমন: Season 9 শুরু হতে বাকি', 60), jt = tx(st.joinText, '🤝 পরের সিজনে নাম লেখান', 40), ju = tx(st.joinUrl, 'https://… (WhatsApp / Messenger / ফর্ম লিংক)', 200);
+    var evs = h('textarea', { placeholder: '2026-11-20 | Auction Night | রাত ৯টায় নিলাম শুরু\n2026-12-05 | Final Day', style: 'min-height:90px' }); evs.value = st.events || '';
     var fb = tx(st.fb, 'https://facebook.com/…', 200), fbg = tx(st.fbg, 'https://facebook.com/groups/…', 200), wa = tx(st.wa, 'https://chat.whatsapp.com/…', 200), yt = tx(st.yt, 'https://youtube.com/…', 200), chips = h('div', { class: 'chips' });
     function paint() { chips.replaceChildren(); Object.keys(THEMES).forEach(function (k) { chips.append(h('button', { type: 'button', class: 'cp' + (theme === k ? ' on' : ''), onclick: function () { theme = k; paint(); } }, THEMES[k].label)); }); } paint();
     var go = h('button', { class: 'btn', style: 'width:100%;margin-top:14px', onclick: async function () {
-      go.disabled = true; var d = { theme: theme, season: season.value.trim(), cdTo: cdTo.value || '', cdLabel: cdLabel.value.trim(), joinText: jt.value.trim(), joinUrl: fbUrl(ju.value), fb: fbUrl(fb.value), fbg: fbUrl(fbg.value), wa: fbUrl(wa.value), yt: fbUrl(yt.value) };
+      go.disabled = true; var d = { theme: theme, season: season.value.trim(), cdTo: cdTo.value || '', cdLabel: cdLabel.value.trim(), joinText: jt.value.trim(), joinUrl: fbUrl(ju.value), fb: fbUrl(fb.value), fbg: fbUrl(fbg.value), wa: fbUrl(wa.value), yt: fbUrl(yt.value), events: evs.value.trim().slice(0, 1200) };
       try { await db.collection('settings').doc('site').set(d, { merge: true }); toast('সেভ হয়েছে ✅'); closeSheet(); } catch (e) { go.disabled = false; wfail(e); }
     } }, 'সেভ');
     openSheet(h('div', null, xbtn(), h('h3', null, 'হোম সেটিংস'), h('div', { class: 'rdh' }, '🎨 সিজন থিম'), chips, field('ব্যানারের ব্যাজ (ফাঁকা রাখলে থিমের ডিফল্ট)', season),
       h('div', { class: 'rdh' }, '⏳ কাউন্টডাউন'), field('শেষ হওয়ার সময় (ফাঁকা = কাউন্টডাউন নেই)', cdTo), field('লেখা', cdLabel),
+      h('div', { class: 'rdh' }, '📅 আসন্ন ইভেন্ট'), h('div', { class: 'note' }, 'প্রতি লাইনে একটা: সাল-মাস-তারিখ | শিরোনাম | বিবরণ (বিবরণ ঐচ্ছিক)। তারিখ পার হলে নিজে থেকে সরে যাবে।'), evs,
       h('div', { class: 'rdh' }, '🤝 জয়েন বাটন'), field('বাটনের লেখা', jt), field('লিংক (ফাঁকা = বাটন নেই)', ju),
       h('div', { class: 'rdh' }, '🔗 সোশ্যাল লিংক'), field('Facebook পেজ', fb), field('Facebook গ্রুপ', fbg), field('WhatsApp', wa), field('YouTube', yt), go));
   }
@@ -638,7 +660,8 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
       h('div', { class: 'stat' }, S.ready.players ? numEl(rosterAll().length) : h('b', null, '–'), h('span', null, 'প্লেয়ার')),
       h('div', { class: 'stat' }, S.ready.tours ? numEl(S.champs.length) : h('b', null, '–'), h('span', null, 'টুর্নামেন্ট শেষ')),
       h('div', { class: 'stat' }, S.ready.tours ? numEl(S.tours.filter(function (t) { return t.status !== 'done'; }).length) : h('b', null, '–'), h('span', null, 'চলমান'))));
-    var lg = legendCard(); if (lg) w.append(lg);
+    var evb = eventsBox(); if (evb) w.append(evb);
+    w.append(aboutBox());
     if (curTour('solo')) w.append(secTitle('এখন মাঠে'), liveCard('solo'));
     if (S.committee.length) w.append(committeeStrip());
     if (S.champs.length) {
