@@ -301,6 +301,16 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
 .abt{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .ab{text-align:left;padding:14px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#fff,#EEF5FF);display:flex;flex-direction:column;gap:3px}
 .ab i{font-style:normal;font-size:26px}.ab b{font:700 15px/1.25 var(--f-b);color:var(--navy)}.ab small{color:var(--mute);font-size:12.5px;line-height:1.35}
+
+.mvp{margin-top:12px;padding:14px;border-radius:22px;color:#fff;background:linear-gradient(135deg,#050E24,#0B2C66 70%,#0E3D86);border:1px solid rgba(246,210,122,.5)}
+.mvh{font:700 17px var(--f-b);color:#F6D27A;margin-bottom:8px}
+.mvg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mvc{background:rgba(255,255,255,.07);border-radius:14px;padding:8px 9px;min-width:0}.mvc small{display:block;color:#F6DE9A;font:600 11.5px var(--f-b);margin-bottom:4px}
+.mvr{font-size:12px;line-height:1.35;margin-top:4px;overflow-wrap:anywhere}.mvr span{display:block;color:#E3EEFF}.mvr b{color:#fff;font-weight:700}
+.mv{margin-top:6px;display:flex;width:fit-content;gap:6px;align-items:center;font:700 13px var(--f-b);padding:3px 10px;border-radius:999px;background:#EEF2F8;color:var(--navy)}
+.mv em{font-style:normal;font-size:12px}.mv.up{background:#E3F6E8;color:#14782C}.mv.dn{background:#FCE8E6;color:#B3261E}
+.mvs{margin-top:12px;padding:14px;border-radius:18px;background:#fff;border:1px solid var(--line)}.mvs small{color:var(--mute);font:600 12px var(--f-b);letter-spacing:.12em}
+.mvbig{font:700 38px/1.1 var(--f-d);color:var(--navy);display:flex;align-items:baseline;gap:10px}.mvbig em{font:700 16px var(--f-b);font-style:normal}.mvbig em.up{color:#14782C}.mvbig em.dn{color:#B3261E}
 </style>
 </head>
 <body>
@@ -801,9 +811,45 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
     extra.sort(function (a, b) { return a.name.localeCompare(b.name); });
     return out.concat(extra);
   }
+  /* ---- market value (virtual, £): everyone starts at £400k, moves with game ratings of the current auction tournament ---- */
+  var MV0 = 400000, pSort = 'name';
+  function fmtMV(v) { return v >= 1e6 ? '£' + (v / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M' : '£' + Math.round(v / 1000) + 'k'; }
+  function marketValues() {
+    var t = curTour('auction'), out = {}; if (!t) return out;
+    function ent(nm) { var k = norm(nm); return out[k] || (out[k] = { n: nm, v: MV0, hist: [MV0], last: 0, games: 0 }); }
+    (t.parts || []).forEach(function (p) { (p.sq || []).forEach(ent); });
+    (S.mt.auction || []).filter(function (m) { return (m.g || []).length; }).sort(function (a, b) { return ordOf(a) - ordOf(b) || (a.ts || 0) - (b.ts || 0); }).forEach(function (m) {
+      var mn = doneM(m) ? norm(motmName(m)) : '';
+      (m.g || []).forEach(function (g) {
+        [[g.pa, +g.as, +g.bs, g.xa], [g.pb, +g.bs, +g.as, g.xb]].forEach(function (z) {
+          var e = ent(z[0]), rt = rate(z[1], z[2], z[3] || null), pct = Math.max(-0.2, Math.min(0.25, (rt - 6.5) * 0.08)); if (mn && mn === norm(z[0])) pct += 0.05;
+          var nv = Math.round(e.v * (1 + pct) / 10000) * 10000; nv = Math.max(100000, Math.min(5000000, nv)); e.last = nv / e.v - 1; e.v = nv; e.hist.push(nv); e.games++;
+        });
+      });
+    });
+    return out;
+  }
+  function mvPill(e) { if (!e) return null; var ch = Math.round((e.v / MV0 - 1) * 100); return h('div', { class: 'mv' + (e.v > MV0 ? ' up' : e.v < MV0 ? ' dn' : '') }, fmtMV(e.v), ch ? h('em', null, (ch > 0 ? '▲ ' : '▼ ') + Math.abs(ch) + '%') : null); }
+  function mvPanel(MV) {
+    var arr = Object.keys(MV).map(function (k) { return MV[k]; }), played = arr.filter(function (e) { return e.games > 0; });
+    if (!played.length) return h('div', { class: 'mvp' }, h('div', { class: 'mvh' }, '💷 Market Value'), h('div', { class: 'note', style: 'color:#BFD6FF' }, 'সবাই £400k দিয়ে শুরু করেছে। ম্যাচ শুরু হলে পারফরম্যান্স অনুযায়ী দাম ওঠানামা করবে।'));
+    function col(title, list, fmt) { var c = h('div', { class: 'mvc' }, h('small', null, title)); list.slice(0, 3).forEach(function (e, i) { c.append(h('div', { class: 'mvr' }, h('span', null, (i + 1) + '. ' + e.n), h('b', null, fmt(e)))); }); return c; }
+    var pc = function (e) { var x = Math.round(e.last * 100); return (x > 0 ? '▲ ' : x < 0 ? '▼ ' : '') + Math.abs(x) + '%'; };
+    return h('div', { class: 'mvp' }, h('div', { class: 'mvh' }, '💷 Market Value'),
+      h('div', { class: 'mvg' }, col('🔝 সবচেয়ে দামি', arr.slice().sort(function (a, b) { return b.v - a.v; }), function (e) { return fmtMV(e.v); }),
+        col('📈 সবচেয়ে বেড়েছে', played.slice().sort(function (a, b) { return b.last - a.last; }).filter(function (e) { return e.last > 0; }), function (e) { return fmtMV(e.v) + ' ' + pc(e); }),
+        col('📉 সবচেয়ে কমেছে', played.slice().sort(function (a, b) { return a.last - b.last; }).filter(function (e) { return e.last < 0; }), function (e) { return fmtMV(e.v) + ' ' + pc(e); })),
+      h('div', { class: 'note', style: 'margin-top:8px;color:#9DBBE0' }, 'ভার্চুয়াল দাম · শুরু £400k · প্রতিটা গেমের রেটিং অনুযায়ী ওঠানামা'));
+  }
+  function mvSection(e) {
+    if (!e) return null; var ch = Math.round((e.v / MV0 - 1) * 100), hi = e.hist, mx = Math.max.apply(null, hi), mn = Math.min.apply(null, hi), W = 280, H = 60, pts = hi.map(function (v, i) { return (hi.length < 2 ? 0 : i * W / (hi.length - 1)).toFixed(1) + ',' + (H - 6 - (mx === mn ? 0.5 : (v - mn) / (mx - mn)) * (H - 12)).toFixed(1); }).join(' ');
+    return h('div', { class: 'mvs' }, h('small', null, '💷 MARKET VALUE'), h('div', { class: 'mvbig' }, fmtMV(e.v), ch ? h('em', { class: ch > 0 ? 'up' : 'dn' }, (ch > 0 ? '▲ ' : '▼ ') + Math.abs(ch) + '%') : null),
+      h('div', { html: '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="64" preserveAspectRatio="none"><polyline fill="none" stroke="' + (ch >= 0 ? '#2E9E48' : '#D9473F') + '" stroke-width="3" stroke-linejoin="round" points="' + pts + '"/></svg>' }),
+      h('div', { class: 'note' }, 'শুরুর দাম £400k · ' + e.games + ' গেম' + (e.games ? ' · শেষ গেমে ' + (e.last > 0 ? '+' : '') + Math.round(e.last * 100) + '%' : '')));
+  }
   var pTour = '';
   function playersView() {
-    var all = rosterAll(), w = h('div', { class: 'wrap' }); w.append(secTitle('অকশন প্লেয়ার্স', all.length + ' জন'));
+    var all = rosterAll(), MV = marketValues(), w = h('div', { class: 'wrap' }); w.append(secTitle('অকশন প্লেয়ার্স', all.length + ' জন')); w.append(mvPanel(MV));
     var q = h('input', { type: 'search', placeholder: 'নাম / ক্লাব খুঁজুন…', value: S.q, 'aria-label': 'প্লেয়ার খুঁজুন' });
     var tours = S.tours.filter(function (t) { return t.type === 'auction'; }), sel = null;
     if (tours.length > 1) { sel = h('select', { style: 'margin-top:10px', 'aria-label': 'টুর্নামেন্ট' }, h('option', { value: '' }, 'সব টুর্নামেন্ট')); tours.forEach(function (t) { sel.append(h('option', { value: t.id, selected: pTour === t.id }, t.name + (t.season ? ' · ' + t.season : ''))); }); sel.onchange = function () { pTour = sel.value; fill(); }; }
@@ -811,17 +857,19 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
     function fill() {
       grid.replaceChildren(); var v = norm(S.q);
       var list = all.filter(function (r) { var okT = !pTour || r.teams.some(function (t) { return t.tid === pTour; }); return okT && (!v || norm(r.name).indexOf(v) >= 0 || norm((r.p && r.p.club) || '').indexOf(v) >= 0); });
+      if (pSort === 'value') list.sort(function (a, b) { return ((MV[norm(b.name)] || { v: 0 }).v) - ((MV[norm(a.name)] || { v: 0 }).v); });
       if (!list.length) grid.append(h('div', { class: 'empty', style: 'grid-column:1/-1' }, S.ready.players ? 'কোনো প্লেয়ার পাওয়া যায়নি' : 'লোড হচ্ছে…'));
       list.forEach(function (r) {
         var p = r.p, img = p && (p.card || p.photo), tc = trophyCount(r.name);
         grid.append(h('button', { class: 'pc' + (p ? '' : ' np'), onclick: function () { if (p) openPlayer(p, r.teams); else if (S.canWrite) openPlayerForm(null, r.name); else toast('প্রোফাইল কার্ড শীঘ্রই আসছে'); } },
           h('div', { class: 'ph' }, img ? h('img', { src: img, alt: r.name, loading: 'lazy' }) : h('span', null, String(r.name).charAt(0).toUpperCase())),
           tc.c ? h('span', { class: 'tr' }, '🏆 ' + tc.c) : null, tc.r ? h('span', { class: 'tr rn' }, '🥈 ' + tc.r) : null,
-          h('div', { class: 'nm' }, h('b', null, r.name), h('small', null, p ? (p.club || (r.teams[0] && r.teams[0].team) || p.pos || 'প্লেয়ার') : (r.teams[0] ? r.teams[0].team + ' · ' : '') + (S.canWrite ? '＋ প্রোফাইল যোগ করুন' : 'প্রোফাইল আসছে')))));
+          h('div', { class: 'nm' }, h('b', null, r.name), h('small', null, p ? (p.club || (r.teams[0] && r.teams[0].team) || p.pos || 'প্লেয়ার') : (r.teams[0] ? r.teams[0].team + ' · ' : '') + (S.canWrite ? '＋ প্রোফাইল যোগ করুন' : 'প্রোফাইল আসছে')), mvPill(MV[norm(r.name)]))));
       });
     }
     q.oninput = function () { S.q = q.value; fill(); }; fill();
-    w.append(q); if (sel) w.append(sel); if (S.canWrite) w.append(h('button', { class: 'btn sm', style: 'margin-top:10px', onclick: function () { openPlayerForm(null); } }, '＋ নতুন প্লেয়ার প্রোফাইল'));
+    var sortSeg = h('div', { class: 'seg', style: 'margin-top:10px' }); [['name', 'নাম অনুযায়ী'], ['value', '💷 দাম অনুযায়ী']].forEach(function (x) { sortSeg.append(h('button', { type: 'button', 'aria-pressed': pSort === x[0] ? 'true' : 'false', onclick: function () { pSort = x[0]; draw(); } }, x[1])); });
+    w.append(q, sortSeg); if (sel) w.append(sel); if (S.canWrite) w.append(h('button', { class: 'btn sm', style: 'margin-top:10px', onclick: function () { openPlayerForm(null); } }, '＋ নতুন প্লেয়ার প্রোফাইল'));
     w.append(grid); return w;
   }
   /* ---- auction player card (icy gold, after the tournament logo) ---- */
@@ -888,7 +936,7 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
     function row(l, v) { return v ? h('div', { class: 'prow' }, h('small', null, l), h('b', null, v)) : null; }
     var inner = h('div', null, xbtn(), h('h3', null, p.name),
       (p.card || p.photo) ? h('img', { class: 'pv', src: p.card || p.photo, alt: p.name, style: 'max-height:none' }) : null,
-      h('div', { class: 'card', style: 'margin-top:12px' }, row('নাম', p.name), row('ইউজার আইডি', p.gid), row('ডিভাইস', p.dev), row('ক্লাব', p.club), row('পজিশন', p.pos), row('জার্সি', p.no ? '#' + p.no : '')),
+      h('div', { class: 'card', style: 'margin-top:12px' }, row('নাম', p.name), row('ইউজার আইডি', p.gid), row('ডিভাইস', p.dev), row('ক্লাব', p.club), row('পজিশন', p.pos), row('জার্সি', p.no ? '#' + p.no : '')), mvSection(marketValues()[norm(p.name)]),
       h('button', { class: 'btn alt', style: 'width:100%;margin-top:10px', onclick: function () { openCardSheet('প্লেয়ার কার্ড', function () { return drawPlayerCard(p, teams); }, 'tgh-player-' + norm(p.name) + '.png'); } }, '🎴 শেয়ার কার্ড বানান'),
       fb ? h('a', { class: 'btn', href: fb, target: '_blank', rel: 'noopener noreferrer', style: 'display:block;text-align:center;margin-top:10px;text-decoration:none' }, '📘 Facebook প্রোফাইল দেখুন') : null,
       teams.length ? h('div', { style: 'margin-top:12px' }, h('div', { class: 'rdh' }, 'অংশগ্রহণ'), teams.map(function (t) { return h('div', { class: 'mini', style: 'justify-content:flex-start;gap:8px' }, h('b', null, t.team), h('small', { class: 'note' }, t.tour)); })) : null,
