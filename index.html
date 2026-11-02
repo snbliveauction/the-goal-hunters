@@ -311,6 +311,7 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
 .mv em{font-style:normal;font-size:12px}.mv.up{background:#E3F6E8;color:#14782C}.mv.dn{background:#FCE8E6;color:#B3261E}
 .mvs{margin-top:12px;padding:14px;border-radius:18px;background:#fff;border:1px solid var(--line)}.mvs small{color:var(--mute);font:600 12px var(--f-b);letter-spacing:.12em}
 .mvbig{font:700 38px/1.1 var(--f-d);color:var(--navy);display:flex;align-items:baseline;gap:10px}.mvbig em{font:700 16px var(--f-b);font-style:normal}.mvbig em.up{color:#14782C}.mvbig em.dn{color:#B3261E}
+.cp.tkn{opacity:.5}
 </style>
 </head>
 <body>
@@ -1068,17 +1069,23 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
   /* ---- participants ---- */
   async function saveParts(t, parts) { try { await db.collection('tournaments').doc(t.id).set({ parts: parts }, { merge: true }); toast('সেভ হয়েছে ✅'); closeSheet(); } catch (e) { wfail(e); } }
   function removePart(t, p) { if (!confirm(p.n + ' বাদ দেবেন?')) return; saveParts(t, t.parts.filter(function (x) { return x.id !== p.id; })); }
+  function searchable(chips) {
+    var q = h('input', { type: 'search', placeholder: '🔍 নাম খুঁজুন…' });
+    q.oninput = function () { var v = norm(q.value); Array.prototype.forEach.call(chips.children, function (c) { c.style.display = !v || norm(c.textContent).indexOf(v) >= 0 ? '' : 'none'; }); };
+    chips.style.maxHeight = '260px'; chips.style.overflow = 'auto'; chips.style.marginTop = '8px'; return h('div', null, q, chips);
+  }
   function openPart(t, p) {
-    var type = t.type, name = h('input', { type: 'text', value: p ? p.n : '', maxlength: '40', placeholder: type === 'solo' ? 'প্লেয়ারের নাম' : 'টিমের নাম' }), pick = {}, chips = h('div', { class: 'chips' }), extra = h('textarea', { placeholder: type === 'solo' ? 'বাইরের প্লেয়ার (প্রতি লাইনে একজন)' : 'ক্লাবের বাইরের প্লেয়ার (প্রতি লাইনে একজন)' });
+    var type = t.type, name = h('input', { type: 'text', value: p ? p.n : '', maxlength: '40', placeholder: type === 'solo' ? 'প্লেয়ারের নাম' : 'টিমের নাম' }), pick = {}, chips = h('div', { class: 'chips' }), extra = h('textarea', { placeholder: type === 'solo' ? 'বাইরের প্লেয়ার (প্রতি লাইনে একজন)' : 'রেজিস্টার তালিকায় নেই এমন প্লেয়ারের নাম (প্রতি লাইনে একজন)' });
     var logo = (p && p.logo) || '', lp = h('span'), lfin = h('input', { type: 'file', accept: 'image/*', style: 'display:none' });
     function lpDraw() { lp.replaceChildren(crest({ n: name.value || '?', logo: logo }, 56)); }
     lfin.onchange = async function () { if (!lfin.files[0]) return; try { logo = await logoUrl(lfin.files[0], 144); } catch (e) { toast('ছবি পড়া যায়নি'); } lpDraw(); };
     name.addEventListener('input', lpDraw); lpDraw();
     var logoRow = h('div', { class: 'row', style: 'align-items:center;gap:12px' }, lp, h('button', { type: 'button', class: 'btn ghost sm', onclick: function () { lfin.click(); } }, '🖼 লোগো বাছুন'), h('button', { type: 'button', class: 'btn ghost sm', onclick: function () { logo = ''; lpDraw(); } }, 'মুছুন'), lfin);
     var inSq = {}; ((p && p.sq) || []).forEach(function (n) { inSq[norm(n)] = n; });
+    var takenBy = {}; (t.parts || []).forEach(function (x) { if (p && x.id === p.id) return; (x.sq || []).forEach(function (nm) { takenBy[norm(nm)] = x.n; }); });
     if (type === 'auction' || !p) S.players.forEach(function (pl) {
-      var on = !!inSq[norm(pl.name)]; if (on) { pick[pl.name] = true; delete inSq[norm(pl.name)]; }
-      var c = h('button', { type: 'button', class: 'cp' + (on ? ' on' : ''), onclick: function () { pick[pl.name] = !pick[pl.name]; c.classList.toggle('on', !!pick[pl.name]); } }, pl.name); chips.append(c);
+      var on = !!inSq[norm(pl.name)], tkn = type === 'auction' && !on ? takenBy[norm(pl.name)] : ''; if (on) { pick[pl.name] = true; delete inSq[norm(pl.name)]; }
+      var c = h('button', { type: 'button', class: 'cp' + (on ? ' on' : '') + (tkn ? ' tkn' : ''), onclick: function () { pick[pl.name] = !pick[pl.name]; c.classList.toggle('on', !!pick[pl.name]); } }, pl.name + (tkn ? ' · ' + tkn : '')); chips.append(c);
     });
     if (type === 'auction') extra.value = Object.keys(inSq).map(function (k) { return inSq[k]; }).join('\n');
     var go = h('button', { class: 'btn', style: 'width:100%;margin-top:14px', onclick: function () {
@@ -1094,8 +1101,8 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
     openSheet(h('div', null, xbtn(), h('h3', null, type === 'auction' ? (p ? 'টিম / স্কোয়াড' : 'নতুন টিম') : (p ? 'নাম বদল' : 'প্লেয়ার যোগ')),
       (type === 'auction' || p) ? field(type === 'auction' ? 'টিমের নাম' : 'নাম', name) : null,
       type === 'auction' ? field('টিম লোগো', logoRow) : null,
-      (type === 'auction' || !p) ? field(type === 'auction' ? 'স্কোয়াড: ক্লাবের প্লেয়ার' : 'ক্লাবের প্লেয়ার বাছুন', chips) : null,
-      (type === 'auction' || !p) ? field(type === 'auction' ? 'বাইরের প্লেয়ার' : 'বাইরের (গেস্ট) প্লেয়ার', extra) : null, go));
+      (type === 'auction' || !p) ? field(type === 'auction' ? 'স্কোয়াড: Auction Registered Players (' + S.players.length + ' জন)' : 'ক্লাবের প্লেয়ার বাছুন', searchable(chips)) : null,
+      (type === 'auction' || !p) ? field(type === 'auction' ? 'রেজিস্টার তালিকায় নেই (ঐচ্ছিক)' : 'বাইরের (গেস্ট) প্লেয়ার', extra) : null, go));
   }
 
   /* ---- result ---- */
