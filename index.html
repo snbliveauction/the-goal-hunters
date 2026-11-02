@@ -459,7 +459,7 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
   }
   function scorersText(a) { return (a || []).map(function (x) { return x.n + (x.g > 1 ? ' x' + x.g : ''); }).join(', '); }
   function topScorers(ms) {
-    var m = {}; ms.forEach(function (x) { (doneM(x) ? (x.sa || []).concat(x.sb || []) : []).concat(gamesGoals(x)).forEach(function (s) { var k = norm(s.n); m[k] = m[k] || { n: s.n, g: 0 }; m[k].g += s.g; }); });
+    var m = {}; ms.forEach(function (x) { (doneM(x) ? (x.sa || []).concat(x.sb || []).concat(gamesGoals(x)) : []).forEach(function (s) { var k = norm(s.n); m[k] = m[k] || { n: s.n, g: 0 }; m[k].g += s.g; }); });
     return Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return b.g - a.g || a.n.localeCompare(b.n); });
   }
   function trophyCount(name) {
@@ -731,6 +731,7 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
       h('div', { class: 'tm' + (w === m.b ? ' w' : '') }, crest(pb, 44), h('span', null, pb.n)));
     var ex = [];
     if (gm && gs.length) { var gl = goalsOf(gs), rr = tpts(gs); if (d) ex.push('⚽ মোট গোল ' + gl.a + ' – ' + gl.b); else ex.push('⏳ ' + gs.length + (need ? '/' + need : '') + ' গেম হয়েছে · চলমান পয়েন্ট ' + rr.a + '–' + rr.b); }
+    if (gm && !d && need && gs.length >= need) ex.push('🔎 সব গেম জমা · অ্যাডমিন যাচাই করে ম্যাচ শেষ করবে');
     if (gm && !d && ko && need && gs.length >= need && tpts(gs).a === tpts(gs).b) ex.push('⚖️ পয়েন্ট সমান, অ্যাডমিন বিজয়ী ঠিক করবে');
     if (d && +m.as === +m.bs && m.pw) ex.push('টাইব্রেকে জয়: ' + pname(t, m.pw === 'a' ? m.a : m.b));
     if (!gm && d && (m.sa || []).length + (m.sb || []).length) ex.push('⚽ ' + (m.sa || []).concat(m.sb || []).map(function (s) { return s.n + (s.g > 1 ? ' x' + s.g : ''); }).join(', '));
@@ -819,7 +820,7 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
     var t = curTour('auction'), out = {}; if (!t) return out;
     function ent(nm) { var k = norm(nm); return out[k] || (out[k] = { n: nm, v: MV0, hist: [MV0], last: 0, games: 0 }); }
     (t.parts || []).forEach(function (p) { (p.sq || []).forEach(ent); });
-    (S.mt.auction || []).filter(function (m) { return (m.g || []).length; }).sort(function (a, b) { return ordOf(a) - ordOf(b) || (a.ts || 0) - (b.ts || 0); }).forEach(function (m) {
+    (S.mt.auction || []).filter(function (m) { return doneM(m) && (m.g || []).length; }).sort(function (a, b) { return ordOf(a) - ordOf(b) || (a.ts || 0) - (b.ts || 0); }).forEach(function (m) {
       var mn = doneM(m) ? norm(motmName(m)) : '';
       (m.g || []).forEach(function (g) {
         [[g.pa, +g.as, +g.bs, g.xa], [g.pb, +g.bs, +g.as, g.xb]].forEach(function (z) {
@@ -1551,7 +1552,7 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
   function playersOf(t, ms) {
     var map = {};
     function get(n, tid) { var k = norm(n); if (!map[k]) map[k] = { id: k, n: n, team: tid, g: 0, gl: 0, cs: 0, w: 0, rs: 0, sx: 0, t: { sh: 0, sot: 0, ps: 0, sps: 0, cr: 0, ic: 0, tk: 0, sv: 0 } }; return map[k]; }
-    ms.forEach(function (m) {
+    ms.filter(doneM).forEach(function (m) {
       (m.g || []).forEach(function (g) {
         [[g.pa, m.a, +g.as, +g.bs, g.xa || null], [g.pb, m.b, +g.bs, +g.as, g.xb || null]].forEach(function (s) {
           var p = get(s[0], s[1]); p.g++; p.gl += s[2]; if (s[3] === 0) p.cs++; if (s[2] > s[3]) p.w++; p.rs += rate(s[2], s[3], s[4]);
@@ -1619,8 +1620,8 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
       if (cur.st === 'done') throw new Error('done');
       var gs = (cur.g || []).slice(); if (playedIn(gs, g.pa) || playedIn(gs, g.pb)) throw new Error('dup');
       gs.push(g); var r = tpts(gs), need = needGames(t, cur), ko = cur.stage !== 'league', complete = need > 0 && gs.length >= need, finish = complete && !(ko && r.a === r.b);
-      var upd = { g: gs, as: r.a, bs: r.b, st: finish ? 'done' : 'pending' }; if (finish) upd.dt = Date.now();
-      tx.update(ref, upd); res = { finish: finish, tie: complete && !finish, n: gs.length, need: need, r: r };
+      var upd = { g: gs, as: r.a, bs: r.b, st: 'pending' };
+      tx.update(ref, upd); res = { finish: false, complete: complete, n: gs.length, need: need, r: r };
     });
     if (shot) db.collection('shots').doc(g.id).set({ tid: t.id, mid: m.id, img: shot, ts: Date.now() }).catch(function () { /* optional */ });
     return res;
@@ -1688,8 +1689,7 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
       busy = true; go.disabled = true; go.textContent = 'জমা হচ্ছে…';
       try {
         var r = await pushGame(t, m, b.g, K.manual() ? '' : R.shot); closeSheet();
-        if (r.finish) { toast('🏁 ম্যাচ সম্পূর্ণ! টেবিল আপডেট হয়েছে'); }
-        else if (r.tie) toast('সব গেম শেষ, পয়েন্ট সমান। অ্যাডমিন বিজয়ী ঠিক করবে');
+        if (r.complete) toast('✅ সব গেম জমা হয়েছে। অ্যাডমিন যাচাই করে ম্যাচ শেষ করলে টেবিলে আপডেট হবে');
         else toast('✅ জমা হয়েছে (' + r.n + (r.need ? '/' + r.need : '') + ' গেম)');
       } catch (e) { busy = false; go.disabled = false; go.textContent = 'রেজাল্ট জমা দিন'; toast(errText(e)); }
     } }, 'রেজাল্ট জমা দিন');
@@ -1754,12 +1754,12 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
       var fin = done ? h('button', { class: 'btn ghost', style: 'width:100%;margin-top:10px', onclick: function () { persist({ st: 'pending', pw: '' }); } }, 'আবার খুলুন (এডিট করতে)')
         : h('button', { class: 'btn alt', style: 'width:100%;margin-top:10px;border:1.5px solid var(--green)', onclick: function () {
           if (!gs.length) { toast('আগে অন্তত একটা রেজাল্ট দিন'); return; } if (tie && !m.pw) { toast('বিজয়ী বাছুন'); return; }
-          if (confirm('ম্যাচ শেষ করবেন?')) persist({ st: 'done', pw: tie ? m.pw : '' });
+          var mn = motmName(m); if (confirm('ম্যাচ শেষ করবেন?\n⭐ MOTM: ' + (mn || '—') + (m.motm ? '' : ' (অটো, রেটিং অনুযায়ী)') + '\n\nশেষ করলে টেবিলসহ সব জায়গায় আপডেট হবে।')) persist({ st: 'done', pw: tie ? m.pw : '' });
         } }, '✅ ম্যাচ শেষ করুন' + (need && gs.length < need ? ' (' + gs.length + '/' + need + ' গেম)' : ''));
       var addBox = done ? null : h('div', null, h('button', { class: 'btn ghost sm', style: 'margin-top:12px', onclick: function () { showAdd = !showAdd; render(); } }, showAdd ? '▲ হাতে যোগ বন্ধ' : '✍ নিজে গেম যোগ করুন'),
         showAdd ? h('div', null, h('div', { class: 'rdh' }, A), pickRow(leftOf(m, pm[m.a]), !((pm[m.a] && pm[m.a].sq) || []).length, function () { return selA; }, function (v) { selA = v; }), h('div', { class: 'rdh' }, B), pickRow(leftOf(m, pm[m.b]), !((pm[m.b] && pm[m.b].sq) || []).length, function () { return selB; }, function (v) { selB = v; }), h('div', { class: 'sg', style: 'margin-top:10px' }, sa, h('div', { class: 'd' }, '–'), sb), add) : null);
       var motmBox = gs.length ? motmEditor(m) : null;
-      openSheet(h('div', null, xbtn(), h('h3', null, stageLabel(m)), h('div', { class: 'note' }, 'গেম: ' + gs.length + (need ? ' / ' + need + ' (সব শেষ হলে ম্যাচ অটো সম্পূর্ণ)' : '')), tot, motmBox, h('div', { class: 'rdh' }, 'গেমগুলো (ভুল হলে ✎ বা ✕)'), list,
+      openSheet(h('div', null, xbtn(), h('h3', null, stageLabel(m)), h('div', { class: 'note' }, 'গেম: ' + gs.length + (need ? ' / ' + need + ' (যাচাই ও MOTM বাছার পর নিচের "ম্যাচ শেষ করুন" চাপুন)' : '')), tot, motmBox, h('div', { class: 'rdh' }, 'গেমগুলো (ভুল হলে ✎ বা ✕)'), list,
         done ? h('p', { class: 'note', style: 'margin-top:10px' }, '🔒 ম্যাচ শেষ।') : addBox, pen, fin, gs.length ? h('button', { class: 'btn ghost', style: 'width:100%;margin-top:10px', onclick: function () { openMatchCard(t, m); } }, '📤 শেয়ার কার্ড') : null));
     }
     render();
