@@ -262,6 +262,36 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
 .pc .ph img{object-position:50% 0}
 .prow{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line)}.prow:last-child{border:0}.prow small{color:var(--mute)}.prow b{text-align:right;overflow-wrap:anywhere}
 .pc .tr.rn{right:auto;left:8px;background:linear-gradient(135deg,#E9EEF6,#AEB9CC);color:#26324a}
+
+/* ===== season themes ===== */
+.hero .snow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}.hero.nosnow .snow{display:none}
+.hero .seasonb{display:inline-block;margin-bottom:12px;padding:4px 13px;border-radius:999px;background:rgba(246,210,122,.16);border:1px solid rgba(246,210,122,.5);color:#F6D27A;font:600 12px var(--f-d);letter-spacing:.2em}
+.hero .snowbtn{position:absolute;right:12px;top:14px;z-index:2;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;font-size:16px;line-height:1}
+.hero.nosnow .snowbtn{opacity:.5}
+.hero .cd{margin-top:16px}.hero .cd small{display:block;font:600 12px var(--f-b);color:#BFD6FF;letter-spacing:.04em}
+.hero .cdr{display:flex;gap:8px;margin-top:6px}.hero .cdr div{min-width:60px;text-align:center;padding:8px 6px;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(246,210,122,.4)}
+.hero .cdr b{display:block;font:700 28px/1 var(--f-d)}.hero .cdr span{font-size:11px;color:#BFD6FF}
+.btn.gold{background:linear-gradient(145deg,#F6D27A,#E3A93A);color:#3a2300;border:0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.hero .hset{margin-top:14px;background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.35)}
+.soc{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.soc a{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:#fff;border:1px solid var(--line);text-decoration:none;color:var(--navy)}
+.soc a i{font-style:normal;font-size:22px}.soc a b{font:600 15px var(--f-b)}
+.legend{width:100%;display:flex;align-items:center;gap:16px;text-align:left;padding:16px;border-radius:24px;border:1px solid rgba(246,210,122,.55);background:linear-gradient(135deg,#050E24,#0B2C66 70%,#0E3D86);color:#fff;position:relative;overflow:hidden}
+.legend:before{content:"";position:absolute;right:-50px;top:-50px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(246,210,122,.35),transparent 70%)}
+.legend .lph{width:96px;height:112px;flex:none;border-radius:18px;overflow:hidden;border:3px solid #F6D27A;background:#0B2C66;display:grid;place-items:center;box-shadow:0 0 26px rgba(246,210,122,.4);position:relative}
+.legend .lph img{width:100%;height:100%;object-fit:cover;object-position:50% 12%}.legend .lph span{font:700 44px var(--f-d)}
+.legend .ltx{position:relative;min-width:0}.legend .ltx small{color:#F6D27A;font:600 12px var(--f-d);letter-spacing:.22em}.legend .ltx b{display:block;font:700 26px/1.1 var(--f-d);text-transform:uppercase;margin-top:2px}.legend .ltx>span{color:#BFD6FF}
+html[data-theme=winter]{--paper:#EAF2FC;--line:#CFDDF0}
+html[data-theme=winter] body{background-image:radial-gradient(circle at 50% -140px,rgba(120,180,255,.32),transparent 480px),radial-gradient(circle at 100% 45%,rgba(227,169,58,.08),transparent 380px)}
+html[data-theme=winter] .top{background:rgba(234,242,252,.88);border-bottom:1px solid rgba(227,169,58,.55)}
+html[data-theme=winter] .bar{background:rgba(6,18,48,.97)}
+html[data-theme=winter] .bar button[aria-current=page]{background:linear-gradient(145deg,#F6D27A,#E3A93A);color:#3a2300}
+html[data-theme=winter] .sec h2:after{background:linear-gradient(90deg,#F6D27A,#E3A93A)}
+html[data-theme=winter] .stat{background:linear-gradient(180deg,#fff,#EEF5FF)}
+html[data-theme=winter] .hero.wt{background:linear-gradient(160deg,#050E24 0%,#0B2C66 58%,#0E3D86 100%);border:1px solid rgba(246,210,122,.55);box-shadow:0 24px 44px -26px rgba(5,14,36,.9),inset 0 0 60px rgba(120,190,255,.14);padding-top:46px}
+html[data-theme=winter] .hero.wt:after{content:"";position:absolute;left:0;right:0;top:0;height:30px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='30' viewBox='0 0 22 30'%3E%3Cpath d='M0 0h22L11 30z' fill='%23E1F3FF'/%3E%3C/svg%3E") repeat-x;pointer-events:none;opacity:.92;z-index:2}
+html[data-theme=winter] .hero.wt h1 span{color:#F6D27A}
+html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(246,210,122,.5)}
 </style>
 </head>
 <body>
@@ -313,7 +343,7 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
   }
 
   /* ================= state ================= */
-  var S = { tab: 'home', committee: [], subm: [], inst: null, players: [], tours: [], notices: [], champs: [], mt: { auction: [], solo: [] }, tid: { auction: null, solo: null }, sub: { auction: 'table', solo: 'table' }, user: null, canWrite: false, sheet: null, q: '', ready: { players: 0, tours: 0 }, subs: {} };
+  var S = { settings: {}, tab: 'home', committee: [], subm: [], inst: null, players: [], tours: [], notices: [], champs: [], mt: { auction: [], solo: [] }, tid: { auction: null, solo: null }, sub: { auction: 'table', solo: 'table' }, user: null, canWrite: false, sheet: null, q: '', ready: { players: 0, tours: 0 }, subs: {} };
   var TYPES = { auction: { label: 'Auction', bn: 'অকশন টুর্নামেন্ট', ico: '🪙' }, solo: { label: 'Solo', bn: 'সোলো টুর্নামেন্ট', ico: '🎯' } };
   var db, auth;
 
@@ -344,6 +374,7 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
     db.collection('players').limit(150).onSnapshot(function (sn) { S.players = sn.docs.map(function (d) { var x = d.data(); x.id = d.id; return x; }).sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); }); S.ready.players = 1; draw(); }, function (e) { console.error(e); });
     db.collection('tournaments').orderBy('ts', 'desc').limit(30).onSnapshot(function (sn) { S.tours = sn.docs.map(function (d) { var x = d.data(); x.id = d.id; return x; }); S.ready.tours = 1; syncMatchListeners(); draw(); }, function (e) { console.error(e); });
     db.collection('notices').orderBy('ts', 'desc').limit(8).onSnapshot(function (sn) { S.notices = sn.docs.map(function (d) { var x = d.data(); x.id = d.id; return x; }); draw(); }, function (e) { console.error(e); });
+    db.collection('settings').doc('site').onSnapshot(function (sn) { S.settings = sn.exists ? sn.data() : {}; applyTheme(); draw(); }, function (e) { console.error(e); });
     db.collection('committee').limit(30).onSnapshot(function (sn) { S.committee = sn.docs.map(function (d) { var x = d.data(); x.id = d.id; return x; }).sort(function (a, b) { return (a.ord || 0) - (b.ord || 0); }); draw(); }, function (e) { console.error(e); });
     db.collection('champions').orderBy('ts', 'desc').limit(60).onSnapshot(function (sn) { S.champs = sn.docs.map(function (d) { var x = d.data(); x.id = d.id; return x; }); draw(); }, function (e) { console.error(e); });
   }
@@ -503,14 +534,6 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
   function secTitle(t, right) { return h('div', { class: 'sec' }, h('h2', null, t), right ? h('small', null, right) : null); }
 
   /* ---- home ---- */
-  function heroBox() {
-    var arch = h('div', { class: 'arch', html: '<svg viewBox="0 0 300 300" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="3"><path d="M40 300V150a110 110 0 01220 0v150"/><path d="M70 300V155a80 80 0 01160 0v145" stroke-opacity=".1"/><circle cx="150" cy="190" r="46" stroke-opacity=".22"/><path d="M150 144l30 22-11 36h-38l-11-36z" stroke-opacity=".2"/></svg>' });
-    return h('section', { class: 'hero' }, arch, h('div', { class: 'shine' }), h('img', { class: 'lg', src: 'logo.webp', alt: 'The Goal Hunters' }),
-      h('div', { class: 'kick' }, 'eFootball Group · Sylhet'),
-      h('h1', null, 'Hunt the ', h('span', null, 'Goal')),
-      h('p', null, 'প্রতিটা ম্যাচে নতুন শিকার। Auction আর Solo, দুই মঞ্চে আমাদের লড়াইয়ের পুরো হিসাব।'),
-      h('div', { class: 'cta' }, h('button', { class: 'btn', onclick: function () { goTab('auction'); } }, '🪙 Auction'), h('button', { class: 'btn alt', onclick: function () { goTab('solo'); } }, '🎯 Solo')));
-  }
   function liveCard(type) {
     if (!S.ready.tours) return h('div', { class: 'skel' });
     var t = curTour(type), T = TYPES[type];
@@ -528,14 +551,96 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
     var ts0 = topScorers(ms)[0]; if (ts0) body.append(h('div', { class: 'gb' }, '👟 গোল্ডেন বুট: ', h('b', null, ts0.n), ' · ' + ts0.g + ' গোল'));
     return h('button', { class: 'lv', onclick: function () { goTab(type); } }, h('div', { class: 'hd' }, h('b', null, T.ico + ' ' + t.name), h('span', { class: 'chip' + (t.status === 'done' ? ' gd' : '') }, t.status === 'done' ? 'শেষ' : h('span', null, h('span', { class: 'pulse' }), 'চলছে'))), body);
   }
+  /* ---- season themes: add a new theme here + a matching html[data-theme="..."] block in CSS ---- */
+  var THEMES = { winter: { label: '❄ Winter', badge: 'WINTER SEASON ❄', color: '#061230' }, classic: { label: '⚽ Classic', badge: '', color: '#0E2250' } };
+  function themeKey() { var t = S.settings && S.settings.theme; return THEMES[t] ? t : 'winter'; }
+  function applyTheme() { var k = themeKey(); document.documentElement.setAttribute('data-theme', k); var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', THEMES[k].color); }
+  var snowOn = true, reduceMo = false, snowRaf = 0, flakes = [];
+  try { snowOn = localStorage.getItem('tgh_snow') !== '0'; } catch (e) { /* ignore */ }
+  try { reduceMo = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { /* ignore */ }
+  function startSnow(cv) {
+    cancelAnimationFrame(snowRaf); if (!cv || !snowOn || reduceMo || themeKey() !== 'winter') return;
+    if (!flakes.length) for (var i = 0; i < 46; i++) flakes.push({ x: Math.random(), y: Math.random(), r: 1 + Math.random() * 2.6, v: 0.0007 + Math.random() * 0.0012, ph: Math.random() * 6.28 });
+    var x = cv.getContext('2d'), W = 0, H = 0;
+    function size() { var r = cv.getBoundingClientRect(); W = cv.width = Math.max(1, Math.round(r.width)); H = cv.height = Math.max(1, Math.round(r.height)); }
+    size(); var t0 = performance.now();
+    function loop(t) {
+      if (!cv.isConnected) return; var dt = Math.min(48, t - t0); t0 = t; x.clearRect(0, 0, W, H);
+      flakes.forEach(function (f) { f.y += f.v * dt; f.ph += 0.0015 * dt; if (f.y > 1.03) { f.y = -0.03; f.x = Math.random(); } var px = (f.x + Math.sin(f.ph) * 0.018) * W; x.fillStyle = 'rgba(255,255,255,' + (0.35 + f.r / 5) + ')'; x.beginPath(); x.arc(px, f.y * H, f.r, 0, 7); x.fill(); });
+      snowRaf = requestAnimationFrame(loop);
+    }
+    snowRaf = requestAnimationFrame(loop);
+  }
+  var cdTimer = 0;
+  function countdownBox(ts, label) {
+    clearInterval(cdTimer); if (!ts || ts <= Date.now()) return null;
+    var vals = []; function unit(l) { var b = h('b', null, '00'); vals.push(b); return h('div', null, b, h('span', null, l)); }
+    var box = h('div', { class: 'cd' }, h('small', null, label || 'পরের সিজন শুরু হতে বাকি'), h('div', { class: 'cdr' }, unit('দিন'), unit('ঘণ্টা'), unit('মিনিট'), unit('সেকেন্ড')));
+    function tick() { var d = ts - Date.now(); if (d <= 0 || !box.isConnected) { if (d <= 0) box.style.display = 'none'; clearInterval(cdTimer); return; } var a = [Math.floor(d / 864e5), Math.floor(d / 36e5) % 24, Math.floor(d / 6e4) % 60, Math.floor(d / 1e3) % 60]; a.forEach(function (v, i) { vals[i].textContent = String(v).padStart(2, '0'); }); }
+    tick(); cdTimer = setInterval(tick, 1000); return box;
+  }
+  function heroBox() {
+    var st = S.settings || {}, k = themeKey(), wt = k === 'winter', th = THEMES[k], cv = wt ? h('canvas', { class: 'snow' }) : null;
+    var arch = h('div', { class: 'arch', html: '<svg viewBox="0 0 300 300" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="3"><path d="M40 300V150a110 110 0 01220 0v150"/><path d="M70 300V155a80 80 0 01160 0v145" stroke-opacity=".1"/><circle cx="150" cy="190" r="46" stroke-opacity=".12"/></svg>' });
+    var badge = st.season || th.badge, cd = countdownBox(Date.parse(st.cdTo || ''), st.cdLabel), jurl = /^https?:\/\//i.test(st.joinUrl || '') ? st.joinUrl : '';
+    var el = h('section', { class: 'hero' + (wt ? ' wt' : '') }, arch, h('div', { class: 'shine' }), cv,
+      wt && !reduceMo ? h('button', { class: 'snowbtn', 'aria-label': 'তুষার চালু/বন্ধ', onclick: function () { snowOn = !snowOn; try { localStorage.setItem('tgh_snow', snowOn ? '1' : '0'); } catch (e) { /* ignore */ } if (snowOn) startSnow(cv); else cancelAnimationFrame(snowRaf); el.classList.toggle('nosnow', !snowOn); } }, '❄') : null,
+      badge ? h('div', { class: 'seasonb' }, badge) : null,
+      h('img', { class: 'lg', src: 'logo.webp', alt: 'The Goal Hunters' }),
+      h('div', { class: 'kick' }, 'eFootball Group · Sylhet'),
+      h('h1', null, 'Hunt the ', h('span', null, 'Goal')),
+      h('p', null, 'প্রতিটা ম্যাচে নতুন শিকার। Auction আর Solo, দুই মঞ্চে আমাদের লড়াইয়ের পুরো হিসাব।'), cd,
+      h('div', { class: 'cta' }, h('button', { class: 'btn', onclick: function () { goTab('auction'); } }, '🪙 Auction'), h('button', { class: 'btn alt', onclick: function () { goTab('solo'); } }, '🎯 Solo'),
+        jurl ? h('a', { class: 'btn gold', href: jurl, target: '_blank', rel: 'noopener noreferrer' }, st.joinText || '🤝 পরের সিজনে নাম লেখান') : null),
+      S.canWrite ? h('button', { class: 'btn ghost sm hset', onclick: openHomeSettings }, '⚙ হোম সেটিংস') : null);
+    if (cv) setTimeout(function () { startSnow(cv); }, 0);
+    return el;
+  }
+  function socialBox() {
+    var st = S.settings || {}, it = [['📘', 'Facebook পেজ', st.fb], ['👥', 'Facebook গ্রুপ', st.fbg], ['💬', 'WhatsApp', st.wa], ['▶️', 'YouTube', st.yt]].filter(function (x) { return /^https?:\/\//i.test(x[2] || ''); });
+    if (!it.length) return null; var g = h('div', { class: 'soc' });
+    it.forEach(function (x) { g.append(h('a', { href: x[2], target: '_blank', rel: 'noopener noreferrer' }, h('i', null, x[0]), h('b', null, x[1]))); });
+    return h('div', null, secTitle('আমাদের সাথে থাকুন'), g);
+  }
+  var cuQ = [];
+  function numEl(n) { var b = h('b', null, S.cuDone ? String(n) : '0'); if (!S.cuDone) cuQ.push([b, n]); return b; }
+  function runCountUps() {
+    if (!cuQ.length) return; var q = cuQ; cuQ = []; if (!(S.ready.tours && S.ready.players)) return; S.cuDone = true;
+    var t0 = performance.now(); (function f(t) { var p = Math.min(1, (t - t0) / 1000), e = 1 - Math.pow(1 - p, 3); q.forEach(function (z) { if (z[0].isConnected) z[0].textContent = String(Math.round(z[1] * e)); }); if (p < 1) requestAnimationFrame(f); })(t0);
+  }
+  function legendCard() {
+    var best = null; rosterAll().forEach(function (r) { if (!r.p) return; var tc = trophyCount(r.name), sc = tc.c * 10 + tc.r; if (sc > 0 && (!best || sc > best.sc)) best = { r: r, tc: tc, sc: sc }; });
+    if (!best) return null; var p = best.r.p, img = p.photo || p.card;
+    return h('div', null, secTitle('Season Legend', 'সবচেয়ে বেশি ট্রফি'), h('button', { class: 'legend', onclick: function () { openPlayer(p, best.r.teams); } },
+      h('div', { class: 'lph' }, img ? h('img', { src: img, alt: p.name }) : h('span', null, String(p.name).charAt(0).toUpperCase())),
+      h('div', { class: 'ltx' }, h('small', null, '👑 LEGEND'), h('b', null, p.name), h('span', null, p.club || (best.r.teams[0] && best.r.teams[0].team) || ''),
+        h('div', { class: 'row', style: 'margin-top:8px;gap:8px' }, h('span', { class: 'chip gd' }, '🏆 ' + best.tc.c + ' চ্যাম্পিয়ন'), best.tc.r ? h('span', { class: 'chip' }, '🥈 ' + best.tc.r + ' রানার্স আপ') : null))));
+  }
+  function openHomeSettings() {
+    var st = S.settings || {}, theme = themeKey();
+    function tx(v, ph, ml) { return h('input', { type: 'text', value: v || '', maxlength: String(ml || 160), placeholder: ph || '' }); }
+    var season = tx(st.season, 'যেমন: WINTER SEASON 2026', 40), cdTo = h('input', { type: 'datetime-local', value: st.cdTo || '' }), cdLabel = tx(st.cdLabel, 'যেমন: Season 9 শুরু হতে বাকি', 60), jt = tx(st.joinText, '🤝 পরের সিজনে নাম লেখান', 40), ju = tx(st.joinUrl, 'https://… (WhatsApp / Messenger / ফর্ম লিংক)', 200);
+    var fb = tx(st.fb, 'https://facebook.com/…', 200), fbg = tx(st.fbg, 'https://facebook.com/groups/…', 200), wa = tx(st.wa, 'https://chat.whatsapp.com/…', 200), yt = tx(st.yt, 'https://youtube.com/…', 200), chips = h('div', { class: 'chips' });
+    function paint() { chips.replaceChildren(); Object.keys(THEMES).forEach(function (k) { chips.append(h('button', { type: 'button', class: 'cp' + (theme === k ? ' on' : ''), onclick: function () { theme = k; paint(); } }, THEMES[k].label)); }); } paint();
+    var go = h('button', { class: 'btn', style: 'width:100%;margin-top:14px', onclick: async function () {
+      go.disabled = true; var d = { theme: theme, season: season.value.trim(), cdTo: cdTo.value || '', cdLabel: cdLabel.value.trim(), joinText: jt.value.trim(), joinUrl: fbUrl(ju.value), fb: fbUrl(fb.value), fbg: fbUrl(fbg.value), wa: fbUrl(wa.value), yt: fbUrl(yt.value) };
+      try { await db.collection('settings').doc('site').set(d, { merge: true }); toast('সেভ হয়েছে ✅'); closeSheet(); } catch (e) { go.disabled = false; wfail(e); }
+    } }, 'সেভ');
+    openSheet(h('div', null, xbtn(), h('h3', null, 'হোম সেটিংস'), h('div', { class: 'rdh' }, '🎨 সিজন থিম'), chips, field('ব্যানারের ব্যাজ (ফাঁকা রাখলে থিমের ডিফল্ট)', season),
+      h('div', { class: 'rdh' }, '⏳ কাউন্টডাউন'), field('শেষ হওয়ার সময় (ফাঁকা = কাউন্টডাউন নেই)', cdTo), field('লেখা', cdLabel),
+      h('div', { class: 'rdh' }, '🤝 জয়েন বাটন'), field('বাটনের লেখা', jt), field('লিংক (ফাঁকা = বাটন নেই)', ju),
+      h('div', { class: 'rdh' }, '🔗 সোশ্যাল লিংক'), field('Facebook পেজ', fb), field('Facebook গ্রুপ', fbg), field('WhatsApp', wa), field('YouTube', yt), go));
+  }
   function homeView() {
-    var nbx = noticeBoard(), w = h('div', { class: 'wrap' }, nbx, heroBox()); var ib = installBanner(); if (ib) w.append(ib);
+    var w = h('div', { class: 'wrap' }, heroBox(), noticeBoard()); var ib = installBanner(); if (ib) w.append(ib);
+    var sb = socialBox(); if (sb) w.append(sb);
+    w.append(secTitle('আমাদের গ্রুপ'), h('div', { class: 'stats' },
+      h('div', { class: 'stat' }, S.ready.players ? numEl(rosterAll().length) : h('b', null, '–'), h('span', null, 'প্লেয়ার')),
+      h('div', { class: 'stat' }, S.ready.tours ? numEl(S.champs.length) : h('b', null, '–'), h('span', null, 'টুর্নামেন্ট শেষ')),
+      h('div', { class: 'stat' }, S.ready.tours ? numEl(S.tours.filter(function (t) { return t.status !== 'done'; }).length) : h('b', null, '–'), h('span', null, 'চলমান'))));
+    var lg = legendCard(); if (lg) w.append(lg);
     if (curTour('solo')) w.append(secTitle('এখন মাঠে'), liveCard('solo'));
     if (S.committee.length) w.append(committeeStrip());
-    w.append(secTitle('এক নজরে'), h('div', { class: 'stats' },
-      h('div', { class: 'stat' }, h('b', null, S.players.length), h('span', null, 'প্লেয়ার')),
-      h('div', { class: 'stat' }, h('b', null, S.champs.length), h('span', null, 'টুর্নামেন্ট শেষ')),
-      h('div', { class: 'stat' }, h('b', null, S.tours.filter(function (t) { return t.status !== 'done'; }).length), h('span', null, 'চলমান'))));
     if (S.champs.length) {
       w.append(secTitle('সর্বশেষ চ্যাম্পিয়ন'));
       ['auction', 'solo'].forEach(function (ty) { var c = S.champs.filter(function (z) { return (z.type || 'auction') === ty; }).sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); })[0]; if (c) w.append(champCard(c)); });
@@ -834,10 +939,11 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
   /* ---- render ---- */
   function draw() {
     if (!db) return;
+    cuQ = [];
     var main = S.tab === 'home' ? homeView() : S.tab === 'players' ? playersView() : S.tab === 'hall' ? hallView() : S.tab === 'more' ? moreView() : tournamentView(S.tab);
     var keep = document.activeElement && document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'search';
     var qv = keep ? document.activeElement.selectionStart : null;
-    $app.replaceChildren(header(), main, tabbar());
+    $app.replaceChildren(header(), main, tabbar()); runCountUps();
     if (keep) { var i = $app.querySelector('input[type=search]'); if (i) { i.focus(); try { i.setSelectionRange(qv, qv); } catch (e) { /* ignore */ } } }
   }
 
@@ -1770,7 +1876,7 @@ details.xd{margin-top:12px;border:1px solid var(--line);border-radius:14px;paddi
     firebase.initializeApp(cfg); db = firebase.firestore(); auth = firebase.auth();
     try { db.settings({ experimentalForceLongPolling: true, useFetchStreams: false, merge: true }); } catch (e) { /* ignore */ }
     try { db.enablePersistence({ synchronizeTabs: true }).catch(function () { /* ignore */ }); } catch (e) { /* ignore */ }
-    draw(); listen();
+    applyTheme(); draw(); listen();
     auth.onAuthStateChanged(async function (u) {
       S.user = u; S.canWrite = false;
       if (u && u.email) { try { var a = await db.doc('admins/' + u.email.toLowerCase()).get(); S.canWrite = a.exists; } catch (e) { S.canWrite = false; } if (!S.canWrite) toast('এই ইমেইল অ্যাডমিন তালিকায় নেই'); }
