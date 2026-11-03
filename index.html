@@ -340,6 +340,19 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
 .rw{margin:8px 0;padding:10px 12px;border-radius:12px;background:#FFF3E0;border:1px solid #F3C98B;color:#7A4A00;font-weight:600;line-height:1.5}
 .rl .rw:last-child{margin-bottom:10px}
 .rta{width:100%;min-height:340px;font:15px/1.55 var(--f-b);padding:12px;border:1px solid var(--line);border-radius:12px;resize:vertical;box-sizing:border-box}
+/* v11 icard */
+.ict{display:flex;gap:6px;background:#EEF3FB;border:1px solid var(--line);border-radius:14px;padding:5px;margin:12px 0}
+.ict button{flex:1;min-height:42px;border:0;border-radius:10px;background:transparent;font:600 14px var(--f-b);color:var(--mute);padding:6px 8px}.ict button[aria-pressed=true]{background:#fff;color:#3A3FD8;box-shadow:0 2px 8px -3px rgba(40,50,140,.4)}
+.icg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.icc{position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;padding:0 10px 12px;text-align:center;overflow:hidden}
+.icc .tb{display:flex;justify-content:space-between;padding:10px 0 0}.icc .tb>*{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#F4F7FC;display:grid;place-items:center;font-size:16px;text-decoration:none;color:#1877F2}
+.icc .av{width:84px;height:84px;border-radius:50%;margin:-14px auto 0;border:3px solid #fff;box-shadow:0 6px 16px -6px rgba(0,0,0,.4);background:var(--navy);color:#fff;display:grid;place-items:center;font:700 32px var(--f-d);overflow:hidden}.icc .av img{width:100%;height:100%;object-fit:cover}
+.icc .no{display:inline-block;margin-top:-12px;position:relative;background:#1B2440;color:#fff;font:700 12px var(--f-b);border-radius:99px;padding:2px 9px}
+.icc b.nm{display:block;margin-top:6px;font:700 16px/1.25 var(--f-b);overflow-wrap:anywhere}
+.icc .ln{display:flex;gap:6px;align-items:flex-start;text-align:left;font-size:12.5px;color:var(--mute);margin-top:8px;overflow-wrap:anywhere;line-height:1.35}.icc .ln i{font-style:normal}
+.icc.mis{opacity:.75}
+.prl{margin-top:8px;display:grid;gap:5px;font-size:13.5px}.prl div{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;text-align:center}.prl span:first-child{text-align:left}.prl span:last-child{text-align:right}.prl b{font-size:12px}
+.pmsg{white-space:pre-wrap;background:#F4F7FC;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:13.5px;line-height:1.5;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -391,7 +404,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
   }
 
   /* ================= state ================= */
-  var S = { settings: {}, tab: 'home', committee: [], subm: [], inst: null, players: [], tours: [], notices: [], champs: [], mt: { auction: [], solo: [] }, tid: { auction: null, solo: null }, sub: { auction: 'table', solo: 'table' }, user: null, canWrite: false, sheet: null, q: '', ready: { players: 0, tours: 0 }, subs: {} };
+  var S = { icard: (function () { try { return new URLSearchParams(location.search).get('icard') || ''; } catch (e) { return ''; } })(), settings: {}, tab: 'home', committee: [], subm: [], inst: null, players: [], tours: [], notices: [], champs: [], mt: { auction: [], solo: [] }, tid: { auction: null, solo: null }, sub: { auction: 'table', solo: 'table' }, user: null, canWrite: false, sheet: null, q: '', ready: { players: 0, tours: 0 }, subs: {} };
   var TYPES = { auction: { label: 'Auction', bn: 'অকশন টুর্নামেন্ট', ico: '🪙' }, solo: { label: 'Solo', bn: 'সোলো টুর্নামেন্ট', ico: '🎯' } };
   var db, auth;
 
@@ -768,6 +781,68 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     });
     return w;
   }
+
+  /* ---- v11: match pairings + iCard (player info cards, deep link) ---- */
+  function pairsOf(m) { var ps = (m.pairs || []).slice(); if (!ps.length) (m.g || []).forEach(function (g) { ps.push({ a: g.pa, b: g.pb }); }); return ps; }
+  function icardUrl(m) { return location.origin + location.pathname.replace(/index\.html$/, '') + '?icard=' + encodeURIComponent(m.id); }
+  function pairsMsg(t, m) {
+    var A = pname(t, m.a), B = pname(t, m.b), ps = pairsOf(m);
+    return '🏆 ' + t.name + ' · ' + stageLabel(m) + '\n⚽ ' + A + ' 🆚 ' + B + '\n\n' + (ps.length ? ps.map(function (q) { return q.a + ' 🆚 ' + q.b; }).join('\n') + '\n\n' : '') + '🪪 দুই টিমের প্লেয়ার ইনফো (iCard):\n' + icardUrl(m);
+  }
+  function copyText(txt, ok) {
+    function fb() { var ta = h('textarea', { style: 'position:fixed;left:-999px' }); ta.value = txt; document.body.append(ta); ta.select(); try { document.execCommand('copy'); toast(ok || 'কপি হয়েছে ✅'); } catch (e) { toast('কপি করা যায়নি'); } ta.remove(); }
+    try { navigator.clipboard.writeText(txt).then(function () { toast(ok || 'কপি হয়েছে ✅'); }, fb); } catch (e) { fb(); }
+  }
+  function openICard(t, m0) {
+    var m = findMatch(m0.id) || m0, pm = partMap(t), sides = [m.a, m.b].map(function (id) { return pm[id]; }).filter(Boolean), cur = 0;
+    var body = h('div'), tabs = h('div', { class: 'ict' }), grid = h('div');
+    function card(n) {
+      var pl = playerOf(n), ok = pl && (pl.gid || pl.dev || pl.photo), fb = pl && /^https?:\/\//i.test(pl.fb || '') ? pl.fb : '';
+      return h('div', { class: 'icc' + (ok ? '' : ' mis') },
+        h('div', { class: 'tb' }, pl && pl.gid ? h('button', { type: 'button', 'aria-label': 'ID কপি', style: 'color:var(--navy)', onclick: function () { copyText(pl.gid, 'ID কপি হয়েছে ✅'); } }, '⧉') : h('span', { style: 'visibility:hidden' }), fb ? h('a', { href: fb, target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Facebook' }, 'f') : h('span', { style: 'visibility:hidden' })),
+        h('div', { class: 'av' }, pl && pl.photo ? h('img', { src: pl.photo, alt: n }) : String(n).charAt(0).toUpperCase()),
+        pl && pl.no ? h('span', { class: 'no' }, '#' + pl.no) : null,
+        h('b', { class: 'nm' }, n),
+        ok ? h('div', null, h('div', { class: 'ln' }, h('i', null, '🎮'), h('span', null, pl.gid || '—')), h('div', { class: 'ln' }, h('i', null, '📱'), h('span', null, pl.dev || '—')), pl.club ? h('div', { class: 'ln' }, h('i', null, '🛡'), h('span', null, pl.club)) : null) : h('div', { class: 'ln', style: 'justify-content:center;color:#C2851A' }, '⚠ তথ্য জমা হয়নি'));
+    }
+    function paint() {
+      tabs.replaceChildren(); sides.forEach(function (p, i) { tabs.append(h('button', { type: 'button', 'aria-pressed': cur === i ? 'true' : 'false', onclick: function () { cur = i; paint(); } }, p.n + ' (' + (p.sq || []).length + ')')); });
+      grid.replaceChildren(); var sq = (sides[cur] && sides[cur].sq) || [];
+      if (!sq.length) grid.append(h('div', { class: 'empty' }, 'স্কোয়াড এখনো দেওয়া হয়নি')); else { var g = h('div', { class: 'icg' }); sq.forEach(function (n) { g.append(card(n)); }); grid.append(g); }
+    }
+    var ps = pairsOf(m), pl2 = ps.length ? h('div', { class: 'card', style: 'margin-top:10px' }, h('b', null, '🆚 ম্যাচ জোড়া'), h('div', { class: 'prl' }, ps.map(function (q) { return h('div', null, h('span', null, q.a), h('b', null, '🆚'), h('span', null, q.b)); }))) : null;
+    body.append(xbtn(), h('h3', null, '🪪 iCard'), h('div', { class: 'note' }, stageLabel(m) + ' · ' + pname(t, m.a) + ' বনাম ' + pname(t, m.b)), pl2, tabs, grid,
+      h('div', { class: 'row', style: 'margin-top:12px;gap:8px' }, h('button', { class: 'btn ghost sm', onclick: function () { copyText(icardUrl(m), 'লিংক কপি হয়েছে ✅'); } }, '🔗 লিংক কপি'), h('button', { class: 'btn ghost sm', onclick: function () { copyText(pairsMsg(t, m), 'মেসেজ কপি হয়েছে ✅'); } }, '📋 মেসেজ কপি')));
+    paint(); openSheet(body);
+  }
+  function openPairs(t, m0) {
+    var m = Object.assign({}, findMatch(m0.id) || m0), pm = partMap(t), PA = pm[m.a] || { sq: [] }, PB = pm[m.b] || { sq: [] }, ps = (m.pairs || []).slice(), selA = '', selB = '';
+    function save() { return db.collection('matches').doc(m.id).set({ pairs: ps }, { merge: true }).then(function () { toast('জোড়া সেভ হয়েছে ✅'); }).catch(wfail); }
+    function render() {
+      var A = pname(t, m.a), B = pname(t, m.b);
+      function sel(sq, get, set) { var s2 = h('select', null, h('option', { value: '' }, 'প্লেয়ার বাছুন')); (sq || []).forEach(function (n) { s2.append(h('option', { value: n, selected: get() === n }, n)); }); s2.onchange = function () { set(s2.value); }; return s2; }
+      var list = h('div', { class: 'prl', style: 'margin-top:8px' }); ps.forEach(function (q, i) { list.append(h('div', { style: 'grid-template-columns:1fr auto 1fr auto' }, h('span', null, q.a), h('b', null, '🆚'), h('span', null, q.b), h('button', { class: 'btn ghost sm', 'aria-label': 'মুছুন', onclick: function () { ps.splice(i, 1); save(); render(); } }, '✕'))); });
+      if (!ps.length) list.append(h('div', { class: 'note' }, 'এখনো কোনো জোড়া নেই'));
+      var add = h('div', { class: 'card', style: 'margin-top:10px' }, h('div', { class: 'rdh' }, A), sel(PA.sq, function () { return selA; }, function (v) { selA = v; }), h('div', { class: 'rdh' }, B), sel(PB.sq, function () { return selB; }, function (v) { selB = v; }),
+        h('button', { class: 'btn sm', style: 'margin-top:10px', onclick: function () { if (!selA || !selB) { toast('দুই পাশের প্লেয়ার বাছুন'); return; } ps.push({ a: selA, b: selB }); selA = ''; selB = ''; save(); render(); } }, '＋ জোড়া যোগ'));
+      var rnd = h('button', { class: 'btn ghost sm', style: 'margin-top:10px', onclick: function () {
+        if (ps.length && !confirm('আগের জোড়া মুছে নতুন র‍্যান্ডম জোড়া বানাবেন?')) return;
+        var a = (PA.sq || []).slice(), b = (PB.sq || []).slice(); for (var i = b.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = b[i]; b[i] = b[j]; b[j] = x; }
+        ps = a.slice(0, Math.min(a.length, b.length)).map(function (n, k) { return { a: n, b: b[k] }; }); save(); render();
+      } }, '🎲 র‍্যান্ডম জোড়া বানান');
+      var msg = h('div', { class: 'pmsg' }, pairsMsg(t, Object.assign({}, m, { pairs: ps })));
+      var wa = h('a', { class: 'btn alt sm', style: 'text-decoration:none;display:inline-block;margin-top:10px', href: 'https://wa.me/?text=' + encodeURIComponent(pairsMsg(t, Object.assign({}, m, { pairs: ps }))), target: '_blank', rel: 'noopener noreferrer' }, '📲 WhatsApp-এ পাঠান');
+      openSheet(h('div', null, xbtn(), h('h3', null, '🆚 ম্যাচ জোড়া'), h('div', { class: 'note' }, stageLabel(m) + ' · ' + A + ' বনাম ' + B), list, add, rnd, h('div', { class: 'rdh' }, 'WhatsApp মেসেজ'), msg,
+        h('div', { class: 'row', style: 'gap:8px' }, h('button', { class: 'btn sm', style: 'margin-top:10px', onclick: function () { copyText(pairsMsg(t, Object.assign({}, m, { pairs: ps }))); } }, '📋 মেসেজ কপি'), wa)));
+    }
+    render();
+  }
+  function tryICard() {
+    if (!S.icard || !S.ready || !S.ready.players || !S.ready.tours) return;
+    var m = findMatch(S.icard); if (!m) return; var t = S.tours.filter(function (x) { return x.id === m.tid; })[0]; if (!t) return;
+    S.icard = null; S.tab = t.type === 'solo' ? 'solo' : 'auction'; try { history.replaceState(null, '', location.pathname); } catch (e) { /* ignore */ }
+    draw(); openICard(t, m);
+  }
   function tableSub(t, ms) {
     var rows = standings(t, ms), kq = t.ko === 'sf' ? 4 : t.ko === 'final' ? 2 : 1;
     if (!rows.length) return h('div', { class: 'empty' }, 'অংশগ্রহণকারী যোগ হয়নি');
@@ -802,6 +877,8 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     if (ex.length) el.append(h('div', { class: 'ex' }, ex.join('  ·  ')));
     if (gm && !d && gs.length && need) el.append(h('div', { class: 'prg', title: gs.length + '/' + need }, h('i', { style: 'width:' + Math.min(100, Math.round(gs.length / need * 100)) + '%' })));
     if (gm && gs.length) el.append(h('div', { class: 'gl' }, gs.map(function (g) { return h('div', null, h('span', null, g.pa), h('b', null, g.as + '–' + g.bs), h('span', null, g.pb)); })));
+    if (gm && !d && (m.pairs || []).length) { var left = m.pairs.filter(function (q) { return !gs.some(function (g) { return (norm(g.pa) === norm(q.a) && norm(g.pb) === norm(q.b)) || (norm(g.pa) === norm(q.b) && norm(g.pb) === norm(q.a)); }); }); if (left.length) el.append(h('div', { class: 'prl', style: 'grid-column:1/4;border-top:1px dashed var(--line);padding-top:8px' }, left.map(function (q) { return h('div', null, h('span', null, q.a), h('b', null, '🆚'), h('span', null, q.b)); }))); }
+    if (gm && ((partMap(t)[m.a] || {}).sq || []).length) { var br = h('div', { class: 'row', style: 'grid-column:1/4;justify-content:center;gap:8px' }, h('button', { type: 'button', class: 'btn ghost sm', onclick: function (e) { e.stopPropagation(); openICard(t, m); } }, '🪪 iCard')); if (S.canWrite && !d) br.append(h('button', { type: 'button', class: 'btn ghost sm', onclick: function (e) { e.stopPropagation(); openPairs(t, m); } }, '🆚 জোড়া ও মেসেজ')); el.append(br); }
     if (d) { if (gm && S.canWrite) el.append(h('button', { type: 'button', class: 'btn alt sm shr', onclick: function (e) { e.stopPropagation(); openMatchCard(t, m); } }, '📤 রেজাল্ট কার্ড'), h('div', { class: 'ex hint' }, '🔎 গেম দেখুন / এডিট / মুছুন')); else if (S.canWrite) el.append(h('div', { class: 'ex hint' }, '✎ রেজাল্ট এডিট')); }
     else el.append(h('div', { class: 'ex hint' }, S.canWrite ? (gm ? '🔎 গেম দেখুন / এডিট' : '📝 রেজাল্ট দিন') : (gm ? '＋ আপনার গেমের রেজাল্ট জমা দিন' : '＋ রেজাল্ট জমা দিন')));
     return el;
@@ -1186,7 +1263,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     var main = S.tab === 'home' ? homeView() : S.tab === 'players' ? playersView() : S.tab === 'hall' ? hallView() : S.tab === 'more' ? moreView() : tournamentView(S.tab);
     var keep = document.activeElement && document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'search';
     var qv = keep ? document.activeElement.selectionStart : null;
-    $app.replaceChildren(header(), main, tabbar()); runCountUps();
+    $app.replaceChildren(header(), main, tabbar()); runCountUps(); if (S.icard) setTimeout(tryICard, 0);
     if (keep) { var i = $app.querySelector('input[type=search]'); if (i) { i.focus(); try { i.setSelectionRange(qv, qv); } catch (e) { /* ignore */ } } }
   }
 
