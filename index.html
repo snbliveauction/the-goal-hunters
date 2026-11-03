@@ -331,6 +331,15 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
 .pfg b{display:block;font:700 24px/1 var(--f-d)}.pfg span{display:block;font:600 10.5px var(--f-b);letter-spacing:.08em;margin-top:4px;color:#BFD6FF}
 .pfm{display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap}.pfm .dot{width:14px;height:14px;margin:0}
 .pfl{margin-top:10px;display:grid;gap:5px;font-size:13px}.pfl div{display:grid;grid-template-columns:1fr auto;gap:8px;background:rgba(255,255,255,.07);border-radius:9px;padding:6px 10px}.pfl b{font-family:var(--f-d)}
+/* v9 rules */
+.rl{margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 14px 6px}
+.rl h3{margin:0 0 8px;font:700 19px var(--f-d);color:var(--navy);display:flex;gap:8px;align-items:center}
+.rl h3:before{content:"";width:6px;height:20px;border-radius:3px;background:var(--green)}
+.ri{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--line);line-height:1.5}.ri:first-of-type{border-top:0}
+.ri i{width:26px;height:26px;border-radius:9px;background:#EAF3FF;color:var(--navy);display:grid;place-items:center;font:700 13px var(--f-d);font-style:normal}
+.rw{margin:8px 0;padding:10px 12px;border-radius:12px;background:#FFF3E0;border:1px solid #F3C98B;color:#7A4A00;font-weight:600;line-height:1.5}
+.rl .rw:last-child{margin-bottom:10px}
+.rta{width:100%;min-height:340px;font:15px/1.55 var(--f-b);padding:12px;border:1px solid var(--line);border-radius:12px;resize:vertical;box-sizing:border-box}
 </style>
 </head>
 <body>
@@ -707,7 +716,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     var w = h('div', { class: 'wrap' }), T = TYPES[type], t = curTour(type), list = toursOf(type);
     w.append(secTitle(T.ico + ' ' + T.label, T.bn));
     if (S.canWrite) w.append(h('button', { class: 'btn sm', onclick: function () { openCreate(type); } }, '＋ নতুন ' + T.label + ' টুর্নামেন্ট'));
-    if (!t) { w.append(h('div', { class: 'empty', style: 'margin-top:12px' }, S.ready.tours ? T.label + ' টুর্নামেন্টের আয়োজন শীঘ্রই। চোখ রাখুন!' : 'লোড হচ্ছে…')); return w; }
+    if (!t) { w.append(h('div', { class: 'empty', style: 'margin-top:12px' }, S.ready.tours ? T.label + ' টুর্নামেন্টের আয়োজন শীঘ্রই। চোখ রাখুন!' : 'লোড হচ্ছে…')); if (type === 'auction') { w.append(h('div', { class: 'rdh' }, '📜 অকশন রুলস'), rulesView()); } return w; }
     var ms = S.mt[type];
     if (list.length > 1) {
       var sel = h('select', { 'aria-label': 'টুর্নামেন্ট বাছুন', style: 'margin-top:10px' }); list.forEach(function (x) { sel.append(h('option', { value: x.id, selected: x.id === t.id }, x.name + (x.season ? ' · ' + x.season : ''))); });
@@ -718,11 +727,46 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
       prog.total ? h('div', { class: 'note', style: 'margin-top:8px' }, 'লীগ: ' + prog.done + '/' + prog.total + ' ম্যাচ শেষ') : null));
     if (t.status === 'done' && t.champ) { var cb = h('div', { class: 'champ', style: 'margin-top:12px' }, h('small', null, 'CHAMPIONS'), h('h3', null, t.champ.n), t.runner ? h('div', { style: 'margin-top:6px;color:#D3DDF5' }, '🥈 ' + t.runner.n + (t.third ? '   🥉 ' + t.third.n : '')) : null, h('button', { class: 'btn alt sm', style: 'margin-top:12px', onclick: function () { openChampCard(S.champs.filter(function (c) { return c.tid === t.id; })[0] || { name: t.name, type: t.type, season: t.season, champ: t.champ, runner: t.runner, third: t.third }); } }, '⬇ চ্যাম্পিয়ন কার্ড')); w.append(cb); }
     if (type === 'auction') { var sl = motmSlider(t, ms); if (sl) w.append(sl); } else clearInterval(motmTimer);
-    var subs = [['table', 'টেবিল'], ['fixtures', 'ম্যাচ'], ['ko', 'নকআউট'], ['stats', 'স্ট্যাটস'], ['parts', type === 'solo' ? 'প্লেয়ার' : 'স্কোয়াড']]; if (type === 'auction') subs.splice(4, 0, ['stars', '⭐ Dream XI']); if (S.canWrite) subs.push(['manage', '⚙ ম্যানেজ']);
+    var subs = [['table', 'টেবিল'], ['fixtures', 'ম্যাচ'], ['ko', 'নকআউট'], ['stats', 'স্ট্যাটস'], ['parts', type === 'solo' ? 'প্লেয়ার' : 'স্কোয়াড']]; if (type === 'auction') { subs.splice(4, 0, ['stars', '⭐ Dream XI']); subs.push(['rules', '📜 অকশন রুলস']); } if (S.canWrite) subs.push(['manage', '⚙ ম্যানেজ']);
     var sub = S.sub[type]; if (!subs.some(function (s) { return s[0] === sub; })) sub = S.sub[type] = 'table';
     var seg = h('div', { class: 'seg', role: 'group' }); subs.forEach(function (s) { seg.append(h('button', { type: 'button', 'aria-pressed': sub === s[0] ? 'true' : 'false', onclick: function () { S.sub[type] = s[0]; draw(); } }, s[1])); }); w.append(seg);
-    var body = { table: tableSub, fixtures: fixturesSub, ko: koSub, stats: statsSub, stars: starsSub, parts: partsSub, manage: manageSub }[sub](t, ms, type);
+    var body = { table: tableSub, fixtures: fixturesSub, ko: koSub, stats: statsSub, stars: starsSub, parts: partsSub, rules: rulesView, manage: manageSub }[sub](t, ms, type);
     w.append(body); return w;
+  }
+
+  /* ---- v9: public auction rules (admin edits, everyone reads) ---- */
+  var RULES_TPL = '# রেজিস্ট্রেশন ও পেমেন্ট\nপেমেন্ট ফি অ্যাডমিন অ্যাপ্রুভ করলেই রেজিস্ট্রেশন কনফার্ম হবে\n! পেমেন্ট অ্যাপ্রুভের পর অ্যাডমিনের ইনবক্সে দিতে হবে: NAME, Device, User ID, Club Name (ক্লাব না থাকলে Facebook ID লিংক)\nভুয়া ক্লাব নাম বা ফেক Facebook ID গ্রহণযোগ্য হবে না\nFacebook ID তখনই গ্রহণ করা হবে যখন ওই আইডিতে প্লেয়ারের নিজের পুরোনো ছবি পোস্ট করা থাকবে\n! পরে ভুয়া তথ্য ধরা পড়লে সংশ্লিষ্ট প্লেয়ারকে ব্যান করা হবে\n\n# ম্যাচ ও পয়েন্ট\nটিমের ম্যাচে প্লেয়াররা একে অপরের বিপক্ষে গেম খেলবে\nপ্রতি গেমে জয় ৩, ড্র ১, হার ০ টিম-পয়েন্ট\nপুরো ম্যাচে যে টিমের পয়েন্ট বেশি সে ম্যাচ জিতবে: টেবিলে জয় ৩, ড্র ১, হার ০ পয়েন্ট\nটেবিলে পয়েন্ট সমান হলে GD (গোল ব্যবধান) যার বেশি সে এগিয়ে থাকবে, তারপর মোট গোল\n\n# রেজাল্ট জমা\nনিজের গেম শেষে স্ক্রিনশটসহ অথবা শুধু গোল দিয়ে রেজাল্ট জমা দিতে হবে\n! ভুল বা ভুয়া স্কোর জমা দিলে অ্যাডমিন এডিট বা মুছে দেবে, বারবার করলে ব্যবস্থা নেওয়া হবে\nঅ্যাডমিন যাচাই করে "ম্যাচ শেষ করুন" চাপলে তবেই টেবিল ও স্ট্যাটসে আপডেট হবে\n';
+  function rulesBlocks(txt) {
+    var secs = [], cur = null;
+    String(txt || '').split(/\r?\n/).forEach(function (ln) {
+      ln = ln.trim(); if (!ln) return;
+      if (ln.charAt(0) === '#') { cur = { t: ln.replace(/^#+\s*/, ''), items: [] }; secs.push(cur); return; }
+      if (!cur) { cur = { t: 'রুলস', items: [] }; secs.push(cur); }
+      if (ln.charAt(0) === '!') cur.items.push({ w: true, x: ln.replace(/^!\s*/, '') }); else cur.items.push({ w: false, x: ln.replace(/^[-•*]\s*/, '') });
+    });
+    return secs;
+  }
+  function openRulesEdit() {
+    var ta = h('textarea', { class: 'rta', placeholder: '# সেকশনের নাম\nপ্রতিটা রুল আলাদা লাইনে\n! গুরুত্বপূর্ণ সতর্কতা এভাবে লিখুন' }); ta.value = (S.settings && S.settings.rules) || '';
+    var go = h('button', { class: 'btn', style: 'width:100%;margin-top:12px', onclick: async function () {
+      go.disabled = true;
+      try { await db.collection('settings').doc('site').set({ rules: ta.value.trim().slice(0, 20000), rulesTs: Date.now() }, { merge: true }); toast('রুলস সেভ হয়েছে ✅'); closeSheet(); } catch (e) { go.disabled = false; wfail(e); }
+    } }, 'সেভ করুন');
+    openSheet(h('div', null, xbtn(), h('h3', null, '📜 অকশন রুলস এডিট'),
+      h('p', { class: 'note' }, '# দিয়ে সেকশনের নাম লিখুন। তার নিচে প্রতিটা রুল আলাদা লাইনে। ! দিয়ে শুরু করলে লাইনটা কমলা সতর্কতা বক্সে দেখাবে।'), ta,
+      h('button', { type: 'button', class: 'btn ghost sm', style: 'margin-top:10px', onclick: function () { if (!ta.value.trim() || confirm('বর্তমান লেখা মুছে নমুনা বসাবেন?')) ta.value = RULES_TPL; } }, '📋 নমুনা রুলস বসান (এডিট করে নিন)'), go));
+  }
+  function rulesView() {
+    var w = h('div'), txt = (S.settings && S.settings.rules) || '', secs = rulesBlocks(txt);
+    if (S.canWrite) w.append(h('button', { class: 'btn sm', style: 'margin-top:12px', onclick: openRulesEdit }, '✎ রুলস ' + (txt ? 'এডিট করুন' : 'লিখুন')));
+    if (!secs.length) { w.append(h('div', { class: 'empty', style: 'margin-top:12px' }, '📜 অকশন টুর্নামেন্টের রুলস শীঘ্রই এখানে যোগ হবে।')); return w; }
+    w.append(h('p', { class: 'note', style: 'margin-top:10px' }, 'টুর্নামেন্টে অংশ নেওয়ার আগে সবাই রুলসগুলো ভালো করে পড়ে নিন।'));
+    secs.forEach(function (sc) {
+      var box = h('div', { class: 'rl' }, h('h3', null, sc.t)), n = 0;
+      sc.items.forEach(function (it) { if (it.w) box.append(h('div', { class: 'rw' }, '⚠️ ' + it.x)); else { n++; box.append(h('div', { class: 'ri' }, h('i', null, String(n)), h('div', null, it.x))); } });
+      w.append(box);
+    });
+    return w;
   }
   function tableSub(t, ms) {
     var rows = standings(t, ms), kq = t.ko === 'sf' ? 4 : t.ko === 'final' ? 2 : 1;
@@ -1469,9 +1513,11 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     if (v === 'committee') return committeeView();
     if (v === 'admin') return adminView();
     if (v === 'install') return installView();
+    if (v === 'rules') return h('div', { class: 'wrap' }, backBtn(), h('div', { class: 'sec' }, h('h2', null, '📜 অকশন রুলস')), rulesView());
     var pend = 0, w = h('div', { class: 'wrap' }, h('div', { class: 'sec' }, h('h2', null, 'আরও')), h('div', { class: 'mg' }));
     var g = w.lastChild;
     function row(ico, t1, t2, fn, bd) { g.append(h('button', { class: 'mr', onclick: fn }, h('i', null, ico), h('div', { style: 'flex:1' }, h('b', null, t1, bd ? h('span', { class: 'bdg' }, bd) : null), h('small', null, t2)), h('span', null, '›'))); }
+    row('📜', 'অকশন রুলস', 'টুর্নামেন্টের সব নিয়ম এক জায়গায়', function () { S.more = 'rules'; draw(); });
     row('👥', 'পরিচালনা কমিটি', 'যারা আমাদের গ্রুপ চালান', function () { S.more = 'committee'; draw(); });
     if (!isStandalone()) row('📲', 'অ্যাপ ইনস্টল করুন', 'হোম স্ক্রিনে শর্টকাট', function () { S.more = 'install'; draw(); });
     row('🛠', 'অ্যাডমিন প্যানেল', S.canWrite ? 'রেজাল্ট এডিট, কমিটি, নোটিশ' : 'শুধু অ্যাডমিনদের জন্য', function () { S.more = 'admin'; draw(); }, S.canWrite && pend ? pend : 0);
@@ -1934,7 +1980,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
       track.append(h('div', { class: 'mcard' }, h('div', { class: 'mph' }, i.photo ? h('img', { src: i.photo, alt: '' }) : h('span', null, String(i.n).charAt(0).toUpperCase())), h('div', { class: 'mtx' }, h('small', null, '⭐ MAN OF THE MATCH · ' + i.lbl), h('b', null, i.n), h('span', null, i.team), h('em', null, '⭐ ' + i.rt.toFixed(1)))));
       dots.append(h('i', { class: k ? '' : 'on' }));
     });
-    box.append(h('div', { class: 'mhd' }, h('b', null, '🌟 ' + cur[0].lbl + ' এর MOTM'), S.canWrite ? h('button', { class: 'btn alt sm', onclick: function () { openMotmPoster(t, all); } }, '📤 পোস্টার') : null), track, cur.length > 1 ? dots : null);
+    box.append(h('div', { class: 'mhd' }, h('b', null, '🌟 ' + cur[0].lbl + ' এর MOTM'), S.canWrite ? h('button', { class: 'btn alt sm', onclick: function () { openMotmPoster(t, all); } }, '📤 পোস্টার') : null), track); if (cur.length > 1) box.append(dots);
     if (cur.length > 1) {
       var idx = 0; track.addEventListener('scroll', function () { var k = Math.round(track.scrollLeft / track.clientWidth); idx = k; Array.prototype.forEach.call(dots.children, function (d, j) { d.className = j === k ? 'on' : ''; }); });
       motmTimer = setInterval(function () { if (!track.isConnected) { clearInterval(motmTimer); return; } idx = (idx + 1) % cur.length; track.scrollTo({ left: idx * track.clientWidth, behavior: 'smooth' }); }, 3200);
