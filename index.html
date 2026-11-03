@@ -345,13 +345,19 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
 .ict{display:flex;gap:6px;background:#EEF3FB;border:1px solid var(--line);border-radius:14px;padding:5px;margin:12px 0}
 .ict button{flex:1;min-height:42px;border:0;border-radius:10px;background:transparent;font:600 14px var(--f-b);color:var(--mute);padding:6px 8px}.ict button[aria-pressed=true]{background:#fff;color:#3A3FD8;box-shadow:0 2px 8px -3px rgba(40,50,140,.4)}
 .icg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.icc{position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;padding:0 10px 12px;text-align:center;overflow:hidden}
-.icc .tb{display:flex;justify-content:space-between;padding:10px 0 0}.icc .tb>*{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#F4F7FC;display:grid;place-items:center;font-size:16px;text-decoration:none;color:#1877F2}
-.icc .av{width:84px;height:84px;border-radius:50%;margin:-14px auto 0;border:3px solid #fff;box-shadow:0 6px 16px -6px rgba(0,0,0,.4);background:var(--navy);color:#fff;display:grid;place-items:center;font:700 32px var(--f-d);overflow:hidden}.icc .av img{width:100%;height:100%;object-fit:cover}
-.icc .no{display:inline-block;margin-top:-12px;position:relative;background:#1B2440;color:#fff;font:700 12px var(--f-b);border-radius:99px;padding:2px 9px}
-.icc b.nm{display:block;margin-top:6px;font:700 16px/1.25 var(--f-b);overflow-wrap:anywhere}
-.icc .ln{display:flex;gap:6px;align-items:flex-start;text-align:left;font-size:12.5px;color:var(--mute);margin-top:8px;overflow-wrap:anywhere;line-height:1.35}.icc .ln i{font-style:normal}
-.icc.mis{opacity:.75}
+.icc{position:relative;border-radius:22px;overflow:hidden;color:#fff;background:linear-gradient(165deg,#0B2C66 0%,#16459A 55%,#0A1F4D 100%);box-shadow:0 14px 26px -14px rgba(10,30,90,.8),inset 0 0 0 2px rgba(240,200,110,.85),inset 0 0 0 4px rgba(10,30,90,.9)}
+.icc:before{content:"";position:absolute;left:0;right:0;top:0;height:14px;z-index:3;background:radial-gradient(circle at 10px 0,#EAF6FF 8px,transparent 9px) repeat-x;background-size:20px 14px}
+.icc .ph{position:relative;aspect-ratio:1/1.08;background:radial-gradient(circle at 50% 30%,#4D8CE0,#143F8F 70%);overflow:hidden}
+.icc .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.icc .ph .ini{position:absolute;inset:0;display:grid;place-items:center;font:700 76px var(--f-d);color:rgba(255,255,255,.9)}
+.icc .ph:after{content:"";position:absolute;inset:auto 0 0 0;height:48%;background:linear-gradient(to top,#0A1F4D 8%,rgba(10,31,77,0))}
+.icc .no{position:absolute;left:10px;top:20px;z-index:2;font:700 30px/1 var(--f-d);color:#FFD66B;text-shadow:0 2px 8px rgba(0,0,0,.6)}.icc .no small{display:block;font:600 9px var(--f-b);letter-spacing:.2em;color:#CFE6FF}
+.icc .fbb{position:absolute;right:8px;top:20px;z-index:3;width:34px;height:34px;border-radius:50%;background:#1877F2;color:#fff;display:grid;place-items:center;font:700 19px Arial;text-decoration:none;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+.icc .plate{position:relative;z-index:2;margin:-26px 8px 0;padding:6px 8px;text-align:center;background:linear-gradient(180deg,#FFE9A0,#D9A02A 60%,#9A6A10);color:#2B1C00;font:700 15px/1.2 var(--f-b);letter-spacing:.03em;text-transform:uppercase;clip-path:polygon(7% 0,93% 0,100% 50%,93% 100%,7% 100%,0 50%);overflow-wrap:anywhere}
+.icc .inf{padding:10px 10px 12px;display:grid;gap:6px}
+.icc .ln{display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:6px 8px;font-size:12.5px;color:#E3F0FF;line-height:1.3;overflow-wrap:anywhere}.icc .ln i{font-style:normal;flex:none}.icc .ln span{flex:1;min-width:0}
+.icc .ln button{flex:none;border:0;border-radius:8px;background:#FFD66B;color:#2B1C00;font-weight:700;font-size:11px;padding:4px 8px}
+.icc.mis{filter:saturate(.5);opacity:.85}.icc .nd{text-align:center;color:#FFD66B;font-size:12.5px;padding:6px 0}
 .prl{margin-top:8px;display:grid;gap:5px;font-size:13.5px}.prl div{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;text-align:center}.prl span:first-child{text-align:left}.prl span:last-child{text-align:right}.prl b{font-size:12px}
 .pmsg{white-space:pre-wrap;background:#F4F7FC;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:13.5px;line-height:1.5;overflow-wrap:anywhere}
 </style>
@@ -488,7 +494,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     if (double) { var cnt = rounds.length; for (i = 0; i < cnt; i++) rounds.push(rounds[i].map(function (p) { return [p[1], p[0]]; })); }
     return rounds;
   }
-  function stageLabel(m) { return m.stage === 'sf' ? 'সেমিফাইনাল' : m.stage === 'final' ? 'ফাইনাল' : m.stage === 'third' ? 'তৃতীয় স্থান' : 'রাউন্ড ' + m.rd; }
+  function stageLabel(m) { return m.stage === 'q1' ? 'কোয়ালিফায়ার ১' : m.stage === 'el' ? 'এলিমিনেটর' : m.stage === 'q2' ? 'কোয়ালিফায়ার ২' : m.stage === 'sf' ? 'সেমিফাইনাল' : m.stage === 'final' ? 'ফাইনাল' : m.stage === 'third' ? 'তৃতীয় স্থান' : 'রাউন্ড ' + m.rd; }
   function leagueProgress(ms) { var l = ms.filter(function (m) { return m.stage === 'league'; }); return { total: l.length, done: l.filter(doneM).length }; }
 
   function parseScorers(txt) {
@@ -532,10 +538,15 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
         dirty = true;
       }
     }
+    if (t.ko === 'page') {
+      var q1 = find('q1'), el = find('el'), q2 = find('q2'), fin1 = find('final');
+      if (q1 && el && !q2 && doneM(q1) && doneM(el) && winnerOf(q1) && winnerOf(el)) { batch.set(db.collection('matches').doc(t.id + '_q2'), { tid: t.id, stage: 'q2', rd: 3, a: loserOf(q1), b: winnerOf(el), st: 'pending', ts: Date.now() }); dirty = true; }
+      if (q1 && q2 && !fin1 && doneM(q1) && doneM(q2) && winnerOf(q1) && winnerOf(q2)) { batch.set(db.collection('matches').doc(t.id + '_final'), { tid: t.id, stage: 'final', rd: 0, a: winnerOf(q1), b: winnerOf(q2), st: 'pending', ts: Date.now() }); dirty = true; }
+    }
     var fin = find('final');
     if (fin && doneM(fin) && winnerOf(fin)) {
       var third = find('third'), pm = partMap(t), snap = function (id) { var p = pm[id]; return p ? { id: p.id, n: p.n, logo: p.logo || '', sq: p.sq || [] } : null; };
-      var champ = snap(winnerOf(fin)), runner = snap(loserOf(fin)), th = third && doneM(third) && winnerOf(third) ? snap(winnerOf(third)) : null;
+      var champ = snap(winnerOf(fin)), runner = snap(loserOf(fin)), th = third && doneM(third) && winnerOf(third) ? snap(winnerOf(third)) : (t.ko === 'page' && find('q2') && doneM(find('q2')) && loserOf(find('q2')) ? snap(loserOf(find('q2'))) : null);
       batch.set(db.collection('tournaments').doc(t.id), { status: 'done', champ: champ, runner: runner, third: th }, { merge: true });
       batch.set(db.collection('champions').doc(t.id), { tid: t.id, type: t.type, name: t.name, season: t.season || '', champ: champ, runner: runner, third: th, ts: t.doneTs || Date.now() });
       dirty = true;
@@ -552,7 +563,11 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
   }
   async function makeKnockout(t) {
     var ms = S.mt[t.type], rows = standings(t, ms), batch = db.batch(), now = Date.now();
-    if (t.ko === 'sf') {
+    if (t.ko === 'page') {
+      if (rows.length < 4) { toast('প্লে-অফের জন্য কমপক্ষে ৪ জন লাগবে'); return; }
+      batch.set(db.collection('matches').doc(t.id + '_q1'), { tid: t.id, stage: 'q1', rd: 1, a: rows[0].id, b: rows[1].id, st: 'pending', ts: now });
+      batch.set(db.collection('matches').doc(t.id + '_el'), { tid: t.id, stage: 'el', rd: 2, a: rows[2].id, b: rows[3].id, st: 'pending', ts: now + 1 });
+    } else if (t.ko === 'sf') {
       if (rows.length < 4) { toast('সেমিফাইনালের জন্য কমপক্ষে ৪ জন লাগবে'); return; }
       batch.set(db.collection('matches').doc(t.id + '_sf1'), { tid: t.id, stage: 'sf', rd: 1, a: rows[0].id, b: rows[3].id, st: 'pending', ts: now });
       batch.set(db.collection('matches').doc(t.id + '_sf2'), { tid: t.id, stage: 'sf', rd: 2, a: rows[1].id, b: rows[2].id, st: 'pending', ts: now + 1 });
@@ -737,7 +752,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
       sel.onchange = function () { S.tid[type] = sel.value; syncMatchListeners(); draw(); }; w.append(sel);
     }
     var prog = leagueProgress(ms);
-    w.append(h('div', { class: 'card', style: 'margin-top:12px' }, h('div', { class: 'row', style: 'justify-content:space-between' }, h('div', null, h('div', { class: 'd', style: 'font-size:22px;color:var(--navy)' }, t.name), h('div', { class: 'note' }, (t.season || '') + ' · ' + (t.parts || []).length + (type === 'solo' ? ' জন' : ' টিম') + ' · ' + (t.double ? 'ডাবল লীগ' : 'সিঙ্গেল লীগ') + ' · ' + ({ sf: 'সেমি + ফাইনাল', final: 'সরাসরি ফাইনাল', none: 'লীগ চ্যাম্পিয়ন' }[t.ko] || ''))), statusChip(t)),
+    w.append(h('div', { class: 'card', style: 'margin-top:12px' }, h('div', { class: 'row', style: 'justify-content:space-between' }, h('div', null, h('div', { class: 'd', style: 'font-size:22px;color:var(--navy)' }, t.name), h('div', { class: 'note' }, (t.season || '') + ' · ' + (t.parts || []).length + (type === 'solo' ? ' জন' : ' টিম') + ' · ' + (t.double ? 'ডাবল লীগ' : 'সিঙ্গেল লীগ') + ' · ' + ({ page: 'প্লে-অফ (টপ ৪)', sf: 'সেমি + ফাইনাল', final: 'সরাসরি ফাইনাল', none: 'লীগ চ্যাম্পিয়ন' }[t.ko] || ''))), statusChip(t)),
       prog.total ? h('div', { class: 'note', style: 'margin-top:8px' }, 'লীগ: ' + prog.done + '/' + prog.total + ' ম্যাচ শেষ') : null));
     if (t.status === 'done' && t.champ) { var cb = h('div', { class: 'champ', style: 'margin-top:12px' }, h('small', null, 'CHAMPIONS'), h('h3', null, t.champ.n), t.runner ? h('div', { style: 'margin-top:6px;color:#D3DDF5' }, '🥈 ' + t.runner.n + (t.third ? '   🥉 ' + t.third.n : '')) : null, h('button', { class: 'btn alt sm', style: 'margin-top:12px', onclick: function () { openChampCard(S.champs.filter(function (c) { return c.tid === t.id; })[0] || { name: t.name, type: t.type, season: t.season, champ: t.champ, runner: t.runner, third: t.third }); } }, '⬇ চ্যাম্পিয়ন কার্ড')); w.append(cb); }
     if (type === 'auction') { var sl = motmSlider(t, ms); if (sl) w.append(sl); } else clearInterval(motmTimer);
@@ -799,12 +814,9 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     var body = h('div'), tabs = h('div', { class: 'ict' }), grid = h('div');
     function card(n) {
       var pl = playerOf(n), ok = pl && (pl.gid || pl.dev || pl.photo), fb = pl && /^https?:\/\//i.test(pl.fb || '') ? pl.fb : '';
-      return h('div', { class: 'icc' + (ok ? '' : ' mis') },
-        h('div', { class: 'tb' }, pl && pl.gid ? h('button', { type: 'button', 'aria-label': 'ID কপি', style: 'color:var(--navy)', onclick: function () { copyText(pl.gid, 'ID কপি হয়েছে ✅'); } }, '⧉') : h('span', { style: 'visibility:hidden' }), fb ? h('a', { href: fb, target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Facebook' }, 'f') : h('span', { style: 'visibility:hidden' })),
-        h('div', { class: 'av' }, pl && pl.photo ? h('img', { src: pl.photo, alt: n }) : String(n).charAt(0).toUpperCase()),
-        pl && pl.no ? h('span', { class: 'no' }, '#' + pl.no) : null,
-        h('b', { class: 'nm' }, n),
-        ok ? h('div', null, h('div', { class: 'ln' }, h('i', null, '🎮'), h('span', null, pl.gid || '—')), h('div', { class: 'ln' }, h('i', null, '📱'), h('span', null, pl.dev || '—')), pl.club ? h('div', { class: 'ln' }, h('i', null, '🛡'), h('span', null, pl.club)) : null) : h('div', { class: 'ln', style: 'justify-content:center;color:#C2851A' }, '⚠ তথ্য জমা হয়নি'));
+      var ph = h('div', { class: 'ph' }, pl && pl.photo ? h('img', { src: pl.photo, alt: n, loading: 'lazy' }) : h('span', { class: 'ini' }, String(n).charAt(0).toUpperCase()), pl && pl.no ? h('div', { class: 'no' }, '#' + pl.no, h('small', null, 'JERSEY')) : null, fb ? h('a', { class: 'fbb', href: fb, target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Facebook' }, 'f') : null);
+      return h('div', { class: 'icc' + (ok ? '' : ' mis') }, ph, h('div', { class: 'plate' }, n),
+        h('div', { class: 'inf' }, ok ? [h('div', { class: 'ln' }, h('i', null, '🎮'), h('span', null, pl.gid || '—'), pl.gid ? h('button', { type: 'button', onclick: function () { copyText(pl.gid, 'ID কপি হয়েছে ✅'); } }, 'COPY') : null), h('div', { class: 'ln' }, h('i', null, '📱'), h('span', null, pl.dev || '—')), pl.club ? h('div', { class: 'ln' }, h('i', null, '🛡'), h('span', null, pl.club)) : null] : h('div', { class: 'nd' }, '⚠ তথ্য জমা হয়নি')));
     }
     function paint() {
       tabs.replaceChildren(); sides.forEach(function (p, i) { tabs.append(h('button', { type: 'button', 'aria-pressed': cur === i ? 'true' : 'false', onclick: function () { cur = i; paint(); } }, p.n + ' (' + (p.sq || []).length + ')')); });
@@ -845,7 +857,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     draw(); openICard(t, m);
   }
   function tableSub(t, ms) {
-    var rows = standings(t, ms), kq = t.ko === 'sf' ? 4 : t.ko === 'final' ? 2 : 1;
+    var rows = standings(t, ms), kq = t.ko === 'sf' || t.ko === 'page' ? 4 : t.ko === 'final' ? 2 : 1;
     if (!rows.length) return h('div', { class: 'empty' }, 'অংশগ্রহণকারী যোগ হয়নি');
     var w = h('div'), played = rows.some(function (r) { return r.p > 0; });
     if (played && rows.length >= 3) {
@@ -862,14 +874,17 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     return w;
   }
   function gameRows(m, gs) {
-    var used = {}, rows = [];
+    var used = {}, rows = [], rest = [];
     function row(l, r, sc, bad) { return h('div', null, h('span', null, l), sc != null ? h('b', null, sc + (bad ? ' ⚠' : '')) : h('b', { class: 'pnd' }, '🆚'), h('span', null, r)); }
     (m.pairs || []).forEach(function (q) {
       var hit = -1, sw = false;
       gs.forEach(function (g, i) { if (hit >= 0 || used[i]) return; if (norm(g.pa) === norm(q.a) && norm(g.pb) === norm(q.b)) hit = i; else if (norm(g.pa) === norm(q.b) && norm(g.pb) === norm(q.a)) { hit = i; sw = true; } });
-      if (hit >= 0) { used[hit] = 1; var g = gs[hit]; rows.push(row(q.a, q.b, sw ? g.bs + '–' + g.as : g.as + '–' + g.bs, g.bad)); } else rows.push(row(q.a, q.b, null));
+      if (hit >= 0) { used[hit] = 1; var g = gs[hit]; rows.push(row(q.a, q.b, sw ? g.bs + '–' + g.as : g.as + '–' + g.bs, g.bad)); return; }
+      var pa = playedIn(gs, q.a), pb = playedIn(gs, q.b);
+      if (!pa && !pb) rows.push(row(q.a, q.b, null)); else { if (!pa) rest.push(q.a); if (!pb) rest.push(q.b); }
     });
     gs.forEach(function (g, i) { if (!used[i]) rows.push(row(g.pa, g.pb, g.as + '–' + g.bs, g.bad)); });
+    if (rest.length) rows.push(h('div', { class: 'note', style: 'display:block;text-align:center;margin-top:4px' }, '⏳ এখনো খেলা বাকি: ' + rest.join(', ')));
     return h('div', { class: 'gl' }, rows);
   }
   function ticket(t, m) {
@@ -897,7 +912,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
   var rdOpen = {};
   function fixturesSub(t, ms) {
     var w = h('div'); if (!ms.length) return h('div', { class: 'empty' }, 'ফিক্সচার এখনো তৈরি হয়নি');
-    var ko = ms.filter(function (m) { return m.stage !== 'league'; }).sort(function (a, b) { var o = { sf: 0, third: 1, final: 2 }; return o[a.stage] - o[b.stage] || a.rd - b.rd; });
+    var ko = ms.filter(function (m) { return m.stage !== 'league'; }).sort(function (a, b) { var o = { sf: 0, q1: 0, el: 1, third: 1, q2: 2, final: 3 }; return o[a.stage] - o[b.stage] || a.rd - b.rd; });
     if (ko.length) { w.append(h('div', { class: 'rdh' }, 'নকআউট')); ko.forEach(function (m) { w.append(h('div', null, h('div', { class: 'note', style: 'margin:8px 0 -4px' }, stageLabel(m)), ticket(t, m))); }); }
     var rds = {}; ms.filter(function (m) { return m.stage === 'league'; }).forEach(function (m) { (rds[m.rd] = rds[m.rd] || []).push(m); });
     var keys = Object.keys(rds).map(Number).sort(function (a, b) { var da = rds[a].every(doneM), db2 = rds[b].every(doneM); return (da === db2) ? a - b : da ? 1 : -1; });
@@ -917,9 +932,11 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
   function koSub(t, ms) {
     var ko = ms.filter(function (m) { return m.stage !== 'league'; });
     if (t.ko === 'none') return h('div', { class: 'empty' }, 'এই টুর্নামেন্টে নকআউট নেই, লীগ টেবিলের শীর্ষ দল চ্যাম্পিয়ন।');
-    if (!ko.length) return h('div', { class: 'empty' }, 'লীগ শেষ হলে নকআউট তৈরি হবে।');
-    var w = h('div', { class: 'ko' });
-    ['sf', 'final', 'third'].forEach(function (st) { var l = ko.filter(function (m) { return m.stage === st; }); if (!l.length) return; w.append(h('div', { class: 'rdh' }, { sf: 'সেমিফাইনাল', final: 'ফাইনাল', third: 'তৃতীয় স্থান' }[st])); l.forEach(function (m) { w.append(ticket(t, m)); }); });
+    var how = t.ko === 'page' ? h('div', { class: 'card', style: 'margin-bottom:12px' }, h('b', null, '🔥 প্লে-অফ নিয়ম (টপ ৪)'), h('div', { class: 'note', style: 'margin-top:6px;line-height:1.6' }, '① কোয়ালিফায়ার ১: টেবিলের ১ম বনাম ২য়। জয়ী সরাসরি ফাইনালে, হারা টিম কোয়ালিফায়ার ২-এ।\n② এলিমিনেটর: ৩য় বনাম ৪র্থ। হারলে বিদায়, জিতলে কোয়ালিফায়ার ২-এ।\n③ কোয়ালিফায়ার ২: কোয়ালিফায়ার ১-এর হারা টিম বনাম এলিমিনেটরের জয়ী। জয়ী ফাইনালে।\n④ ফাইনাল: কোয়ালিফায়ার ১-এর জয়ী বনাম কোয়ালিফায়ার ২-এর জয়ী।')) : null;
+    if (how) how.lastChild.style.whiteSpace = 'pre-line';
+    if (!ko.length) return h('div', null, how, h('div', { class: 'empty' }, 'লীগ শেষ হলে নকআউট তৈরি হবে।'));
+    var w = h('div', { class: 'ko' }); if (how) w.append(how);
+    ['q1', 'el', 'q2', 'sf', 'final', 'third'].forEach(function (st) { var l = ko.filter(function (m) { return m.stage === st; }); if (!l.length) return; w.append(h('div', { class: 'rdh' }, { q1: 'কোয়ালিফায়ার ১ (১ম বনাম ২য়)', el: 'এলিমিনেটর (৩য় বনাম ৪র্থ)', q2: 'কোয়ালিফায়ার ২', sf: 'সেমিফাইনাল', final: 'ফাইনাল', third: 'তৃতীয় স্থান' }[st])); l.forEach(function (m) { w.append(ticket(t, m)); }); });
     return w;
   }
   function statsSub(t, ms, type) {
@@ -947,6 +964,8 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     if (t.status === 'setup') c1.append(h('button', { class: 'btn ghost sm', style: 'margin-top:10px', onclick: function () { openPart(t, null); } }, type === 'solo' ? '＋ প্লেয়ার যোগ' : '＋ টিম যোগ'));
     w.append(c1);
     var c2 = h('div', { class: 'card' }, h('div', { class: 'd', style: 'color:var(--navy);margin-bottom:8px' }, 'ধাপ'));
+    if (!hasKo && t.status !== 'done') { var kos = h('select', null, [['page', 'প্লে-অফ: টপ ৪ (Qualifier + Eliminator + ফাইনাল)'], ['sf', 'সেমিফাইনাল + ফাইনাল (টপ ৪)'], ['final', 'সরাসরি ফাইনাল (টপ ২)'], ['none', 'লীগ চ্যাম্পিয়ন (নকআউট নেই)']].map(function (x) { return h('option', { value: x[0], selected: t.ko === x[0] }, x[1]); }));
+      c2.append(h('div', { class: 'note', style: 'margin-bottom:6px' }, 'নকআউট ফরম্যাট (নকআউট তৈরির আগে বদলানো যাবে)'), kos, h('button', { class: 'btn ghost sm', style: 'margin:8px 0 12px', onclick: function () { db.collection('tournaments').doc(t.id).set({ ko: kos.value, third: kos.value === 'sf' && !!t.third }, { merge: true }).then(function () { toast('ফরম্যাট সেভ হয়েছে ✅'); }).catch(wfail); } }, 'ফরম্যাট সেভ')); }
     if (t.status === 'setup') c2.append(h('button', { class: 'btn block', style: 'width:100%', onclick: function () { if (confirm('ফিক্সচার তৈরির পর অংশগ্রহণকারী বদলানো যাবে না। এগোবেন?')) makeFixtures(t); } }, '📅 লীগ ফিক্সচার তৈরি করুন'));
     if (t.status === 'league' && prog.total && prog.done === prog.total) {
       if (t.ko === 'none') c2.append(h('button', { class: 'btn', style: 'width:100%', onclick: function () { if (confirm('টেবিলের শীর্ষ দলকে চ্যাম্পিয়ন ঘোষণা করবেন?')) declareLeagueChamp(t); } }, '🏆 চ্যাম্পিয়ন ঘোষণা'));
@@ -1307,7 +1326,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
   function openCreate(type) {
     var T = TYPES[type], name = h('input', { type: 'text', placeholder: T.label + ' Cup', maxlength: '40' }), season = h('input', { type: 'number', inputmode: 'numeric', value: String(new Date().getFullYear()) });
     var dbl = h('select', null, h('option', { value: '0' }, 'সিঙ্গেল লীগ (একবার করে)'), h('option', { value: '1' }, 'ডাবল লীগ (হোম-অ্যাওয়ে)'));
-    var ko = h('select', null, h('option', { value: 'sf' }, 'সেমিফাইনাল + ফাইনাল (টপ ৪)'), h('option', { value: 'final' }, 'সরাসরি ফাইনাল (টপ ২)'), h('option', { value: 'none' }, 'লীগ চ্যাম্পিয়ন (নকআউট নেই)'));
+    var ko = h('select', null, h('option', { value: 'page' }, 'প্লে-অফ: টপ ৪ (Qualifier + Eliminator + ফাইনাল)'), h('option', { value: 'sf' }, 'সেমিফাইনাল + ফাইনাল (টপ ৪)'), h('option', { value: 'final' }, 'সরাসরি ফাইনাল (টপ ২)'), h('option', { value: 'none' }, 'লীগ চ্যাম্পিয়ন (নকআউট নেই)'));
     var third = h('input', { type: 'checkbox', checked: true }), pick = {}, chips = h('div', { class: 'chips' }), extra = h('textarea', { placeholder: type === 'solo' ? 'বাইরের প্লেয়ারের নাম (প্রতি লাইনে একজন)' : 'প্রতি লাইনে একটা টিমের নাম\nযেমন:\nBlue Hawks\nRed Wolves' });
     if (type === 'solo') S.players.forEach(function (p) { var c = h('button', { type: 'button', class: 'cp', onclick: function () { pick[p.name] = !pick[p.name]; c.classList.toggle('on', !!pick[p.name]); } }, p.name); chips.append(c); });
     var go = h('button', { class: 'btn', style: 'width:100%;margin-top:16px', onclick: async function () {
@@ -1942,11 +1961,19 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
       var rm = rate(b.mine.s, b.th.s, b.mine.x), ro = rate(b.th.s, b.mine.s, b.th.x), pt = b.mine.s > b.th.s ? '+৩ পয়েন্ট জয় 🎉' : b.mine.s === b.th.s ? '+১ পয়েন্ট ড্র' : '০ পয়েন্ট';
       prev.append(h('div', { class: 'sg' }, h('div', null, h('b', null, me), h('div', { class: 'note' }, '⭐ ' + rm.toFixed(1))), h('div', { class: 'd', style: 'font-size:34px;color:var(--navy)' }, b.mine.s + ' – ' + b.th.s), h('div', null, h('b', null, op), h('div', { class: 'note' }, '⭐ ' + ro.toFixed(1)))), h('div', { class: 'note', style: 'text-align:center;margin-top:6px' }, pt + ' · রেটিং অটো হিসাব হয়েছে'));
     }
+    var opBox = h('div');
+    function pairOpp() { if (!(m.pairs || []).length || !me) return ''; var q = m.pairs.filter(function (z) { return norm(team === 'a' ? z.a : z.b) === norm(me); })[0]; if (!q) return ''; var o = team === 'a' ? q.b : q.a; return hasPlayed(m, o) ? '' : o; }
+    function paintOp() {
+      var oth = pm[team === 'a' ? m.b : m.a], f = pairOpp(); opBox.replaceChildren();
+      if (f) { op = f; opBox.append(h('div', { class: 'card' }, h('b', null, f), h('div', { class: 'note' }, '✅ ফিক্সচার অনুযায়ী আপনার প্রতিপক্ষ'))); return; }
+      if ((m.pairs || []).length && me) opBox.append(h('div', { class: 'note' }, '⚠ ফিক্সচারে আপনার জোড়া পাওয়া যায়নি, নিজে বাছুন'));
+      opBox.append(pickRow(leftOf(m, oth), !((oth && oth.sq) || []).length, function () { return op; }, function (v) { op = v; preview(); }));
+    }
     function paint() {
       var mine = pm[team === 'a' ? m.a : m.b], oth = pm[team === 'a' ? m.b : m.a], sides = h('div', { class: 'chips' });
       [['a', A], ['b', B]].forEach(function (x) { sides.append(h('button', { type: 'button', class: 'cp' + (team === x[0] ? ' on' : ''), onclick: function () { team = x[0]; me = ''; op = ''; sd = ''; paint(); guess(); preview(); } }, x[1])); });
-      area.replaceChildren(h('div', { class: 'rdh' }, '১. আপনি কোন টিমের?'), sides, h('div', { class: 'rdh' }, '২. আপনার নাম (' + (team === 'a' ? A : B) + ')'), pickRow(leftOf(m, mine), !((mine && mine.sq) || []).length, function () { return me; }, function (v) { me = v; guess(); preview(); }),
-        h('div', { class: 'rdh' }, '৩. প্রতিপক্ষ (' + (team === 'a' ? B : A) + ')'), pickRow(leftOf(m, oth), !((oth && oth.sq) || []).length, function () { return op; }, function (v) { op = v; preview(); }));
+      area.replaceChildren(h('div', { class: 'rdh' }, '১. আপনি কোন টিমের?'), sides, h('div', { class: 'rdh' }, '২. আপনার নাম (' + (team === 'a' ? A : B) + ')'), pickRow(leftOf(m, mine), !((mine && mine.sq) || []).length, function () { return me; }, function (v) { me = v; op = ''; paintOp(); guess(); preview(); }),
+        h('div', { class: 'rdh' }, '৩. প্রতিপক্ষ (' + (team === 'a' ? B : A) + ')'), opBox); paintOp();
     }
     paint(); paintSide(); preview();
     var go = h('button', { class: 'btn', style: 'width:100%;margin-top:14px', onclick: async function () {
@@ -2033,8 +2060,8 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
   }
 
   /* ---- MOTM: editor, slider, poster ---- */
-  function ordOf(m) { return m.stage === 'league' ? (m.rd || 0) : m.stage === 'sf' ? 1000 : m.stage === 'third' ? 1001 : 1002; }
-  function dayLbl(m, en) { return m.stage === 'league' ? (en ? 'MATCH DAY ' : 'ম্যাচ ডে ') + (m.rd || '') : en ? ({ sf: 'SEMI FINAL', third: 'THIRD PLACE', final: 'FINAL' }[m.stage] || '') : stageLabel(m); }
+  function ordOf(m) { return m.stage === 'league' ? (m.rd || 0) : m.stage === 'sf' || m.stage === 'q1' ? 1000 : m.stage === 'third' || m.stage === 'el' ? 1001 : m.stage === 'q2' ? 1002 : 1003; }
+  function dayLbl(m, en) { return m.stage === 'league' ? (en ? 'MATCH DAY ' : 'ম্যাচ ডে ') + (m.rd || '') : en ? ({ q1: 'QUALIFIER 1', el: 'ELIMINATOR', q2: 'QUALIFIER 2', sf: 'SEMI FINAL', third: 'THIRD PLACE', final: 'FINAL' }[m.stage] || '') : stageLabel(m); }
   function motmItems(t, ms) {
     var out = [];
     ms.filter(function (m) { return doneM(m) && (m.g || []).length; }).forEach(function (m) {
@@ -2151,7 +2178,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     x.textAlign = 'center'; x.fillStyle = '#E8C26A'; x.font = '500 26px ' + D; ls(10); x.fillText('THE GOAL HUNTERS', W / 2 + 5, 268);
     x.fillStyle = '#fff'; x.font = '700 118px ' + D; ls(6); x.fillText('FULL TIME', W / 2 + 3, 392); ls(0);
     var dt = new Date(m.dt || gs.reduce(function (s, q) { return Math.max(s, q.ts || 0); }, 0) || Date.now()), ds = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
-    x.fillStyle = '#E8C26A'; x.font = '500 30px ' + D; ls(3); x.fillText((m.stage === 'league' ? 'ROUND ' + m.rd : m.stage === 'sf' ? 'SEMI FINAL' : m.stage === 'final' ? 'FINAL' : 'THIRD PLACE') + ' · ' + String(t.name).toUpperCase().slice(0, 28) + ' · ' + ds, W / 2 + 2, 448); ls(0);
+    x.fillStyle = '#E8C26A'; x.font = '500 30px ' + D; ls(3); x.fillText((m.stage === 'league' ? 'ROUND ' + m.rd : m.stage === 'q1' ? 'QUALIFIER 1' : m.stage === 'el' ? 'ELIMINATOR' : m.stage === 'q2' ? 'QUALIFIER 2' : m.stage === 'sf' ? 'SEMI FINAL' : m.stage === 'final' ? 'FINAL' : 'THIRD PLACE') + ' · ' + String(t.name).toUpperCase().slice(0, 28) + ' · ' + ds, W / 2 + 2, 448); ls(0);
     circ(imgs[1], 230, 620, 112, hue(A.n), A.n); circ(imgs[2], 850, 620, 112, hue(B.n), B.n);
     x.strokeStyle = 'rgba(255,255,255,.9)'; x.lineWidth = 5; [230, 850].forEach(function (cx) { x.beginPath(); x.arc(cx, 620, 115, 0, 7); x.stroke(); });
     x.fillStyle = '#9DBBAB'; x.font = '500 24px ' + D; ls(6); x.fillText('TEAM POINTS', W / 2 + 3, 520); ls(0);
