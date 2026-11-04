@@ -342,6 +342,41 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
 .rta{width:100%;min-height:340px;font:15px/1.55 var(--f-b);padding:12px;border:1px solid var(--line);border-radius:12px;resize:vertical;box-sizing:border-box}
 /* v11 icard */
 .drw{display:grid;gap:8px;margin-top:10px}.dr{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--card,#fff);border:1px solid rgba(0,0,0,.08);text-align:center;transition:transform .25s,box-shadow .25s}.dr span:first-child{text-align:left;font-weight:700}.dr .rb{text-align:right;font-weight:700}.dr.on{transform:scale(1.03);box-shadow:0 0 0 2px #d4a93a,0 6px 18px rgba(212,169,58,.35)}.dr .spin{opacity:.6;font-style:italic}.dr.fin{border-color:#2e7d32}.dr .lk2{animation:drp .4s}.dlk{margin:8px 0;padding:8px 10px;border-radius:10px;background:rgba(46,125,50,.1);font-weight:700;text-align:center}@keyframes drp{0%{transform:scale(1.4);color:#d4a93a}100%{transform:scale(1)}}
+.hero.hn{background:radial-gradient(75% 45% at 50% 22%,#1d3f8f,transparent),linear-gradient(#050d24,#071436 60%,#040a1c);border:1px solid rgba(159,184,255,.25);box-shadow:0 18px 50px rgba(5,13,36,.45)}
+.hero.hn:before{opacity:.5;background:radial-gradient(#fff 1.1px,transparent 1.5px) 0 0/30px 30px}
+.hero.hn .arch,.hero.hn .shine{display:none}
+.hero.hn .hnr{position:absolute;left:50%;top:92px;width:300px;height:300px;margin:-150px 0 0 -150px;border-radius:50%;border:1px solid rgba(159,184,255,.3);box-shadow:0 0 50px rgba(75,123,255,.3) inset,0 0 30px rgba(75,123,255,.2);z-index:-1;pointer-events:none}
+.hero.hn .hnr.b{width:200px;height:200px;margin:-100px 0 0 -100px;border-color:rgba(159,184,255,.5)}
+.hero.hn{text-align:center}.hero.hn .lg{width:104px;height:104px;margin:6px auto 0;display:block;box-shadow:0 0 46px #4b7bff,0 0 0 2px rgba(159,184,255,.45)}
+.hero.hn .kick{color:#9fb8ff;letter-spacing:.38em;font-size:11px;margin-top:16px}
+.hero.hn h1{font-size:50px;background:linear-gradient(180deg,#fff,#9fb8ff);-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:6px}
+.hero.hn h1 span{background:none;color:#cfe0ff;-webkit-text-fill-color:#cfe0ff}
+.hero.hn p{color:#b9c8ee;margin:10px auto 0}.hero.hn .seasonb{margin-left:auto;margin-right:auto}
+.hero.hn .cta{justify-content:center}
+.hero.hn .btn{background:linear-gradient(#fff,#c7d6ff);color:#071436;border:0;box-shadow:0 8px 22px rgba(75,123,255,.35)}
+.hero.hn .btn.alt{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.28);box-shadow:none;backdrop-filter:blur(8px)}
+.hero.hn .btn.gold{background:linear-gradient(#F6DE9A,#C99A3B);color:#3a2600}
+.hero.hn .cd{display:flex;flex-direction:column;align-items:center}.hero.hn .cdr div{background:rgba(255,255,255,.08);border-color:rgba(159,184,255,.35)}
+.lvs{margin-top:18px;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(10px);cursor:pointer;text-align:center}
+.lvs .k{font:700 10px var(--f-b);letter-spacing:.3em;color:#ff8a98;display:flex;gap:8px;justify-content:center;align-items:center}.lvs .k i{width:8px;height:8px;border-radius:50%;background:#ff4d5e;box-shadow:0 0 0 4px rgba(255,77,94,.3);animation:lvp 1.4s infinite}
+@keyframes lvp{50%{box-shadow:0 0 0 8px rgba(255,77,94,0)}}
+.lvs .r{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-weight:600;font-size:14px}.lvs .r span{flex:1}.lvs .r b{font:700 30px var(--f-d);background:linear-gradient(#fff,#9fb8ff);-webkit-background-clip:text;background-clip:text;color:transparent;flex:none}
+.stats.hs .stat{background:linear-gradient(160deg,#0b1d4a,#0a1633);border:1px solid rgba(159,184,255,.3);box-shadow:0 8px 20px rgba(5,13,36,.25)}
+.stats.hs .stat b{background:linear-gradient(#fff,#9fb8ff);-webkit-background-clip:text;background-clip:text;color:transparent}.stats.hs .stat span{color:#9fb8ff}
+html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4a,#0a1633)}
+/* premium top boards */
+.tb{border-radius:28px;padding:18px 12px 14px;margin-top:14px;color:#fff;position:relative;overflow:hidden;background:linear-gradient(135deg,#ff7a1a,#f0307a 55%,#6a3cff);box-shadow:0 12px 30px rgba(106,60,255,.3)}
+.tb:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.12) 40% 55%,transparent 55%);pointer-events:none}
+.tb h4{font:800 25px/1 var(--f-d);text-transform:uppercase;text-align:center;letter-spacing:.02em;position:relative}
+.tbg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px;position:relative}
+.tbc{border-radius:44px 44px 18px 18px;overflow:hidden;position:relative;height:262px;background:#fff;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;padding:0 3px 10px}
+.tbc .tbm{position:absolute;left:0;top:0;width:100%;height:56%;object-fit:cover;object-position:center top}
+.tbc .tbo{position:absolute;inset:0}
+.tbc .tbi{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tbc .tbn{font:600 11px/1.15 var(--f-b);word-break:break-word}.tbc .tbv{font:800 34px/1 var(--f-d)}
+.tbc .tbk{margin-top:3px}.tbc .tbx{position:absolute;left:0;top:0;width:100%;height:56%;display:flex;align-items:center;justify-content:center;font:800 42px var(--f-d);color:#0b2358;background:linear-gradient(#fff,#dfe6f7)}
+.tbl{margin-top:12px;position:relative;background:rgba(255,255,255,.14);border-radius:16px;padding:4px 10px}.tbl div{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.16);font-size:14px}.tbl div:last-child{border:0}.tbl b:last-child{margin-left:auto;font:800 20px var(--f-d)}
+
 .tk .gl b.pnd{font:500 14px var(--f-b);opacity:.6;color:var(--mute)}
 .ict{display:flex;gap:6px;background:#EEF3FB;border:1px solid var(--line);border-radius:14px;padding:5px;margin:12px 0}
 .ict button{flex:1;min-height:42px;border:0;border-radius:10px;background:transparent;font:600 14px var(--f-b);color:var(--mute);padding:6px 8px}.ict button[aria-pressed=true]{background:#fff;color:#3A3FD8;box-shadow:0 2px 8px -3px rgba(40,50,140,.4)}
@@ -661,18 +696,26 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     var st = S.settings || {}, k = themeKey(), wt = k === 'winter', th = THEMES[k], cv = wt ? h('canvas', { class: 'snow' }) : null;
     var arch = h('div', { class: 'arch', html: '<svg viewBox="0 0 300 300" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="3"><path d="M40 300V150a110 110 0 01220 0v150"/><path d="M70 300V155a80 80 0 01160 0v145" stroke-opacity=".1"/><circle cx="150" cy="190" r="46" stroke-opacity=".12"/></svg>' });
     var badge = st.season || th.badge, cd = countdownBox(Date.parse(st.cdTo || ''), st.cdLabel), jurl = /^https?:\/\//i.test(st.joinUrl || '') ? st.joinUrl : '';
-    var el = h('section', { class: 'hero' + (wt ? ' wt' : '') }, arch, h('div', { class: 'shine' }), cv,
+    var el = h('section', { class: 'hero hn' + (wt ? ' wt' : '') }, arch, h('div', { class: 'hnr' }), h('div', { class: 'hnr b' }), h('div', { class: 'shine' }), cv,
       wt && !reduceMo ? h('button', { class: 'snowbtn', 'aria-label': 'তুষার চালু/বন্ধ', onclick: function () { snowOn = !snowOn; try { localStorage.setItem('tgh_snow', snowOn ? '1' : '0'); } catch (e) { /* ignore */ } if (snowOn) startSnow(cv); else cancelAnimationFrame(snowRaf); el.classList.toggle('nosnow', !snowOn); } }, '❄') : null,
       badge ? h('div', { class: 'seasonb' }, badge) : null,
       h('img', { class: 'lg', src: 'logo.webp', alt: 'The Goal Hunters' }),
       h('div', { class: 'kick' }, 'eFootball Group · Sylhet'),
       h('h1', null, 'Hunt the ', h('span', null, 'Goal')),
       h('p', null, 'প্রতিটা ম্যাচে নতুন শিকার। Auction আর Solo, দুই মঞ্চে আমাদের লড়াইয়ের পুরো হিসাব।'), cd,
+      liveStrip(),
       h('div', { class: 'cta' }, h('button', { class: 'btn', onclick: function () { goTab('auction'); } }, '🪙 Auction'), h('button', { class: 'btn alt', onclick: function () { goTab('solo'); } }, '🎯 Solo'),
         jurl ? h('a', { class: 'btn gold', href: jurl, target: '_blank', rel: 'noopener noreferrer' }, st.joinText || '🤝 পরের সিজনে নাম লেখান') : null),
       S.canWrite ? h('button', { class: 'btn ghost sm hset', onclick: openHomeSettings }, '⚙ হোম সেটিংস') : null);
     if (cv) setTimeout(function () { startSnow(cv); }, 0);
     return el;
+  }
+  function liveStrip() {
+    var t = curTour('auction'); if (!t) return null;
+    var m = (S.mt.auction || []).filter(function (x) { return x.tid === t.id && !doneM(x) && (x.g || []).length; })[0]; if (!m) return null;
+    var pm = partMap(t), a = pm[m.a] || { n: '—' }, b = pm[m.b] || { n: '—' }, r = tpts(m.g);
+    return h('div', { class: 'lvs', role: 'button', tabindex: '0', onclick: function () { goTab('auction'); }, onkeydown: function (e) { if (e.key === 'Enter') goTab('auction'); } },
+      h('div', { class: 'k' }, h('i'), 'LIVE · ' + stageLabel(m)), h('div', { class: 'r' }, h('span', null, a.n), h('b', null, r.a + ' : ' + r.b), h('span', null, b.n)));
   }
   function socialBox() {
     var st = S.settings || {}, it = [['📘', 'Facebook পেজ', st.fb], ['👥', 'Facebook গ্রুপ', st.fbg], ['💬', 'WhatsApp', st.wa], ['▶️', 'YouTube', st.yt]].filter(function (x) { return /^https?:\/\//i.test(x[2] || ''); });
@@ -725,7 +768,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
   function homeView() {
     var w = h('div', { class: 'wrap' }, heroBox(), noticeBoard()); var ib = installBanner(); if (ib) w.append(ib);
     var sb = socialBox(); if (sb) w.append(sb);
-    w.append(secTitle('আমাদের গ্রুপ'), h('div', { class: 'stats' },
+    w.append(secTitle('আমাদের গ্রুপ'), h('div', { class: 'stats hs' },
       h('div', { class: 'stat' }, S.ready.players ? numEl(rosterAll().length) : h('b', null, '–'), h('span', null, 'প্লেয়ার')),
       h('div', { class: 'stat' }, S.ready.tours ? numEl(S.champs.length) : h('b', null, '–'), h('span', null, 'টুর্নামেন্ট শেষ')),
       h('div', { class: 'stat' }, S.ready.tours ? numEl(S.tours.filter(function (t) { return t.status !== 'done'; }).length) : h('b', null, '–'), h('span', null, 'চলমান'))));
@@ -1901,6 +1944,58 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     rows.slice(0, 8).forEach(function (r, i) { c.append(h('div', { class: 'mini tp' + (i === 0 ? ' f1' : '') }, h('span', { class: 'pos p' + (i + 1) }, i + 1), h('span', { class: 'n tn' }, crest({ n: r.n, logo: r.logo }, 38), h('span', null, r.n, r.s ? h('small', { class: 'note' }, ' · ' + r.s) : null)), h('b', null, r.v + ' ' + unit))); });
     return c;
   }
+
+  var TBC = [['#f0452e', '#b3121f'], ['#e0243f', '#a0123a'], ['#3b5bdb', '#1d2f99'], ['#2f43c4', '#17227f']];
+  function topBoard(t, title, rows, unit, fname, sub) {
+    var top = rows.slice(0, 4), box = h('div');
+    if (!top.length) { box.append(lbCard(title, [], unit)); return box; }
+    var tb = h('div', { class: 'tb' }, h('h4', null, title)), g = h('div', { class: 'tbg' });
+    top.forEach(function (r, i) {
+      var c = TBC[i], pt = partMap(t)[r.team] || {}, card = h('div', { class: 'tbc' });
+      card.append(r.ph ? h('img', { class: 'tbm', src: r.ph, alt: '' }) : h('div', { class: 'tbx' }, String(r.n).charAt(0).toUpperCase()),
+        h('div', { class: 'tbo', style: 'background:linear-gradient(180deg,transparent 28%,' + c[0] + ' 58%,' + c[1] + ' 100%)' }),
+        h('div', { class: 'tbi' }, h('div', { class: 'tbn' }, r.n), h('div', { class: 'tbv' }, r.v), h('div', { class: 'tbk' }, crest({ n: pt.n || '', logo: pt.logo }, 28))));
+      g.append(card);
+    });
+    tb.append(g);
+    if (rows.length > 4) { var l = h('div', { class: 'tbl' }); rows.slice(4, 8).forEach(function (r, i) { var pt = partMap(t)[r.team] || {}; l.append(h('div', null, h('b', null, i + 5), h('span', null, r.n, pt.n ? ' · ' + pt.n : ''), h('b', null, r.v))); }); tb.append(l); }
+    box.append(tb, h('button', { class: 'btn', style: 'width:100%;margin-top:10px', onclick: function () { openCardSheet(title, function () { return drawBoardCard(t, title, top, sub || unit); }, fname); } }, '📤 ' + title + ' শেয়ার করুন'));
+    return box;
+  }
+  async function drawBoardCard(t, title, rows, unit) {
+    var W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H; var x = cv.getContext('2d'), D = 'Oswald,"Hind Siliguri","Noto Sans Bengali","Arial Narrow",Impact,sans-serif', C = 'Cinzel,"Times New Roman",serif';
+    function sp(v) { if ('letterSpacing' in x) x.letterSpacing = v + 'px'; }
+    function rr(a, b, w, hh, r) { x.beginPath(); if (x.roundRect) x.roundRect(a, b, w, hh, r); else x.rect(a, b, w, hh); }
+    try { await Promise.all([document.fonts.load('800 80px Oswald'), document.fonts.load('600 36px Oswald'), document.fonts.load('700 30px Cinzel')]); } catch (e) { /* ignore */ }
+    var bg = x.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#ff7a1a'); bg.addColorStop(0.55, '#f0307a'); bg.addColorStop(1, '#6a3cff'); x.fillStyle = bg; x.fillRect(0, 0, W, H);
+    [[0, 0.15], [0.28, 0.1], [0.62, 0.08]].forEach(function (b) { x.fillStyle = 'rgba(255,255,255,' + b[1] + ')'; x.beginPath(); x.moveTo(W * b[0], 0); x.lineTo(W * (b[0] + 0.22), 0); x.lineTo(W * (b[0] - 0.25), H); x.lineTo(W * (b[0] - 0.47), H); x.closePath(); x.fill(); });
+    x.textAlign = 'center'; var nm = String(title).toUpperCase(), f = 104; x.font = '800 ' + f + 'px ' + D; while (x.measureText(nm).width > 940 && f > 40) { f -= 4; x.font = '800 ' + f + 'px ' + D; }
+    x.save(); x.shadowColor = 'rgba(0,0,0,.25)'; x.shadowBlur = 20; x.fillStyle = '#fff'; x.fillText(nm, W / 2, 175); x.restore();
+    x.fillStyle = 'rgba(255,255,255,.85)'; x.font = '500 30px ' + D; sp(6); x.fillText(String((t && t.name) || 'THE GOAL HUNTERS').toUpperCase() + (t && t.season ? '  ·  ' + t.season : ''), W / 2 + 3, 232); sp(0);
+    var n = rows.length, cw = 228, gap = 22, tot = n * cw + (n - 1) * gap, x0 = (W - tot) / 2, y0 = 290, ch = 880, pm = partMap(t);
+    var imgs = await Promise.all(rows.map(function (r) { return r.ph ? loadImg(r.ph).catch(function () { return null; }) : Promise.resolve(null); }));
+    var lgs = await Promise.all(rows.map(function (r) { var p = pm[r.team]; return p && p.logo ? loadImg(p.logo).catch(function () { return null; }) : Promise.resolve(null); }));
+    rows.forEach(function (r, i) {
+      var cx = x0 + i * (cw + gap), c = TBC[i];
+      x.save(); x.shadowColor = 'rgba(0,0,0,.3)'; x.shadowBlur = 30; x.shadowOffsetY = 12; rr(cx, y0, cw, ch, 114); x.fillStyle = '#fff'; x.fill(); x.restore();
+      x.save(); rr(cx, y0, cw, ch, 114); x.clip();
+      var im = imgs[i];
+      if (im) { var ar = im.width / im.height, dh = 560, dw = dh * ar; if (dw < cw) { dw = cw; dh = dw / ar; } x.drawImage(im, cx + (cw - dw) / 2, y0, dw, dh); }
+      else { var ig = x.createLinearGradient(0, y0, 0, y0 + 560); ig.addColorStop(0, '#fff'); ig.addColorStop(1, '#dfe6f7'); x.fillStyle = ig; x.fillRect(cx, y0, cw, 560); x.fillStyle = '#0b2358'; x.font = '800 120px ' + D; x.fillText(String(r.n).charAt(0).toUpperCase(), cx + cw / 2, y0 + 270); }
+      var gr = x.createLinearGradient(0, y0 + 330, 0, y0 + ch); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.3, c[0]); gr.addColorStop(1, c[1]); x.fillStyle = gr; x.fillRect(cx, y0 + 330, cw, ch - 330);
+      x.restore();
+      x.fillStyle = '#fff'; var parts = String(r.n).split(/\s+/), l1 = parts.length > 1 ? parts.slice(0, -1).join(' ') : r.n, l2 = parts.length > 1 ? parts[parts.length - 1] : '';
+      function fit(txt, base) { var fs = base; x.font = '600 ' + fs + 'px ' + D; while (x.measureText(txt).width > cw - 24 && fs > 18) { fs -= 2; x.font = '600 ' + fs + 'px ' + D; } return txt; }
+      x.save(); x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = 6; fit(l1, 42); x.fillText(l1, cx + cw / 2, y0 + 628); if (l2) { fit(l2, 42); x.fillText(l2, cx + cw / 2, y0 + 676); } x.restore();
+      x.font = '800 150px ' + D; x.fillText(String(r.v), cx + cw / 2, y0 + 785);
+      var lg = lgs[i], cy = y0 + 836, R = 32; x.beginPath(); x.arc(cx + cw / 2, cy, R + 5, 0, 7); x.fillStyle = '#fff'; x.fill(); x.save(); x.beginPath(); x.arc(cx + cw / 2, cy, R, 0, 7); x.clip();
+      if (lg) x.drawImage(lg, cx + cw / 2 - R, cy - R, R * 2, R * 2); else { x.fillStyle = c[1]; x.fillRect(cx, cy - R - 4, cw, R * 2 + 8); x.fillStyle = '#fff'; x.font = '800 34px ' + D; x.fillText(String((pm[r.team] || {}).n || '?').charAt(0).toUpperCase(), cx + cw / 2, cy + 11); }
+      x.restore();
+    });
+    x.fillStyle = 'rgba(255,255,255,.92)'; x.font = '700 32px ' + C; sp(7); x.fillText('THE GOAL HUNTERS', W / 2 + 3, 1262); sp(0);
+    x.fillStyle = 'rgba(255,255,255,.75)'; x.font = '500 22px ' + D; sp(6); x.fillText('#TGHAUCTION  ·  ' + String(unit || '').toUpperCase(), W / 2 + 3, 1304); sp(0);
+    return new Promise(function (res, rej) { cv.toBlob(function (b) { b ? res(b) : rej(new Error('blob')); }, 'image/png'); });
+  }
   function starsSub(t, ms) {
     var w = h('div'), pl = playersOf(t, ms);
     if (!pl.length) return h('div', { class: 'empty' }, 'প্লেয়ারদের রেজাল্ট জমা হলে রেটিং আর Dream XI এখানে আসবে ⭐');
@@ -1913,8 +2008,8 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
       cnt ? h('button', { class: 'btn', style: 'width:100%;margin-top:10px', onclick: function () { openCardSheet('Dream XI', function () { return drawDreamCard(t, xi); }, 'tgh-dream-xi.png'); } }, '📤 Dream XI শেয়ার করুন') : null,
       h('p', { class: 'note', style: 'margin-top:8px' }, cnt < 11 ? 'আরও গেম জমা হলে ১১ জনের দল পূর্ণ হবে। ' : '', 'রেটিং হয় গোল, ফল, শট, পাস সঠিকতা, পজেশন, ট্যাকল, সেভ ও ফাউল দেখে। পজিশন ঠিক হয় কে কী বেশি করেছে তা দেখে (অ্যাডমিন প্রোফাইলে পজিশন দিলে সেটাই চলে)।'));
     w.append(lbCard('⭐ Top Rated', pl.slice().sort(function (a, b) { return b.rt - a.rt || b.g - a.g; }).map(function (p) { return { n: p.n, s: p.pos + ' · ' + tn(p), v: p.rt.toFixed(1) }; }), 'রেটিং'),
-      lbCard('🥾 Golden Boot', pl.filter(function (p) { return p.gl > 0; }).sort(function (a, b) { return b.gl - a.gl; }).map(function (p) { return { n: p.n, s: tn(p), v: p.gl }; }), 'গোল'),
-      lbCard('🧤 Clean Sheet', pl.filter(function (p) { return p.cs > 0; }).sort(function (a, b) { return b.cs - a.cs; }).map(function (p) { return { n: p.n, s: tn(p), v: p.cs }; }), 'ক্লিনশিট'),
+      topBoard(t, 'Golden Boot', pl.filter(function (p) { return p.gl > 0; }).sort(function (a, b) { return b.gl - a.gl || b.rt - a.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.gl }; }), 'গোল', 'tgh-golden-boot.png', 'Goals'),
+      topBoard(t, 'Most Clean Sheets', pl.filter(function (p) { return p.cs > 0; }).sort(function (a, b) { return b.cs - a.cs || b.rt - a.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.cs }; }), 'ক্লিনশিট', 'tgh-clean-sheets.png', 'Clean Sheets'),
       lbCard('🏅 Man of the Match', motmBoard(ms).map(function (r) { return { n: r.n, v: r.c }; }), 'বার'));
     return w;
   }
