@@ -1016,7 +1016,11 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
   function statsSub(t, ms, type) {
     var w = h('div'), sc = topScorers(ms), mm = motmBoard(ms);
     function board(title, rows, unit) { var c = h('div', { class: 'card' }, h('div', { class: 'd', style: 'color:var(--navy);margin-bottom:6px' }, title)); if (!rows.length) c.append(h('div', { class: 'note' }, 'এখনো কোনো ডেটা নেই')); rows.slice(0, 8).forEach(function (r, i) { c.append(h('div', { class: 'mini tp' + (i === 0 ? ' f1' : '') }, h('span', { class: 'pos p' + (i + 1) }, i + 1), crest({ n: r.n }, 40), h('span', { class: 'n' }, r.n), h('b', null, (r.g != null ? r.g : r.c) + ' ' + unit))); }); return c; }
-    if (type === 'auction') w.append(board('🥾 Golden Boot', sc, 'গোল'));
+    if (type === 'auction') {
+      var pl = playersOf(t, ms);
+      w.append(topBoard(t, 'Golden Boot', pl.filter(function (p) { return p.gl > 0; }).sort(function (x, y) { return y.gl - x.gl || y.rt - x.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.gl }; }), 'গোল', 'tgh-golden-boot.png', 'Goals'),
+        topBoard(t, 'Most Clean Sheets', pl.filter(function (p) { return p.cs > 0; }).sort(function (x, y) { return y.cs - x.cs || y.rt - x.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.cs }; }), 'ক্লিনশিট', 'tgh-clean-sheets.png', 'Clean Sheets'));
+    }
     w.append(board('⭐ Man of the Match', mm, 'বার'));
     var tot = ms.filter(function (m) { return doneM(m); }), goals = tot.reduce(function (s, m) { return s + matchGoals(m); }, 0);
     w.append(h('div', { class: 'stats', style: 'margin-top:12px' }, h('div', { class: 'stat' }, h('b', null, tot.length), h('span', null, 'ম্যাচ')), h('div', { class: 'stat' }, h('b', null, goals), h('span', null, 'গোল')), h('div', { class: 'stat' }, h('b', null, tot.length ? (goals / tot.length).toFixed(1) : '0'), h('span', null, 'গড়/ম্যাচ'))));
