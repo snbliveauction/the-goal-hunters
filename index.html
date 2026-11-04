@@ -370,6 +370,16 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
 .tb h4{font:800 25px/1 var(--f-d);text-transform:uppercase;text-align:center;letter-spacing:.02em;position:relative}
 .tb.gk{background:linear-gradient(135deg,#00c98d,#0a8f6a 50%,#0a3d62);box-shadow:0 12px 30px rgba(10,143,106,.35)}.tb.gk:before{background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 28px,transparent 28px 56px)}
 .tbw{position:absolute;right:-10px;top:-6px;font-size:120px;opacity:.14;transform:rotate(14deg);pointer-events:none}.tbs{text-align:center;font-size:12px;opacity:.85;margin-top:4px;position:relative}
+.mom{display:grid;grid-template-columns:50px 1fr;gap:10px;border-radius:28px;padding:14px 12px;margin-top:14px;color:#fff;position:relative;overflow:hidden;background:radial-gradient(90% 50% at 20% 0,#ff2a3d55,transparent),linear-gradient(160deg,#e10b1f,#8f0613);box-shadow:0 12px 30px rgba(143,6,19,.4)}
+.mom:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(105deg,rgba(255,255,255,.05) 0 3px,transparent 3px 46px);pointer-events:none}
+.momv{writing-mode:vertical-rl;transform:rotate(180deg);font:300 30px/1 var(--f-d);text-transform:uppercase;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;position:relative;white-space:nowrap}.momv b{font-weight:800}
+.momr{position:relative;height:100px;border-radius:12px;background:linear-gradient(90deg,rgba(0,0,0,.26),rgba(0,0,0,.1));overflow:hidden;margin-bottom:9px}
+.momr .momn{position:absolute;left:12px;bottom:-8px;font:800 60px/1 var(--f-d);color:rgba(0,0,0,.3)}
+.momr .momt{position:absolute;left:12px;top:12px;line-height:1.05;z-index:1}.momt small{display:block;font-size:12px;opacity:.85;text-transform:uppercase}.momt b{display:block;font:800 21px/1.05 var(--f-d);text-transform:uppercase}
+.momr .momp{position:absolute;right:0;top:0;height:100%;width:52%;object-fit:cover;object-position:center top;-webkit-mask-image:linear-gradient(90deg,transparent,#000 40%);mask-image:linear-gradient(90deg,transparent,#000 40%)}
+.momr .momi{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font:800 28px var(--f-d)}
+.momm{position:relative;grid-column:1/3;margin-top:2px;background:rgba(0,0,0,.2);border-radius:14px;padding:4px 10px}.momm div{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:14px}.momm div:last-child{border:0}.momm b:last-child{margin-left:auto;font:800 18px var(--f-d)}
+
 .tbg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px;position:relative}
 .tbc{border-radius:44px 44px 18px 18px;overflow:hidden;position:relative;height:262px;background:#fff;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;padding:0 3px 10px}
 .tbc .tbm{position:absolute;left:0;top:0;width:100%;height:56%;object-fit:cover;object-position:center top}
@@ -1023,7 +1033,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
       w.append(topBoard(t, 'Golden Boot', pl.filter(function (p) { return p.gl > 0; }).sort(function (x, y) { return y.gl - x.gl || y.rt - x.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.gl }; }), 'গোল', 'tgh-golden-boot.png', 'Goals'),
         topBoard(t, 'Most Clean Sheets', pl.filter(function (p) { return p.cs > 0; }).sort(function (x, y) { return y.cs - x.cs || y.rt - x.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.cs }; }), 'ক্লিনশিট', 'tgh-clean-sheets.png', 'Clean Sheets', 'gk'));
     }
-    w.append(board('⭐ Man of the Match', mm, 'বার'));
+    w.append(type === 'auction' ? momBoard(t, ms) : board('⭐ Man of the Match', mm, 'বার'));
     var tot = ms.filter(function (m) { return doneM(m); }), goals = tot.reduce(function (s, m) { return s + matchGoals(m); }, 0);
     w.append(h('div', { class: 'stats', style: 'margin-top:12px' }, h('div', { class: 'stat' }, h('b', null, tot.length), h('span', null, 'ম্যাচ')), h('div', { class: 'stat' }, h('b', null, goals), h('span', null, 'গোল')), h('div', { class: 'stat' }, h('b', null, tot.length ? (goals / tot.length).toFixed(1) : '0'), h('span', null, 'গড়/ম্যাচ'))));
     return w;
@@ -2007,6 +2017,58 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     x.fillStyle = 'rgba(255,255,255,.75)'; x.font = '500 22px ' + D; sp(6); x.fillText('#TGHAUCTION  ·  ' + String(unit || '').toUpperCase(), W / 2 + 3, 1304); sp(0);
     return new Promise(function (res, rej) { cv.toBlob(function (b) { b ? res(b) : rej(new Error('blob')); }, 'image/png'); });
   }
+
+  function motmRows(t, ms) {
+    var pl = playersOf(t, ms), by = {}; pl.forEach(function (p) { by[p.id] = p; });
+    return motmBoard(ms).map(function (r) { var p = by[norm(r.n)], pp = playerOf(r.n); return { n: r.n, v: r.c, team: p ? p.team : '', ph: (p && p.ph) || (pp && pp.photo) || '' }; });
+  }
+  function nameParts(n) { var a = String(n).trim().split(/\s+/); return a.length > 1 ? [a.slice(0, -1).join(' '), a[a.length - 1]] : ['', a[0] || '']; }
+  function momBoard(t, ms) {
+    var rows = motmRows(t, ms), box = h('div');
+    if (!rows.length) { box.append(lbCard('🏅 Man of the Match', [], 'বার')); return box; }
+    var top = rows.slice(0, 4), col = h('div', { style: 'position:relative' }), pm = partMap(t);
+    top.forEach(function (r, i) { var np = nameParts(r.n);
+      col.append(h('div', { class: 'momr' }, h('div', { class: 'momn' }, ('0' + r.v).slice(-2)),
+        h('div', { class: 'momt' }, np[0] ? h('small', null, np[0]) : null, h('b', null, np[1]), h('small', null, (pm[r.team] || {}).n || '')),
+        r.ph ? h('img', { class: 'momp', src: r.ph, alt: '' }) : h('div', { class: 'momi' }, String(r.n).charAt(0).toUpperCase()))); });
+    var m = h('div', { class: 'mom' }, h('div', { class: 'momv' }, 'Man of the ', h('b', null, ' Match')), col);
+    if (rows.length > 4) { var l = h('div', { class: 'momm' }); rows.slice(4, 8).forEach(function (r, i) { l.append(h('div', null, h('b', null, i + 5), h('span', null, r.n), h('b', null, r.v))); }); m.append(l); }
+    box.append(m, h('button', { class: 'btn', style: 'width:100%;margin-top:10px', onclick: function () { openCardSheet('Man of the Match', function () { return drawMomBoard(t, top); }, 'tgh-motm-board.png'); } }, '📤 Man of the Match শেয়ার করুন'));
+    return box;
+  }
+  async function drawMomBoard(t, rows) {
+    var W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H; var x = cv.getContext('2d'), D = 'Oswald,"Hind Siliguri","Noto Sans Bengali","Arial Narrow",Impact,sans-serif', C = 'Cinzel,"Times New Roman",serif', pm = partMap(t);
+    function sp(v) { if ('letterSpacing' in x) x.letterSpacing = v + 'px'; }
+    function rr(a, b, w, hh, r) { x.beginPath(); if (x.roundRect) x.roundRect(a, b, w, hh, r); else x.rect(a, b, w, hh); }
+    try { await Promise.all([document.fonts.load('800 80px Oswald'), document.fonts.load('300 80px Oswald'), document.fonts.load('700 30px Cinzel')]); } catch (e) { /* ignore */ }
+    var bg = x.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#ec1428'); bg.addColorStop(1, '#7d0412'); x.fillStyle = bg; x.fillRect(0, 0, W, H);
+    var gl = x.createRadialGradient(300, 100, 20, 300, 100, 800); gl.addColorStop(0, 'rgba(255,60,75,.55)'); gl.addColorStop(1, 'rgba(255,60,75,0)'); x.fillStyle = gl; x.fillRect(0, 0, W, H);
+    x.strokeStyle = 'rgba(255,255,255,.06)'; x.lineWidth = 3; for (var i = -H; i < W; i += 46) { x.beginPath(); x.moveTo(i, H); x.lineTo(i + H * 0.45, 0); x.stroke(); }
+    x.save(); x.translate(205, H / 2 - 110); x.rotate(-Math.PI / 2); x.textAlign = 'center'; x.fillStyle = '#fff';
+    x.font = '300 94px ' + D; var w1 = x.measureText('MAN OF THE ').width; x.font = '800 94px ' + D; var w2 = x.measureText('MATCH').width, st = -(w1 + w2) / 2;
+    x.textAlign = 'left'; x.font = '300 94px ' + D; x.fillText('MAN OF THE ', st, 0); x.font = '800 94px ' + D; x.fillText('MATCH', st + w1, 0); x.restore();
+    var px = 380, pw = 640, ph = 250, gap = 30, y0 = 150, n = rows.length;
+    var imgs = await Promise.all(rows.map(function (r) { return r.ph ? loadImg(r.ph).catch(function () { return null; }) : Promise.resolve(null); }));
+    var logo = await loadImg('logo.webp').catch(function () { return null; });
+    rows.forEach(function (r, i) {
+      var y = y0 + i * (ph + gap), np = nameParts(r.n);
+      x.save(); rr(px, y, pw, ph, 14); x.clip();
+      var pg = x.createLinearGradient(px, 0, px + pw, 0); pg.addColorStop(0, 'rgba(60,0,8,.5)'); pg.addColorStop(1, 'rgba(60,0,8,.2)'); x.fillStyle = pg; x.fillRect(px, y, pw, ph);
+      x.fillStyle = 'rgba(70,0,10,.45)'; x.font = '800 190px ' + D; x.textAlign = 'left'; x.fillText(('0' + r.v).slice(-2), px + 24, y + ph - 6);
+      var im = imgs[i];
+      if (im) { var pwid = 360, ar = im.width / im.height, dh = ph + 10, dw = dh * ar; if (dw < pwid) { dw = pwid; dh = dw / ar; } var ix = px + pw - pwid + (pwid - dw) / 2; x.save(); x.beginPath(); x.rect(px + pw - pwid, y, pwid, ph); x.clip(); x.drawImage(im, ix, y, dw, dh); x.restore(); var fg = x.createLinearGradient(px + pw - pwid, 0, px + pw - pwid + 150, 0); fg.addColorStop(0, 'rgba(110,4,16,1)'); fg.addColorStop(1, 'rgba(110,4,16,0)'); x.fillStyle = fg; x.fillRect(px + pw - pwid, y, 150, ph); }
+      else { x.fillStyle = 'rgba(255,255,255,.16)'; x.beginPath(); x.arc(px + pw - 130, y + ph / 2, 80, 0, 7); x.fill(); x.fillStyle = '#fff'; x.font = '800 90px ' + D; x.textAlign = 'center'; x.fillText(String(r.n).charAt(0).toUpperCase(), px + pw - 130, y + ph / 2 + 32); }
+      x.restore();
+      x.textAlign = 'left'; x.fillStyle = '#fff'; var ty = y + 62;
+      if (np[0]) { var f1 = 36; x.font = '300 ' + f1 + 'px ' + D; while (x.measureText(np[0].toUpperCase()).width > 330 && f1 > 20) { f1 -= 2; x.font = '300 ' + f1 + 'px ' + D; } x.fillText(np[0].toUpperCase(), px + 30, ty); ty += 56; } else ty += 20;
+      var f2 = 56; x.font = '800 ' + f2 + 'px ' + D; while (x.measureText(np[1].toUpperCase()).width > 330 && f2 > 24) { f2 -= 2; x.font = '800 ' + f2 + 'px ' + D; } x.fillText(np[1].toUpperCase(), px + 30, ty);
+      x.fillStyle = 'rgba(255,255,255,.8)'; x.font = '500 26px ' + D; sp(3); x.fillText(String((pm[r.team] || {}).n || '').toUpperCase().slice(0, 18), px + 30, y + ph - 28); sp(0);
+    });
+    if (logo) { x.save(); x.beginPath(); x.arc(205, 1190, 64, 0, 7); x.clip(); x.drawImage(logo, 141, 1126, 128, 128); x.restore(); x.strokeStyle = '#fff'; x.lineWidth = 4; x.beginPath(); x.arc(205, 1190, 66, 0, 7); x.stroke(); }
+    x.textAlign = 'center'; x.fillStyle = 'rgba(255,255,255,.9)'; x.font = '700 24px ' + C; sp(4); x.fillText('THE GOAL HUNTERS', 205, 1290); sp(0);
+    x.fillStyle = 'rgba(255,255,255,.7)'; x.font = '500 20px ' + D; sp(4); x.fillText(String((t && t.name) || '').toUpperCase().slice(0, 22), 205, 1322); sp(0);
+    return new Promise(function (res, rej) { cv.toBlob(function (b) { b ? res(b) : rej(new Error('blob')); }, 'image/png'); });
+  }
   function starsSub(t, ms) {
     var w = h('div'), pl = playersOf(t, ms);
     if (!pl.length) return h('div', { class: 'empty' }, 'প্লেয়ারদের রেজাল্ট জমা হলে রেটিং আর Dream XI এখানে আসবে ⭐');
@@ -2021,7 +2083,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     w.append(lbCard('⭐ Top Rated', pl.slice().sort(function (a, b) { return b.rt - a.rt || b.g - a.g; }).map(function (p) { return { n: p.n, s: p.pos + ' · ' + tn(p), v: p.rt.toFixed(1) }; }), 'রেটিং'),
       topBoard(t, 'Golden Boot', pl.filter(function (p) { return p.gl > 0; }).sort(function (a, b) { return b.gl - a.gl || b.rt - a.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.gl }; }), 'গোল', 'tgh-golden-boot.png', 'Goals'),
       topBoard(t, 'Most Clean Sheets', pl.filter(function (p) { return p.cs > 0; }).sort(function (a, b) { return b.cs - a.cs || b.rt - a.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.cs }; }), 'ক্লিনশিট', 'tgh-clean-sheets.png', 'Clean Sheets', 'gk'),
-      lbCard('🏅 Man of the Match', motmBoard(ms).map(function (r) { return { n: r.n, v: r.c }; }), 'বার'));
+      momBoard(t, ms));
     return w;
   }
   function motmBoard(ms) {
