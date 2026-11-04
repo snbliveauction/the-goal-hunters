@@ -368,6 +368,8 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
 .tb{border-radius:28px;padding:18px 12px 14px;margin-top:14px;color:#fff;position:relative;overflow:hidden;background:linear-gradient(135deg,#ff7a1a,#f0307a 55%,#6a3cff);box-shadow:0 12px 30px rgba(106,60,255,.3)}
 .tb:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.12) 40% 55%,transparent 55%);pointer-events:none}
 .tb h4{font:800 25px/1 var(--f-d);text-transform:uppercase;text-align:center;letter-spacing:.02em;position:relative}
+.tb.gk{background:linear-gradient(135deg,#00c98d,#0a8f6a 50%,#0a3d62);box-shadow:0 12px 30px rgba(10,143,106,.35)}.tb.gk:before{background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 28px,transparent 28px 56px)}
+.tbw{position:absolute;right:-10px;top:-6px;font-size:120px;opacity:.14;transform:rotate(14deg);pointer-events:none}.tbs{text-align:center;font-size:12px;opacity:.85;margin-top:4px;position:relative}
 .tbg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px;position:relative}
 .tbc{border-radius:44px 44px 18px 18px;overflow:hidden;position:relative;height:262px;background:#fff;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;padding:0 3px 10px}
 .tbc .tbm{position:absolute;left:0;top:0;width:100%;height:56%;object-fit:cover;object-position:center top}
@@ -1019,7 +1021,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     if (type === 'auction') {
       var pl = playersOf(t, ms);
       w.append(topBoard(t, 'Golden Boot', pl.filter(function (p) { return p.gl > 0; }).sort(function (x, y) { return y.gl - x.gl || y.rt - x.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.gl }; }), 'গোল', 'tgh-golden-boot.png', 'Goals'),
-        topBoard(t, 'Most Clean Sheets', pl.filter(function (p) { return p.cs > 0; }).sort(function (x, y) { return y.cs - x.cs || y.rt - x.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.cs }; }), 'ক্লিনশিট', 'tgh-clean-sheets.png', 'Clean Sheets'));
+        topBoard(t, 'Most Clean Sheets', pl.filter(function (p) { return p.cs > 0; }).sort(function (x, y) { return y.cs - x.cs || y.rt - x.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.cs }; }), 'ক্লিনশিট', 'tgh-clean-sheets.png', 'Clean Sheets', 'gk'));
     }
     w.append(board('⭐ Man of the Match', mm, 'বার'));
     var tot = ms.filter(function (m) { return doneM(m); }), goals = tot.reduce(function (s, m) { return s + matchGoals(m); }, 0);
@@ -1950,12 +1952,15 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
   }
 
   var TBC = [['#f0452e', '#b3121f'], ['#e0243f', '#a0123a'], ['#3b5bdb', '#1d2f99'], ['#2f43c4', '#17227f']];
-  function topBoard(t, title, rows, unit, fname, sub) {
+  var TBG = [['#19d98b', '#067a4a'], ['#12c4a8', '#07786b'], ['#1aa6d9', '#0a5a8c'], ['#2e7be0', '#12388f']];
+  var BGK = ['#00c98d', '#0a8f6a', '#0a3d62'];
+  function topBoard(t, title, rows, unit, fname, sub, th) {
+    var gk = th === 'gk', PAL = gk ? TBG : TBC;
     var top = rows.slice(0, 4), box = h('div');
     if (!top.length) { box.append(lbCard(title, [], unit)); return box; }
-    var tb = h('div', { class: 'tb' }, h('h4', null, title)), g = h('div', { class: 'tbg' });
+    var tb = h('div', { class: 'tb' + (gk ? ' gk' : '') }, gk ? h('div', { class: 'tbw' }, '🧤') : null, h('h4', null, (gk ? '🧤 ' : '⚽ ') + title), gk ? h('div', { class: 'tbs' }, 'গোলকিপারের মতো দেয়াল — গোল হজম করেনি যারা') : null), g = h('div', { class: 'tbg', style: 'grid-template-columns:repeat(' + top.length + ',minmax(0,25%));justify-content:center' });
     top.forEach(function (r, i) {
-      var c = TBC[i], pt = partMap(t)[r.team] || {}, card = h('div', { class: 'tbc' });
+      var c = PAL[i], pt = partMap(t)[r.team] || {}, card = h('div', { class: 'tbc' });
       card.append(r.ph ? h('img', { class: 'tbm', src: r.ph, alt: '' }) : h('div', { class: 'tbx' }, String(r.n).charAt(0).toUpperCase()),
         h('div', { class: 'tbo', style: 'background:linear-gradient(180deg,transparent 28%,' + c[0] + ' 58%,' + c[1] + ' 100%)' }),
         h('div', { class: 'tbi' }, h('div', { class: 'tbn' }, r.n), h('div', { class: 'tbv' }, r.v), h('div', { class: 'tbk' }, crest({ n: pt.n || '', logo: pt.logo }, 28))));
@@ -1963,24 +1968,26 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     });
     tb.append(g);
     if (rows.length > 4) { var l = h('div', { class: 'tbl' }); rows.slice(4, 8).forEach(function (r, i) { var pt = partMap(t)[r.team] || {}; l.append(h('div', null, h('b', null, i + 5), h('span', null, r.n, pt.n ? ' · ' + pt.n : ''), h('b', null, r.v))); }); tb.append(l); }
-    box.append(tb, h('button', { class: 'btn', style: 'width:100%;margin-top:10px', onclick: function () { openCardSheet(title, function () { return drawBoardCard(t, title, top, sub || unit); }, fname); } }, '📤 ' + title + ' শেয়ার করুন'));
+    box.append(tb, h('button', { class: 'btn', style: 'width:100%;margin-top:10px', onclick: function () { openCardSheet(title, function () { return drawBoardCard(t, title, top, sub || unit, th); }, fname); } }, '📤 ' + title + ' শেয়ার করুন'));
     return box;
   }
-  async function drawBoardCard(t, title, rows, unit) {
+  async function drawBoardCard(t, title, rows, unit, th) {
+    var gk = th === 'gk', PAL = gk ? TBG : TBC;
     var W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H; var x = cv.getContext('2d'), D = 'Oswald,"Hind Siliguri","Noto Sans Bengali","Arial Narrow",Impact,sans-serif', C = 'Cinzel,"Times New Roman",serif';
     function sp(v) { if ('letterSpacing' in x) x.letterSpacing = v + 'px'; }
     function rr(a, b, w, hh, r) { x.beginPath(); if (x.roundRect) x.roundRect(a, b, w, hh, r); else x.rect(a, b, w, hh); }
     try { await Promise.all([document.fonts.load('800 80px Oswald'), document.fonts.load('600 36px Oswald'), document.fonts.load('700 30px Cinzel')]); } catch (e) { /* ignore */ }
-    var bg = x.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#ff7a1a'); bg.addColorStop(0.55, '#f0307a'); bg.addColorStop(1, '#6a3cff'); x.fillStyle = bg; x.fillRect(0, 0, W, H);
+    var bg = x.createLinearGradient(0, 0, W, H); if (gk) { bg.addColorStop(0, BGK[0]); bg.addColorStop(0.5, BGK[1]); bg.addColorStop(1, BGK[2]); } else { bg.addColorStop(0, '#ff7a1a'); bg.addColorStop(0.55, '#f0307a'); bg.addColorStop(1, '#6a3cff'); } x.fillStyle = bg; x.fillRect(0, 0, W, H);
+    if (gk) { x.strokeStyle = 'rgba(255,255,255,.14)'; x.lineWidth = 6; x.strokeRect(120, 1010, 840, 400); x.strokeRect(300, 1190, 480, 220); x.beginPath(); x.arc(540, 1010, 130, 0, Math.PI); x.stroke(); x.save(); x.globalAlpha = .14; x.font = '520px serif'; x.textAlign = 'center'; x.fillText('🧤', 800, 760); x.restore(); }
     [[0, 0.15], [0.28, 0.1], [0.62, 0.08]].forEach(function (b) { x.fillStyle = 'rgba(255,255,255,' + b[1] + ')'; x.beginPath(); x.moveTo(W * b[0], 0); x.lineTo(W * (b[0] + 0.22), 0); x.lineTo(W * (b[0] - 0.25), H); x.lineTo(W * (b[0] - 0.47), H); x.closePath(); x.fill(); });
-    x.textAlign = 'center'; var nm = String(title).toUpperCase(), f = 104; x.font = '800 ' + f + 'px ' + D; while (x.measureText(nm).width > 940 && f > 40) { f -= 4; x.font = '800 ' + f + 'px ' + D; }
+    x.textAlign = 'center'; var nm = (gk ? '🧤 ' : '') + String(title).toUpperCase(), f = 104; x.font = '800 ' + f + 'px ' + D; while (x.measureText(nm).width > 940 && f > 40) { f -= 4; x.font = '800 ' + f + 'px ' + D; }
     x.save(); x.shadowColor = 'rgba(0,0,0,.25)'; x.shadowBlur = 20; x.fillStyle = '#fff'; x.fillText(nm, W / 2, 175); x.restore();
-    x.fillStyle = 'rgba(255,255,255,.85)'; x.font = '500 30px ' + D; sp(6); x.fillText(String((t && t.name) || 'THE GOAL HUNTERS').toUpperCase() + (t && t.season ? '  ·  ' + t.season : ''), W / 2 + 3, 232); sp(0);
+    x.fillStyle = 'rgba(255,255,255,.85)'; x.font = '500 30px ' + D; sp(6); x.fillText((gk ? 'GOALKEEPERS  ·  ' : '') + String((t && t.name) || 'THE GOAL HUNTERS').toUpperCase() + (t && t.season ? '  ·  ' + t.season : ''), W / 2 + 3, 232); sp(0);
     var n = rows.length, cw = 228, gap = 22, tot = n * cw + (n - 1) * gap, x0 = (W - tot) / 2, y0 = 290, ch = 880, pm = partMap(t);
     var imgs = await Promise.all(rows.map(function (r) { return r.ph ? loadImg(r.ph).catch(function () { return null; }) : Promise.resolve(null); }));
     var lgs = await Promise.all(rows.map(function (r) { var p = pm[r.team]; return p && p.logo ? loadImg(p.logo).catch(function () { return null; }) : Promise.resolve(null); }));
     rows.forEach(function (r, i) {
-      var cx = x0 + i * (cw + gap), c = TBC[i];
+      var cx = x0 + i * (cw + gap), c = PAL[i];
       x.save(); x.shadowColor = 'rgba(0,0,0,.3)'; x.shadowBlur = 30; x.shadowOffsetY = 12; rr(cx, y0, cw, ch, 114); x.fillStyle = '#fff'; x.fill(); x.restore();
       x.save(); rr(cx, y0, cw, ch, 114); x.clip();
       var im = imgs[i];
@@ -2013,7 +2020,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
       h('p', { class: 'note', style: 'margin-top:8px' }, cnt < 11 ? 'আরও গেম জমা হলে ১১ জনের দল পূর্ণ হবে। ' : '', 'রেটিং হয় গোল, ফল, শট, পাস সঠিকতা, পজেশন, ট্যাকল, সেভ ও ফাউল দেখে। পজিশন ঠিক হয় কে কী বেশি করেছে তা দেখে (অ্যাডমিন প্রোফাইলে পজিশন দিলে সেটাই চলে)।'));
     w.append(lbCard('⭐ Top Rated', pl.slice().sort(function (a, b) { return b.rt - a.rt || b.g - a.g; }).map(function (p) { return { n: p.n, s: p.pos + ' · ' + tn(p), v: p.rt.toFixed(1) }; }), 'রেটিং'),
       topBoard(t, 'Golden Boot', pl.filter(function (p) { return p.gl > 0; }).sort(function (a, b) { return b.gl - a.gl || b.rt - a.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.gl }; }), 'গোল', 'tgh-golden-boot.png', 'Goals'),
-      topBoard(t, 'Most Clean Sheets', pl.filter(function (p) { return p.cs > 0; }).sort(function (a, b) { return b.cs - a.cs || b.rt - a.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.cs }; }), 'ক্লিনশিট', 'tgh-clean-sheets.png', 'Clean Sheets'),
+      topBoard(t, 'Most Clean Sheets', pl.filter(function (p) { return p.cs > 0; }).sort(function (a, b) { return b.cs - a.cs || b.rt - a.rt; }).map(function (p) { return { n: p.n, ph: p.ph, team: p.team, v: p.cs }; }), 'ক্লিনশিট', 'tgh-clean-sheets.png', 'Clean Sheets', 'gk'),
       lbCard('🏅 Man of the Match', motmBoard(ms).map(function (r) { return { n: r.n, v: r.c }; }), 'বার'));
     return w;
   }
