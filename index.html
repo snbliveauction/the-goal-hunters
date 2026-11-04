@@ -341,6 +341,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
 .rl .rw:last-child{margin-bottom:10px}
 .rta{width:100%;min-height:340px;font:15px/1.55 var(--f-b);padding:12px;border:1px solid var(--line);border-radius:12px;resize:vertical;box-sizing:border-box}
 /* v11 icard */
+.drw{display:grid;gap:8px;margin-top:10px}.dr{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--card,#fff);border:1px solid rgba(0,0,0,.08);text-align:center;transition:transform .25s,box-shadow .25s}.dr span:first-child{text-align:left;font-weight:700}.dr .rb{text-align:right;font-weight:700}.dr.on{transform:scale(1.03);box-shadow:0 0 0 2px #d4a93a,0 6px 18px rgba(212,169,58,.35)}.dr .spin{opacity:.6;font-style:italic}.dr.fin{border-color:#2e7d32}.dr .lk2{animation:drp .4s}.dlk{margin:8px 0;padding:8px 10px;border-radius:10px;background:rgba(46,125,50,.1);font-weight:700;text-align:center}@keyframes drp{0%{transform:scale(1.4);color:#d4a93a}100%{transform:scale(1)}}
 .tk .gl b.pnd{font:500 14px var(--f-b);opacity:.6;color:var(--mute)}
 .ict{display:flex;gap:6px;background:#EEF3FB;border:1px solid var(--line);border-radius:14px;padding:5px;margin:12px 0}
 .ict button{flex:1;min-height:42px;border:0;border-radius:10px;background:transparent;font:600 14px var(--f-b);color:var(--mute);padding:6px 8px}.ict button[aria-pressed=true]{background:#fff;color:#3A3FD8;box-shadow:0 2px 8px -3px rgba(40,50,140,.4)}
@@ -829,26 +830,56 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     paint(); openSheet(body);
   }
   function openPairs(t, m0) {
-    var m = Object.assign({}, findMatch(m0.id) || m0), pm = partMap(t), PA = pm[m.a] || { sq: [] }, PB = pm[m.b] || { sq: [] }, ps = (m.pairs || []).slice(), selA = '', selB = '';
-    function save() { return db.collection('matches').doc(m.id).set({ pairs: ps }, { merge: true }).then(function () { toast('জোড়া সেভ হয়েছে ✅'); }).catch(wfail); }
-    function render() {
-      var A = pname(t, m.a), B = pname(t, m.b);
-      function sel(sq, get, set) { var s2 = h('select', null, h('option', { value: '' }, 'প্লেয়ার বাছুন')); (sq || []).forEach(function (n) { s2.append(h('option', { value: n, selected: get() === n }, n)); }); s2.onchange = function () { set(s2.value); }; return s2; }
-      var list = h('div', { class: 'prl', style: 'margin-top:8px' }); ps.forEach(function (q, i) { list.append(h('div', { style: 'grid-template-columns:1fr auto 1fr auto' }, h('span', null, q.a), h('b', null, '🆚'), h('span', null, q.b), h('button', { class: 'btn ghost sm', 'aria-label': 'মুছুন', onclick: function () { ps.splice(i, 1); save(); render(); } }, '✕'))); });
-      if (!ps.length) list.append(h('div', { class: 'note' }, 'এখনো কোনো জোড়া নেই'));
-      var add = h('div', { class: 'card', style: 'margin-top:10px' }, h('div', { class: 'rdh' }, A), sel(PA.sq, function () { return selA; }, function (v) { selA = v; }), h('div', { class: 'rdh' }, B), sel(PB.sq, function () { return selB; }, function (v) { selB = v; }),
-        h('button', { class: 'btn sm', style: 'margin-top:10px', onclick: function () { if (!selA || !selB) { toast('দুই পাশের প্লেয়ার বাছুন'); return; } ps.push({ a: selA, b: selB }); selA = ''; selB = ''; save(); render(); } }, '＋ জোড়া যোগ'));
-      var rnd = h('button', { class: 'btn ghost sm', style: 'margin-top:10px', onclick: function () {
-        if (ps.length && !confirm('আগের জোড়া মুছে নতুন র‍্যান্ডম জোড়া বানাবেন?')) return;
-        var a = (PA.sq || []).slice(), b = (PB.sq || []).slice(); for (var i = b.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = b[i]; b[i] = b[j]; b[j] = x; }
-        ps = a.slice(0, Math.min(a.length, b.length)).map(function (n, k) { return { a: n, b: b[k] }; }); save(); render();
-      } }, '🎲 র‍্যান্ডম জোড়া বানান');
-      var msg = h('div', { class: 'pmsg' }, pairsMsg(t, Object.assign({}, m, { pairs: ps })));
-      var wa = h('a', { class: 'btn alt sm', style: 'text-decoration:none;display:inline-block;margin-top:10px', href: 'https://wa.me/?text=' + encodeURIComponent(pairsMsg(t, Object.assign({}, m, { pairs: ps }))), target: '_blank', rel: 'noopener noreferrer' }, '📲 WhatsApp-এ পাঠান');
-      openSheet(h('div', null, xbtn(), h('h3', null, '🆚 ম্যাচ জোড়া'), h('div', { class: 'note' }, stageLabel(m) + ' · ' + A + ' বনাম ' + B), list, add, rnd, h('div', { class: 'rdh' }, 'WhatsApp মেসেজ'), msg,
-        h('div', { class: 'row', style: 'gap:8px' }, h('button', { class: 'btn sm', style: 'margin-top:10px', onclick: function () { copyText(pairsMsg(t, Object.assign({}, m, { pairs: ps }))); } }, '📋 মেসেজ কপি'), wa)));
+    var m = Object.assign({}, findMatch(m0.id) || m0), pm = partMap(t), PA = pm[m.a] || { sq: [] }, PB = pm[m.b] || { sq: [] }, A = pname(t, m.a), B = pname(t, m.b), busy = false;
+    function rnd(n) { var u = new Uint32Array(1), lim = Math.floor(4294967296 / n) * n; do { crypto.getRandomValues(u); } while (u[0] >= lim); return u[0] % n; }
+    function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = rnd(i + 1), x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+    function when(ts) { var d = new Date(ts || Date.now()); return d.toLocaleDateString('bn-BD') + ' · ' + d.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' }); }
+    function msgBox(mm) {
+      var txt = pairsMsg(t, mm);
+      return h('div', null, h('div', { class: 'rdh' }, 'WhatsApp মেসেজ'), h('div', { class: 'pmsg' }, txt),
+        h('div', { class: 'row', style: 'gap:8px' }, h('button', { class: 'btn sm', style: 'margin-top:10px', onclick: function () { copyText(txt); } }, '📋 মেসেজ কপি'),
+          h('a', { class: 'btn alt sm', style: 'text-decoration:none;display:inline-block;margin-top:10px', href: 'https://wa.me/?text=' + encodeURIComponent(txt), target: '_blank', rel: 'noopener noreferrer' }, '📲 WhatsApp-এ পাঠান')));
     }
-    render();
+    function head(sub) { return [xbtn(), h('h3', null, '🎲 লাকি ড্র'), h('div', { class: 'note' }, stageLabel(m) + ' · ' + A + ' বনাম ' + B), sub]; }
+    function locked(fresh) {
+      var list = h('div', { class: 'drw' });
+      m.pairs.forEach(function (q, i) { list.append(h('div', { class: 'dr' + (fresh ? '' : ' lk') }, h('span', null, q.a), h('b', null, '🆚'), h('span', { class: 'rb' }, q.b))); });
+      return list;
+    }
+    function showDone() {
+      openSheet(h('div', null, head(h('div', { class: 'dlk' }, '🔒 ড্র সম্পন্ন — ' + when(m.drawAt) + h0())), locked(false), h('p', { class: 'note' }, 'এই ড্র আর বদলানো বা আবার দেওয়া যাবে না। সবার জন্য একই ফলাফল।'), msgBox(m)));
+    }
+    function h0() { return m.drawAt ? '' : ''; }
+    function start() {
+      var a = (PA.sq || []).slice(), b = (PB.sq || []).slice();
+      if (!a.length || a.length !== b.length) { toast('দুই টিমের প্লেয়ার সংখ্যা সমান হতে হবে (' + a.length + ' / ' + b.length + ')'); return; }
+      if (!confirm('ড্র শুধু একবারই দেওয়া যাবে, পরে আর বদলানো যাবে না। শুরু করবেন?')) return;
+      busy = true; var bs = shuffle(b), ps = a.map(function (n, k) { return { a: n, b: bs[k] }; }), ref = db.collection('matches').doc(m.id), ts = Date.now();
+      db.runTransaction(function (tx) { return tx.get(ref).then(function (sn) { if (!sn.exists) throw new Error('nomatch'); var d = sn.data(); if ((d.pairs || []).length) throw new Error('drawn'); tx.update(ref, { pairs: ps, drawAt: ts }); }); })
+        .then(function () { m.pairs = ps; m.drawAt = ts; animate(ps, b); })
+        .catch(function (e) { busy = false; if (e && e.message === 'drawn') { toast('এই ম্যাচের ড্র আগেই হয়ে গেছে'); var f = findMatch(m.id); if (f) { m = Object.assign({}, f); showDone(); } } else wfail(e); });
+    }
+    function animate(ps, pool) {
+      var list = h('div', { class: 'drw' }), cells = [], note = h('div', { class: 'dlk' }, '🎲 ড্র চলছে…'), tail = h('div');
+      ps.forEach(function (q) { var rb = h('span', { class: 'rb spin' }, '❔'); cells.push(rb); list.append(h('div', { class: 'dr' }, h('span', null, q.a), h('b', null, '🆚'), rb)); });
+      openSheet(h('div', null, head(note), list, tail));
+      var i = 0;
+      function next() {
+        if (i >= ps.length) { note.textContent = '🔒 ড্র সম্পন্ন — ' + when(m.drawAt); tail.append(h('p', { class: 'note' }, 'এই ড্র আর বদলানো বা আবার দেওয়া যাবে না।'), msgBox(m)); busy = false; return; }
+        var cell = cells[i], k = 0, row = cell.parentNode, q = ps[i]; row.classList.add('on');
+        var iv = setInterval(function () {
+          if (!cell.isConnected) { clearInterval(iv); return; }
+          k++; if (k < 14) { cell.textContent = pool[rnd(pool.length)]; return; }
+          clearInterval(iv); cell.textContent = q.b; cell.classList.remove('spin'); cell.classList.add('lk2'); row.classList.remove('on'); row.classList.add('fin'); i++; setTimeout(next, 350);
+        }, 70);
+      }
+      setTimeout(next, 500);
+    }
+    if ((m.pairs || []).length) { showDone(); return; }
+    var info = h('div', { class: 'card', style: 'margin-top:10px' }, h('div', { class: 'note' }, '🎲 ' + A + ' (' + (PA.sq || []).length + ' জন) বনাম ' + B + ' (' + (PB.sq || []).length + ' জন)'),
+      h('p', { class: 'note' }, 'র‍্যান্ডম ড্রতে প্রতিটা প্লেয়ারের প্রতিপক্ষ ঠিক হবে। ড্র শুধু একবারই হবে, ফলাফল সেভ হয়ে যাবে এবং আর বদলানো যাবে না — তাই সবাই নিশ্চিত থাকবে ফিক্সার নিরপেক্ষ।'),
+      h('button', { class: 'btn', style: 'width:100%;margin-top:6px', onclick: function () { if (!busy) start(); } }, '🎲 ড্র শুরু করুন (একবারই)'));
+    openSheet(h('div', null, head(null), info));
   }
   function tryICard() {
     if (!S.icard || !S.ready || !S.ready.players || !S.ready.tours) return;
@@ -904,7 +935,7 @@ details.rdd summary::-webkit-details-marker{display:none}details.rdd summary sma
     if (ex.length) el.append(h('div', { class: 'ex' }, ex.join('  ·  ')));
     if (gm && !d && gs.length && need) el.append(h('div', { class: 'prg', title: gs.length + '/' + need }, h('i', { style: 'width:' + Math.min(100, Math.round(gs.length / need * 100)) + '%' })));
     if (gm && (gs.length || (m.pairs || []).length)) el.append(gameRows(m, gs));
-    if (gm && ((partMap(t)[m.a] || {}).sq || []).length) { var br = h('div', { class: 'row', style: 'grid-column:1/4;justify-content:center;gap:8px' }, h('button', { type: 'button', class: 'btn ghost sm', onclick: function (e) { e.stopPropagation(); openICard(t, m); } }, '🪪 iCard')); if (S.canWrite && !d) br.append(h('button', { type: 'button', class: 'btn ghost sm', onclick: function (e) { e.stopPropagation(); openPairs(t, m); } }, '🆚 জোড়া ও মেসেজ')); el.append(br); }
+    if (gm && ((partMap(t)[m.a] || {}).sq || []).length) { var br = h('div', { class: 'row', style: 'grid-column:1/4;justify-content:center;gap:8px' }, h('button', { type: 'button', class: 'btn ghost sm', onclick: function (e) { e.stopPropagation(); openICard(t, m); } }, '🪪 iCard')); if (S.canWrite && !d) br.append(h('button', { type: 'button', class: 'btn ghost sm', onclick: function (e) { e.stopPropagation(); openPairs(t, m); } }, '🎲 ড্র ও জোড়া')); el.append(br); }
     if (d) { if (gm && S.canWrite) el.append(h('button', { type: 'button', class: 'btn alt sm shr', onclick: function (e) { e.stopPropagation(); openMatchCard(t, m); } }, '📤 রেজাল্ট কার্ড'), h('div', { class: 'ex hint' }, '🔎 গেম দেখুন / এডিট / মুছুন')); else if (S.canWrite) el.append(h('div', { class: 'ex hint' }, '✎ রেজাল্ট এডিট')); }
     else el.append(h('div', { class: 'ex hint' }, S.canWrite ? (gm ? '🔎 গেম দেখুন / এডিট' : '📝 রেজাল্ট দিন') : (gm ? '＋ আপনার গেমের রেজাল্ট জমা দিন' : '＋ রেজাল্ট জমা দিন')));
     return el;
