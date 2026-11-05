@@ -862,7 +862,9 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
   }
 
   /* ---- v11: match pairings + iCard (player info cards, deep link) ---- */
-  function swapTxt(m) { var w = m.swaps || []; if (!w.length) return ''; return '🔁 Emergency Swap (' + w.length + '):\n' + w.map(function (z) { return z.x + ' ↔ ' + z.y + ' — ' + z.why; }).join('\n') + '\n\n'; }
+  function pj(r) { return r.map(function (q) { return q.a + ' 🆚 ' + q.b; }).join(' | '); }
+  function swapNames(z) { return z.st ? z.st.map(function (q) { return q.p + ' → ' + q.t; }).join(', ') : z.ps ? z.ps.join(' ↔ ') : z.x + ' ↔ ' + z.y; }
+  function swapTxt(m) { var w = m.swaps || []; if (!w.length) return ''; return '🔁 Emergency Swap (' + w.length + '):\n' + w.map(function (z) { return (z.st ? 'আগে: ' + pj(z.bf) + '\nএখন: ' + pj(z.af) : swapNames(z)) + '\nকারণ: ' + z.why; }).join('\n') + '\n\n'; }
   function pairsOf(m) { var ps = (m.pairs || []).slice(); if (!ps.length) (m.g || []).forEach(function (g) { ps.push({ a: g.pa, b: g.pb }); }); return ps; }
   function icardUrl(m) { return location.origin + location.pathname.replace(/index\.html$/, '') + '?icard=' + encodeURIComponent(m.id); }
   function pairsMsg(t, m) {
@@ -911,46 +913,57 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     }
     function swapLog() {
       var w = m.swaps || []; if (!w.length) return h('span');
-      return h('div', { class: 'card swl' }, h('b', null, '🔁 Emergency Swap লগ'), w.map(function (z) { return h('div', { class: 'swi' }, h('div', null, '🔁 ' + z.x + ' ↔ ' + z.y), h('small', null, when(z.at) + ' · কারণ: ' + z.why), h('small', null, 'আগে: ' + z.bx + ' 🆚 ' + z.ox + ' | ' + z.by + ' 🆚 ' + z.oy + '  →  এখন: ' + z.x + ' 🆚 ' + z.oy + ' | ' + z.y + ' 🆚 ' + z.ox)); }));
+      function pl(z, k) { return z.bf ? z.bf.map(function (r) { return r.p + ' 🆚 ' + r[k]; }).join(' | ') : ''; }
+      return h('div', { class: 'card swl' }, h('b', null, '🔁 Emergency Swap লগ'), w.map(function (z) {
+        var ln = z.st ? [h('small', null, 'আগে: ' + pj(z.bf)), h('small', null, 'এখন: ' + pj(z.af))] : z.bf ? [h('small', null, 'আগে: ' + z.bf.map(function (r) { return r.p + ' 🆚 ' + r.o; }).join(' | ')), h('small', null, 'এখন: ' + z.af.map(function (r) { return r.p + ' 🆚 ' + r.o; }).join(' | '))] : [h('small', null, 'আগে: ' + z.bx + ' 🆚 ' + z.ox + ' | ' + z.by + ' 🆚 ' + z.oy + '  →  এখন: ' + z.x + ' 🆚 ' + z.oy + ' | ' + z.y + ' 🆚 ' + z.ox)];
+        return h('div', { class: 'swi' }, h('div', null, '🔁 ' + swapNames(z)), h('small', null, when(z.at) + ' · কারণ: ' + z.why), ln);
+      }));
     }
-    function swapBtn() { var f = findMatch(m.id); if (!S.canWrite || (f && doneM(f))) return h('span'); return h('button', { class: 'btn alt', style: 'width:100%;margin:10px 0', onclick: function () { openSwap(); } }, '🔁 Emergency Swap (দুই প্লেয়ার)'); }
+    function swapBtn() { var f = findMatch(m.id); if (!S.canWrite || (f && doneM(f))) return h('span'); return h('button', { class: 'btn alt', style: 'width:100%;margin:10px 0', onclick: function () { openSwap(); } }, '🔁 Emergency Swap (সর্বোচ্চ ৫টা)'); }
     function openSwap() {
       var f = findMatch(m.id); if (f) m = Object.assign({}, f);
-      var side = 'a', pick = [], why = h('input', { type: 'text', placeholder: 'কারণ লিখুন (বাধ্যতামূলক) — যেমন: নেটওয়ার্ক সমস্যা', maxlength: 80 }), box = h('div'), pv = h('div'), btn = h('button', { class: 'btn', style: 'width:100%;margin-top:10px' }, '🔁 Swap নিশ্চিত করুন');
+      var steps = [], sel = null, why = h('input', { type: 'text', placeholder: 'কারণ লিখুন (বাধ্যতামূলক) — যেমন: নেটওয়ার্ক সমস্যা', maxlength: 80 }), box = h('div'), btn = h('button', { class: 'btn', style: 'width:100%;margin-top:10px' }, '🔁 Swap নিশ্চিত করুন');
       function played(q) { return hasPlayed(m, q.a) || hasPlayed(m, q.b); }
+      function clone(ps) { return ps.map(function (q) { return { a: q.a, b: q.b }; }); }
+      function find(ps, n) { for (var i = 0; i < ps.length; i++) { if (ps[i].a === n) return { i: i, s: 'a' }; if (ps[i].b === n) return { i: i, s: 'b' }; } return null; }
+      function step(ps, pn, tn) {
+        var x = find(ps, pn), y = find(ps, tn); if (!x || !y || x.s === y.s || x.i === y.i) throw new Error('bad');
+        if (played(ps[x.i]) || played(ps[y.i])) throw new Error('played');
+        var o = x.s === 'a' ? ps[x.i].b : ps[x.i].a;
+        if (x.s === 'a') { ps[x.i].b = tn; ps[y.i].b = o; } else { ps[x.i].a = tn; ps[y.i].a = o; }
+      }
+      function plan(base) { var w = clone(base); steps.forEach(function (z) { step(w, z.p, z.t); }); var ch = []; w.forEach(function (q, i) { if (q.a !== base[i].a || q.b !== base[i].b) ch.push(i); }); return { w: w, ch: ch }; }
       function paint() {
-        box.replaceChildren(); pv.replaceChildren();
-        var tabs = h('div', { class: 'ict' }, [['a', A], ['b', B]].map(function (z) { return h('button', { type: 'button', 'aria-pressed': side === z[0] ? 'true' : 'false', onclick: function () { side = z[0]; pick = []; paint(); } }, z[1] + ' এর প্লেয়ার'); }));
-        var chips = h('div', { class: 'swc' });
-        m.pairs.forEach(function (q) {
-          var me = q[side], op = side === 'a' ? q.b : q.a, pl = played(q), on = pick.indexOf(me) >= 0;
-          chips.append(h('button', { type: 'button', class: 'swp' + (on ? ' on' : ''), disabled: pl, onclick: function () { if (on) pick = pick.filter(function (x) { return x !== me; }); else { if (pick.length >= 2) pick.shift(); pick.push(me); } paint(); } }, h('b', null, me), h('small', null, pl ? '✅ খেলা হয়ে গেছে' : '🆚 ' + op)));
-        });
-        box.append(tabs, h('p', { class: 'note' }, 'যে দুইজনকে swap করবেন তাদের বেছে নিন (যাদের গেম এখনো হয়নি)। তাদের প্রতিপক্ষ অদলবদল হবে।'), chips);
-        if (pick.length === 2) {
-          var qx = m.pairs.filter(function (q) { return q[side] === pick[0]; })[0], qy = m.pairs.filter(function (q) { return q[side] === pick[1]; })[0], ox = side === 'a' ? qx.b : qx.a, oy = side === 'a' ? qy.b : qy.a;
-          pv.append(h('div', { class: 'card' }, h('b', null, 'নতুন জোড়া (প্রিভিউ)'), h('div', { class: 'prl' }, h('div', null, h('span', null, side === 'a' ? pick[0] : ox), h('b', null, '🆚'), h('span', null, side === 'a' ? oy : pick[0])), h('div', null, h('span', null, side === 'a' ? pick[1] : oy), h('b', null, '🆚'), h('span', null, side === 'a' ? ox : pick[1])))));
+        box.replaceChildren(); var cur = plan(m.pairs).w;
+        box.append(h('p', { class: 'note' }, '১) যার প্রতিপক্ষ বদলাবেন তাকে বাছুন, ২) তারপর নতুন প্রতিপক্ষ বাছুন। (যাদের গেম এখনো হয়নি তাদের যে কারো সাথে) সর্বোচ্চ ৫টা swap।'));
+        var c1 = h('div', { class: 'swc' });
+        cur.forEach(function (q) { if (played(q)) return; [['a', q.a], ['b', q.b]].forEach(function (z) { var on = sel === z[1]; c1.append(h('button', { type: 'button', class: 'swp' + (on ? ' on' : ''), onclick: function () { sel = on ? null : z[1]; paint(); } }, h('b', null, z[1]), h('small', null, (z[0] === 'a' ? A : B) + ' · 🆚 ' + (z[0] === 'a' ? q.b : q.a)))); }); });
+        box.append(h('b', null, '১) প্লেয়ার বাছুন'), c1);
+        if (sel) {
+          var x = find(cur, sel), c2 = h('div', { class: 'swc' });
+          cur.forEach(function (q) { var t = x.s === 'a' ? q.b : q.a; if (played(q) || q === cur[x.i]) return; c2.append(h('button', { type: 'button', class: 'swp', onclick: function () { if (steps.length >= 5) { toast('সর্বোচ্চ ৫টা swap'); return; } steps.push({ p: sel, t: t }); sel = null; paint(); } }, h('b', null, t), h('small', null, 'এখন 🆚 ' + (x.s === 'a' ? q.a : q.b)))); });
+          box.append(h('b', null, '২) ' + sel + ' এর নতুন প্রতিপক্ষ'), c2);
+        }
+        if (steps.length) {
+          var pr = plan(m.pairs);
+          box.append(h('div', { class: 'card' }, h('b', null, 'Swap তালিকা (' + steps.length + '/৫)'), steps.map(function (z) { return h('div', { class: 'swi' }, h('div', null, z.p + ' 🆚 ' + z.t)); }), h('button', { type: 'button', class: 'btn ghost sm', style: 'margin-top:6px', onclick: function () { steps.pop(); paint(); } }, '↩ শেষটা বাতিল')),
+            h('div', { class: 'card' }, h('b', null, 'বদলে যাওয়া জোড়া (প্রিভিউ)'), h('div', { class: 'prl' }, pr.ch.map(function (i) { return h('div', null, h('span', null, m.pairs[i].a + ' 🆚 ' + m.pairs[i].b), h('b', null, '→'), h('span', null, pr.w[i].a + ' 🆚 ' + pr.w[i].b)); }))));
         }
       }
       btn.onclick = function () {
-        if (pick.length !== 2) { toast('দুইজন প্লেয়ার বাছুন'); return; }
+        if (!steps.length) { toast('অন্তত একটা swap বাছুন'); return; }
         var r = (why.value || '').trim(); if (r.length < 3) { toast('কারণ লিখুন'); return; }
         if (!confirm('এই Swap সবার সামনে লগ হিসেবে দেখা যাবে। নিশ্চিত?')) return;
-        var ref = db.collection('matches').doc(m.id), before = JSON.stringify(m.pairs), nm = null;
-        btn.disabled = true;
+        var ref = db.collection('matches').doc(m.id), before = JSON.stringify(m.pairs), nm = null; btn.disabled = true;
         db.runTransaction(function (tx) { return tx.get(ref).then(function (sn) {
           if (!sn.exists) throw new Error('nomatch'); var d = sn.data(); if (JSON.stringify(d.pairs || []) !== before) throw new Error('stale');
-          var ps = d.pairs.map(function (q) { return { a: q.a, b: q.b }; }), ix = -1, iy = -1; ps.forEach(function (q, i) { if (q[side] === pick[0]) ix = i; if (q[side] === pick[1]) iy = i; });
-          if (ix < 0 || iy < 0 || ix === iy) throw new Error('bad');
-          if (played(ps[ix]) || played(ps[iy])) throw new Error('played');
-          var ox = side === 'a' ? ps[ix].b : ps[ix].a, oy = side === 'a' ? ps[iy].b : ps[iy].a;
-          if (side === 'a') { ps[ix].b = oy; ps[iy].b = ox; } else { ps[ix].a = oy; ps[iy].a = ox; }
-          var log = (d.swaps || []).concat([{ at: Date.now(), x: pick[0], y: pick[1], ox: ox, oy: oy, bx: pick[0], by: pick[1], why: r, side: side }]);
+          var base = clone(d.pairs), pr = plan(base), ps = pr.w;
+          var log = (d.swaps || []).concat([{ at: Date.now(), st: steps.map(function (z) { return { p: z.p, t: z.t }; }), bf: pr.ch.map(function (i) { return { a: base[i].a, b: base[i].b }; }), af: pr.ch.map(function (i) { return { a: ps[i].a, b: ps[i].b }; }), why: r }]);
           var up = { pairs: ps, swaps: log }; if (!d.pairs0) up.pairs0 = d.pairs; tx.update(ref, up); nm = { pairs: ps, swaps: log, pairs0: d.pairs0 || d.pairs };
         }); }).then(function () { Object.assign(m, nm); toast('Swap সম্পন্ন ✅'); showDone(); })
-          .catch(function (e) { btn.disabled = false; toast(e && e.message === 'stale' ? 'ডাটা বদলে গেছে, আবার চেষ্টা করুন' : e && e.message === 'played' ? 'এদের গেম হয়ে গেছে' : 'Swap হয়নি'); if (e && e.message === 'stale') { var f2 = findMatch(m.id); if (f2) m = Object.assign({}, f2); paint(); } });
+          .catch(function (e) { btn.disabled = false; toast(e && e.message === 'stale' ? 'ডাটা বদলে গেছে, আবার চেষ্টা করুন' : e && e.message === 'played' ? 'এদের গেম হয়ে গেছে' : 'Swap হয়নি'); if (e && e.message === 'stale') { var f2 = findMatch(m.id); if (f2) m = Object.assign({}, f2); steps = []; sel = null; paint(); } });
       };
-      paint(); openSheet(h('div', null, xbtn(), h('h3', null, '🔁 Emergency Swap'), h('div', { class: 'note' }, stageLabel(m) + ' · ' + A + ' বনাম ' + B), box, pv, why, btn, h('button', { class: 'btn ghost', style: 'width:100%;margin-top:8px', onclick: showDone }, '← ফিরে যান')));
+      paint(); openSheet(h('div', null, xbtn(), h('h3', null, '🔁 Emergency Swap'), h('div', { class: 'note' }, stageLabel(m) + ' · ' + A + ' বনাম ' + B), box, why, btn, h('button', { class: 'btn ghost', style: 'width:100%;margin-top:8px', onclick: showDone }, '← ফিরে যান')));
     }
     function showDone() {
       openSheet(h('div', null, head(h('div', { class: 'dlk' }, '🔒 ড্র সম্পন্ন — ' + when(m.drawAt) + h0())), locked(false), h('p', { class: 'note' }, 'এই ড্র আর বদলানো বা আবার দেওয়া যাবে না। সবার জন্য একই ফলাফল।'), swapLog(), swapBtn(), msgBox(m)));
