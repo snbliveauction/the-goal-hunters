@@ -722,7 +722,6 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
       h('div', { class: 'kick' }, 'eFootball Group · Sylhet'),
       h('h1', null, 'Hunt the ', h('span', null, 'Goal')),
       h('p', null, 'প্রতিটা ম্যাচে নতুন শিকার। Auction আর Solo, দুই মঞ্চে আমাদের লড়াইয়ের পুরো হিসাব।'), cd,
-      liveStrip(),
       h('div', { class: 'cta' }, h('button', { class: 'btn', onclick: function () { goTab('auction'); } }, '🪙 Auction'), h('button', { class: 'btn alt', onclick: function () { goTab('solo'); } }, '🎯 Solo'),
         jurl ? h('a', { class: 'btn gold', href: jurl, target: '_blank', rel: 'noopener noreferrer' }, st.joinText || '🤝 পরের সিজনে নাম লেখান') : null),
       S.canWrite ? h('button', { class: 'btn ghost sm hset', onclick: openHomeSettings }, '⚙ হোম সেটিংস') : null);
@@ -2437,37 +2436,44 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     try { await Promise.all([document.fonts.load('700 80px Oswald'), document.fonts.load('600 30px "Hind Siliguri"')]); } catch (e) { /* ignore */ }
     mn = mn || motmName(m); var ph = photoFor(m, mn), ld = function (s) { return s ? loadImg(s).catch(function () { return null; }) : null; };
     var imgs = await Promise.all([ld('logo.webp'), ld(A.logo), ld(B.logo), ld(ph)]);
-    paintCard(x, W, H);
-    circ(imgs[0], W / 2, 150, 70, '#193B7E', 'G'); x.strokeStyle = '#fff'; x.lineWidth = 5; x.beginPath(); x.arc(W / 2, 150, 72, 0, 7); x.stroke();
-    x.textAlign = 'center'; x.fillStyle = '#E8C26A'; x.font = '500 26px ' + D; ls(10); x.fillText('THE GOAL HUNTERS', W / 2 + 5, 268);
-    x.fillStyle = '#fff'; x.font = '700 118px ' + D; ls(6); x.fillText('FULL TIME', W / 2 + 3, 392); ls(0);
+    function rr(X, Y, w, hh, r) { x.beginPath(); if (x.roundRect) x.roundRect(X, Y, w, hh, r); else x.rect(X, Y, w, hh); }
+    function red(X, w) { var g = x.createLinearGradient(X, 0, X + w, 0); g.addColorStop(0, '#4a000c'); g.addColorStop(0.55, '#b30a20'); g.addColorStop(1, '#f01a33'); return g; }
+    x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); x.strokeStyle = '#F4F4F7'; x.lineWidth = 12; x.lineJoin = 'round'; x.lineCap = 'round';
+    for (var py = 40; py < H; py += 150) { for (var px = -40 + ((py / 150) % 2) * 75; px < W; px += 150) { x.beginPath(); x.moveTo(px, py + 70); x.lineTo(px, py); x.lineTo(px + 70, py); x.lineTo(px + 70, py + 70); x.stroke(); } }
+    circ(imgs[0], W / 2, 118, 66, '#193B7E', 'G'); x.strokeStyle = '#C70F27'; x.lineWidth = 7; x.beginPath(); x.arc(W / 2, 118, 69, 0, 7); x.stroke();
+    x.textAlign = 'center'; var fs = 214; x.font = '700 ' + fs + 'px ' + D; ls(2); while (x.measureText('FULL TIME').width > 900 && fs > 100) { fs -= 4; x.font = '700 ' + fs + 'px ' + D; } var tg = x.createLinearGradient(0, 200, 0, 410); tg.addColorStop(0, '#A60A1E'); tg.addColorStop(1, '#E3112C'); x.fillStyle = tg; x.fillText('FULL TIME', W / 2 + 1, 372); ls(0);
+    var stg = (m.stage === 'league' ? 'ROUND ' + m.rd : m.stage === 'q1' ? 'QUALIFIER 1' : m.stage === 'el' ? 'ELIMINATOR' : m.stage === 'q2' ? 'QUALIFIER 2' : m.stage === 'sf' ? 'SEMI FINAL' : m.stage === 'final' ? 'FINAL' : 'THIRD PLACE');
     var dt = new Date(m.dt || gs.reduce(function (s, q) { return Math.max(s, q.ts || 0); }, 0) || Date.now()), ds = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
-    x.fillStyle = '#E8C26A'; x.font = '500 30px ' + D; ls(3); x.fillText((m.stage === 'league' ? 'ROUND ' + m.rd : m.stage === 'q1' ? 'QUALIFIER 1' : m.stage === 'el' ? 'ELIMINATOR' : m.stage === 'q2' ? 'QUALIFIER 2' : m.stage === 'sf' ? 'SEMI FINAL' : m.stage === 'final' ? 'FINAL' : 'THIRD PLACE') + ' · ' + String(t.name).toUpperCase().slice(0, 28) + ' · ' + ds, W / 2 + 2, 448); ls(0);
-    circ(imgs[1], 230, 620, 112, hue(A.n), A.n); circ(imgs[2], 850, 620, 112, hue(B.n), B.n);
-    x.strokeStyle = 'rgba(255,255,255,.9)'; x.lineWidth = 5; [230, 850].forEach(function (cx) { x.beginPath(); x.arc(cx, 620, 115, 0, 7); x.stroke(); });
-    x.fillStyle = '#9DBBAB'; x.font = '500 24px ' + D; ls(6); x.fillText('TEAM POINTS', W / 2 + 3, 520); ls(0);
-    var aw = r.a > r.b, bw = r.b > r.a; x.font = '700 150px ' + D; x.fillStyle = aw ? '#F6D27A' : '#fff'; x.fillText(String(r.a), 440, 670); x.fillStyle = '#fff'; x.fillText('–', W / 2, 660); x.fillStyle = bw ? '#F6D27A' : '#fff'; x.fillText(String(r.b), 640, 670);
-    x.fillStyle = '#BFD6C9'; x.font = '500 28px ' + D; x.fillText('TOTAL GOALS  ' + gl.a + ' – ' + gl.b, W / 2, 735);
-    x.fillStyle = '#fff'; x.font = '700 46px ' + BN; x.fillText(fit(A.n, 340), 230, 810); x.fillText(fit(B.n, 340), 850, 810);
-    if (m.pw) { x.fillStyle = '#F6D27A'; x.font = '500 26px ' + D; x.fillText('WINNER ON TIEBREAK: ' + String(m.pw === 'a' ? A.n : B.n).toUpperCase(), W / 2, 852); }
-    x.fillStyle = '#9DBBAB'; x.font = '500 26px ' + D; ls(10); x.fillText('PLAYER GAMES', W / 2 + 5, 925); ls(0);
+    x.fillStyle = '#F5B800'; rr(W / 2 - 150, 396, 300, 54, 8); x.fill(); x.fillStyle = '#1b1b1f'; x.font = '700 32px ' + D; ls(5); x.fillText(stg, W / 2 + 2, 436); ls(0);
+    x.fillStyle = '#2a2a30'; x.font = '500 26px ' + D; ls(9); x.fillText(fit(String(t.name).toUpperCase(), 700) + ' · ' + ds, W / 2 + 4, 492); ls(0);
+    var cx0 = 60, cw = W - 120, cy0 = 530; x.save(); x.shadowColor = 'rgba(120,0,16,.35)'; x.shadowBlur = 30; x.shadowOffsetY = 12; x.fillStyle = red(cx0, cw); rr(cx0, cy0, cw, 320, 26); x.fill(); x.restore();
+    x.fillStyle = '#1b1b1f'; x.beginPath(); if (x.roundRect) x.roundRect(cx0, cy0 + 236, cw, 84, [0, 0, 26, 26]); else x.rect(cx0, cy0 + 236, cw, 84); x.fill();
+    circ(imgs[1], 220, cy0 + 118, 92, hue(A.n), A.n); circ(imgs[2], 860, cy0 + 118, 92, hue(B.n), B.n); x.strokeStyle = '#fff'; x.lineWidth = 6; [220, 860].forEach(function (cx) { x.beginPath(); x.arc(cx, cy0 + 118, 95, 0, 7); x.stroke(); });
+    x.fillStyle = 'rgba(255,255,255,.75)'; x.font = '500 22px ' + D; ls(7); x.fillText('TEAM POINTS', W / 2 + 3, cy0 + 56); ls(0);
+    var aw = r.a > r.b, bw = r.b > r.a; x.font = '700 140px ' + D; x.fillStyle = aw ? '#FFD35A' : '#fff'; x.fillText(String(r.a), 440, cy0 + 176); x.fillStyle = '#fff'; x.fillText('–', W / 2, cy0 + 166); x.fillStyle = bw ? '#FFD35A' : '#fff'; x.fillText(String(r.b), 640, cy0 + 176);
+    x.fillStyle = '#fff'; x.font = '700 38px ' + BN; x.textAlign = 'left'; x.fillText(fit(A.n, 330), cx0 + 34, cy0 + 292); x.textAlign = 'right'; x.fillText(fit(B.n, 330), cx0 + cw - 34, cy0 + 292); x.textAlign = 'center';
+    x.fillStyle = '#F5B800'; x.font = '600 26px ' + D; ls(3); x.fillText('GOALS ' + gl.a + ' – ' + gl.b, W / 2 + 1, cy0 + 288); ls(0);
+    if (m.pw) { x.fillStyle = '#C70F27'; x.font = '600 26px ' + D; x.fillText('WINNER ON TIEBREAK: ' + String(m.pw === 'a' ? A.n : B.n).toUpperCase(), W / 2, 886); }
+    x.fillStyle = '#2a2a30'; x.font = '500 26px ' + D; ls(16); x.fillText('PLAYER GAMES', W / 2 + 8, 925); ls(0);
     gs.forEach(function (q, k) {
       var y = 950 + k * rh, cy = y + (rh - 8) / 2, ax = +q.as, bx = +q.bs;
-      x.fillStyle = k % 2 ? 'rgba(255,255,255,.06)' : 'rgba(255,255,255,.10)'; x.beginPath(); if (x.roundRect) x.roundRect(60, y, W - 120, rh - 8, 16); else x.rect(60, y, W - 120, rh - 8); x.fill();
-      x.textAlign = 'left'; x.font = '600 34px ' + BN; x.fillStyle = ax >= bx ? '#fff' : '#9DBBAB'; x.fillText(fit(q.pa, 360), 92, cy + 12);
-      x.textAlign = 'right'; x.fillStyle = bx >= ax ? '#fff' : '#9DBBAB'; x.fillText(fit(q.pb, 360), W - 92, cy + 12);
-      x.textAlign = 'center'; x.font = '700 42px ' + D; x.fillStyle = '#F6D27A'; x.fillText(ax + ' - ' + bx, W / 2, cy + 14);
+      x.fillStyle = red(60, W - 120); rr(60, y, W - 120, rh - 8, 16); x.fill();
+      x.textAlign = 'left'; x.font = '600 34px ' + BN; x.fillStyle = ax >= bx ? '#fff' : 'rgba(255,255,255,.68)'; x.fillText(fit(q.pa, 360), 92, cy + 12);
+      x.textAlign = 'right'; x.fillStyle = bx >= ax ? '#fff' : 'rgba(255,255,255,.68)'; x.fillText(fit(q.pb, 360), W - 92, cy + 12);
+      x.fillStyle = '#1b1b1f'; rr(W / 2 - 70, y + 10, 140, rh - 28, 12); x.fill();
+      x.textAlign = 'center'; x.font = '700 40px ' + D; x.fillStyle = '#FFD35A'; x.fillText(ax + ' - ' + bx, W / 2, cy + 13);
     });
     var my = 950 + n * rh + 40;
     if (mn) {
-      x.fillStyle = 'rgba(255,255,255,.08)'; x.beginPath(); if (x.roundRect) x.roundRect(60, my, W - 120, 210, 28); else x.rect(60, my, W - 120, 210); x.fill(); x.strokeStyle = '#E3A93A'; x.lineWidth = 3; x.stroke();
-      circ(imgs[3], 190, my + 105, 80, '#C2851A', mn); x.strokeStyle = '#E3A93A'; x.lineWidth = 6; x.beginPath(); x.arc(190, my + 105, 83, 0, 7); x.stroke();
+      x.save(); x.shadowColor = 'rgba(120,0,16,.35)'; x.shadowBlur = 26; x.shadowOffsetY = 10; x.fillStyle = red(60, W - 120); rr(60, my, W - 120, 210, 26); x.fill(); x.restore();
+      x.fillStyle = '#1b1b1f'; x.beginPath(); if (x.roundRect) x.roundRect(60, my + 150, W - 120, 60, [0, 0, 26, 26]); else x.rect(60, my + 150, W - 120, 60); x.fill();
+      circ(imgs[3], 190, my + 95, 80, '#7a0a18', mn); x.strokeStyle = '#fff'; x.lineWidth = 6; x.beginPath(); x.arc(190, my + 95, 83, 0, 7); x.stroke();
       var ro = matchRoster(m).filter(function (p) { return p.n === mn; })[0], tm = ro ? (ro.side === 'a' ? A.n : B.n) : '';
-      x.textAlign = 'left'; x.fillStyle = '#F6D27A'; x.font = '600 28px ' + D; ls(4); x.fillText('★ MAN OF THE MATCH', 300, my + 70); ls(0);
-      x.fillStyle = '#fff'; x.font = '700 62px ' + BN; x.fillText(fit(mn, 520), 300, my + 140); x.fillStyle = '#9DBBAB'; x.font = '500 32px ' + BN; x.fillText(fit(tm, 520), 300, my + 186);
-      if (ro) { x.textAlign = 'right'; x.fillStyle = '#E8C26A'; x.font = '700 64px ' + D; x.fillText(ro.rt.toFixed(1), W - 100, my + 120); x.fillStyle = '#9DBBAB'; x.font = '500 22px ' + D; x.fillText('RATING', W - 100, my + 160); }
+      x.textAlign = 'left'; x.fillStyle = '#FFD35A'; x.font = '600 28px ' + D; ls(4); x.fillText('★ MAN OF THE MATCH', 300, my + 62); ls(0);
+      x.fillStyle = '#fff'; x.font = '700 64px ' + BN; x.fillText(fit(mn, 480), 300, my + 128); x.fillStyle = '#fff'; x.font = '500 30px ' + BN; x.fillText(fit(tm, 600), 300, my + 192);
+      if (ro) { x.textAlign = 'right'; x.fillStyle = '#fff'; x.font = '700 76px ' + D; x.fillText(ro.rt.toFixed(1), W - 100, my + 110); x.fillStyle = '#FFD35A'; x.font = '600 22px ' + D; ls(4); x.fillText('RATING', W - 100, my + 192); ls(0); }
     }
-    x.textAlign = 'center'; x.fillStyle = '#E8C26A'; x.font = '500 24px ' + D; ls(8); x.fillText('EFOOTBALL GROUP · #GOALHUNTERS', W / 2 + 4, H - 82); ls(0);
+    x.textAlign = 'center'; x.fillStyle = '#2a2a30'; x.font = '500 24px ' + D; ls(10); x.fillText('EFOOTBALL GROUP · #GOALHUNTERS', W / 2 + 5, H - 82); ls(0);
     return new Promise(function (res, rej) { cv.toBlob(function (b) { b ? res(b) : rej(new Error('blob')); }, 'image/png'); });
   }
   function openMatchCard(t, m0) {
