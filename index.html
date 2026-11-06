@@ -302,6 +302,7 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
 .ab{text-align:left;padding:14px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#fff,#EEF5FF);display:flex;flex-direction:column;gap:3px}
 .ab i{font-style:normal;font-size:26px}.ab b{font:700 15px/1.25 var(--f-b);color:var(--navy)}.ab small{color:var(--mute);font-size:12.5px;line-height:1.35}
 
+.mx{margin-top:12px;padding:16px 14px 14px;border-radius:24px;color:#fff;background:radial-gradient(90% 40% at 50% 0,rgba(255,90,170,.35),transparent 70%),linear-gradient(160deg,#8e1b52,#a3205c 50%,#5a0f36);border:1px solid rgba(255,255,255,.18);box-shadow:0 16px 36px rgba(90,15,54,.35)}.mxt{text-align:center}.mxt b{display:block;font:700 40px/1 var(--f-d);letter-spacing:.03em}.mxt span{display:block;font:500 15px var(--f-d);letter-spacing:.22em;margin-top:4px}.mxtabs{display:flex;gap:6px;justify-content:center;margin:12px 0;flex-wrap:wrap}.mxtabs button{border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.18);color:#fff;border-radius:99px;padding:7px 12px;font:600 13px var(--f-b)}.mxtabs button[aria-pressed=true]{background:#fff;color:#7a1646}.mxr{position:relative;display:flex;align-items:center;height:76px;margin:12px 0 0;border-radius:99px;background:linear-gradient(90deg,#3c0a24,#5e1038);box-shadow:0 8px 18px rgba(0,0,0,.3);overflow:hidden}.mxi{width:96px;height:100%;object-fit:cover;object-position:50% 18%;flex:none;-webkit-mask:linear-gradient(90deg,#000 55%,transparent);mask:linear-gradient(90deg,#000 55%,transparent)}.mxn{display:grid;place-items:center;background:#7b1d4b;font:700 34px var(--f-d)}.mxm{flex:1;text-align:center;line-height:1.1}.mxm b{display:block;font:700 32px var(--f-d);letter-spacing:.01em}.mxm span{display:block;font:600 12.5px var(--f-b);color:#f3d3e3;text-transform:uppercase;margin-top:2px}.mxm em{font:700 12px var(--f-d);font-style:normal}.mxm em.up{color:#7CF2A6}.mxm em.dn{color:#FF8A8A}.mxk{padding-right:14px;flex:none}
 .mvp{margin-top:12px;padding:14px;border-radius:22px;color:#fff;background:linear-gradient(135deg,#050E24,#0B2C66 70%,#0E3D86);border:1px solid rgba(246,210,122,.5)}
 .mvh{font:700 17px var(--f-b);color:#F6D27A;margin-bottom:8px}
 .mvg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -1166,16 +1167,61 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     return out;
   }
   function mvPill(e) { if (!e) return null; var ch = Math.round((e.v / MV0 - 1) * 100); return h('div', { class: 'mv' + (e.v > MV0 ? ' up' : e.v < MV0 ? ' dn' : '') }, fmtMV(e.v), ch ? h('em', null, (ch > 0 ? '▲ ' : '▼ ') + Math.abs(ch) + '%') : null); }
+  var mvTab = 'top';
+  function mvRows(MV, tab) {
+    var t = curTour('auction'), arr = Object.keys(MV).map(function (k) { return MV[k]; }), played = arr.filter(function (e) { return e.games > 0; });
+    var list = tab === 'up' ? played.filter(function (e) { return e.last > 0; }).sort(function (a, b) { return b.last - a.last || b.v - a.v; }) : tab === 'dn' ? played.filter(function (e) { return e.last < 0; }).sort(function (a, b) { return a.last - b.last || a.v - b.v; }) : arr.slice().sort(function (a, b) { return b.v - a.v || a.n.localeCompare(b.n); });
+    return list.slice(0, 5).map(function (e) {
+      var pl = playerOf(e.n), tm = null; ((t && t.parts) || []).forEach(function (q) { if ((q.sq || []).some(function (z) { return norm(z) === norm(e.n); })) tm = q; });
+      var pc = Math.round(e.last * 100);
+      return { n: e.n, v: fmtMV(e.v), c: tab === 'top' ? '' : (pc > 0 ? '▲ ' : '▼ ') + Math.abs(pc) + '%', ph: pl && pl.photo ? pl.photo : '', tm: tm };
+    });
+  }
+  var MVT = { top: ['MOST VALUABLE PLAYERS', '🔝 সবচেয়ে দামি'], up: ['BIGGEST RISERS', '📈 সবচেয়ে বেড়েছে'], dn: ['BIGGEST FALLERS', '📉 সবচেয়ে কমেছে'] };
+  async function drawMvCard(rows, tab) {
+    var W = 1080, rh = 190, gap = 26, H = 400 + rows.length * (rh + gap) + 150, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    var x = cv.getContext('2d'), D = 'Oswald,"Arial Narrow",Impact,sans-serif', BN = '"Hind Siliguri","Noto Sans Bengali",Arial,sans-serif';
+    function ls(v) { if ('letterSpacing' in x) x.letterSpacing = v + 'px'; }
+    function fit(q, w) { q = String(q); while (x.measureText(q).width > w && q.length > 2) q = q.slice(0, -1); return q; }
+    try { await Promise.all([document.fonts.load('700 80px Oswald'), document.fonts.load('600 30px "Hind Siliguri"')]); } catch (e) { /* ignore */ }
+    var ld = function (q) { return q ? loadImg(q).catch(function () { return null; }) : Promise.resolve(null); };
+    var imgs = await Promise.all([ld('logo.webp')].concat(rows.map(function (r) { return ld(r.ph); }), rows.map(function (r) { return ld(r.tm && r.tm.logo); })));
+    var g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#8e1b52'); g.addColorStop(0.5, '#a3205c'); g.addColorStop(1, '#5a0f36'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+    x.save(); x.globalAlpha = 0.07; x.strokeStyle = '#fff'; x.lineWidth = 2; for (var i = -H; i < W + H; i += 14) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i + H, H); x.stroke(); } x.restore();
+    var vg = x.createRadialGradient(W / 2, 160, 50, W / 2, 160, 700); vg.addColorStop(0, 'rgba(255,90,170,.35)'); vg.addColorStop(1, 'rgba(255,90,170,0)'); x.fillStyle = vg; x.fillRect(0, 0, W, 800);
+    x.textAlign = 'center'; x.fillStyle = '#fff'; x.font = '700 92px ' + D; ls(3); x.fillText('TOP ' + rows.length, W / 2, 150); ls(8); x.font = '500 40px ' + D; x.fillText(MVT[tab][0], W / 2, 212); ls(0);
+    if (imgs[0]) { x.save(); x.beginPath(); x.arc(W / 2, 290, 48, 0, 7); x.clip(); x.drawImage(imgs[0], W / 2 - 48, 242, 96, 96); x.restore(); x.strokeStyle = '#F6D27A'; x.lineWidth = 4; x.beginPath(); x.arc(W / 2, 290, 50, 0, 7); x.stroke(); }
+    rows.forEach(function (r, i) {
+      var y = 380 + i * (rh + gap), X = 50, w = W - 100, im = imgs[1 + i], lg = imgs[1 + rows.length + i];
+      x.save(); x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = 24; x.shadowOffsetY = 10; var rg = x.createLinearGradient(X, 0, X + w, 0); rg.addColorStop(0, '#3c0a24'); rg.addColorStop(1, '#5e1038'); x.fillStyle = rg; x.beginPath(); if (x.roundRect) x.roundRect(X, y, w, rh, 95); else x.rect(X, y, w, rh); x.fill(); x.restore();
+      x.save(); x.beginPath(); if (x.roundRect) x.roundRect(X, y, w, rh, 95); else x.rect(X, y, w, rh); x.clip();
+      if (im) { var s0 = Math.min(im.width, im.height), sy = Math.max(0, (im.height - s0) * 0.12); x.drawImage(im, (im.width - s0) / 2, sy, s0, s0, X, y - 30, 280, 280); } else { x.fillStyle = '#7b1d4b'; x.fillRect(X, y, 260, rh); x.fillStyle = '#fff'; x.font = '700 90px ' + D; x.fillText(String(r.n).charAt(0).toUpperCase(), X + 130, y + 120); }
+      var fg = x.createLinearGradient(X + 130, 0, X + 300, 0); fg.addColorStop(0, 'rgba(60,10,36,0)'); fg.addColorStop(1, 'rgba(60,10,36,1)'); x.fillStyle = fg; x.fillRect(X + 130, y, 180, rh); x.restore();
+      x.textAlign = 'center'; x.fillStyle = '#fff'; x.font = '700 92px ' + D; ls(1); x.fillText(r.v, 560, y + 100); ls(0);
+      x.font = '600 32px ' + BN; x.fillStyle = '#f3d3e3'; x.fillText(fit(String(r.n).toUpperCase(), 380) + (r.c ? '' : ''), 560, y + 150);
+      if (r.c) { x.fillStyle = r.c.charAt(0) === '▲' ? '#7CF2A6' : '#FF8A8A'; x.font = '700 34px ' + D; x.fillText(r.c, 560, y + 178); }
+      if (lg) { var cx = X + w - 110, cy = y + rh / 2; x.save(); x.beginPath(); x.arc(cx, cy, 62, 0, 7); x.fillStyle = '#fff'; x.fill(); x.clip(); x.drawImage(lg, cx - 62, cy - 62, 124, 124); x.restore(); }
+      else if (r.tm) { x.fillStyle = 'rgba(255,255,255,.85)'; x.font = '600 28px ' + D; x.textAlign = 'right'; x.fillText(fit(String(r.tm.n).toUpperCase(), 200), X + w - 50, y + 105); x.textAlign = 'center'; }
+    });
+    x.textAlign = 'center'; x.fillStyle = '#F6D27A'; x.font = '500 24px ' + D; ls(8); x.fillText('THE GOAL HUNTERS · MARKET VALUE', W / 2 + 4, H - 70); x.fillStyle = 'rgba(255,255,255,.7)'; x.font = '500 20px ' + D; ls(5); x.fillText('VIRTUAL VALUE · STARTS £400K', W / 2 + 2, H - 36); ls(0);
+    return new Promise(function (res, rej) { cv.toBlob(function (b) { b ? res(b) : rej(new Error('blob')); }, 'image/png'); });
+  }
   function mvPanel(MV) {
     var arr = Object.keys(MV).map(function (k) { return MV[k]; }), played = arr.filter(function (e) { return e.games > 0; });
     if (!played.length) return h('div', { class: 'mvp' }, h('div', { class: 'mvh' }, '💷 Market Value'), h('div', { class: 'note', style: 'color:#BFD6FF' }, 'সবাই £400k দিয়ে শুরু করেছে। ম্যাচ শুরু হলে পারফরম্যান্স অনুযায়ী দাম ওঠানামা করবে।'));
-    function col(title, list, fmt) { var c = h('div', { class: 'mvc' }, h('small', null, title)); list.slice(0, 3).forEach(function (e, i) { c.append(h('div', { class: 'mvr' }, h('span', null, (i + 1) + '. ' + e.n), h('b', null, fmt(e)))); }); return c; }
-    var pc = function (e) { var x = Math.round(e.last * 100); return (x > 0 ? '▲ ' : x < 0 ? '▼ ' : '') + Math.abs(x) + '%'; };
-    return h('div', { class: 'mvp' }, h('div', { class: 'mvh' }, '💷 Market Value'),
-      h('div', { class: 'mvg' }, col('🔝 সবচেয়ে দামি', arr.slice().sort(function (a, b) { return b.v - a.v; }), function (e) { return fmtMV(e.v); }),
-        col('📈 সবচেয়ে বেড়েছে', played.slice().sort(function (a, b) { return b.last - a.last; }).filter(function (e) { return e.last > 0; }), function (e) { return fmtMV(e.v) + ' ' + pc(e); }),
-        col('📉 সবচেয়ে কমেছে', played.slice().sort(function (a, b) { return a.last - b.last; }).filter(function (e) { return e.last < 0; }), function (e) { return fmtMV(e.v) + ' ' + pc(e); })),
-      h('div', { class: 'note', style: 'margin-top:8px;color:#9DBBE0' }, 'ভার্চুয়াল দাম · শুরু £400k · প্রতিটা গেমের রেটিং অনুযায়ী ওঠানামা'));
+    var box = h('div', { class: 'mx' });
+    function paint() {
+      box.replaceChildren(); var rows = mvRows(MV, mvTab);
+      box.append(h('div', { class: 'mxt' }, h('b', null, 'TOP ' + (rows.length || 5)), h('span', null, MVT[mvTab][0])),
+        h('div', { class: 'mxtabs' }, ['top', 'up', 'dn'].map(function (k) { return h('button', { type: 'button', 'aria-pressed': mvTab === k ? 'true' : 'false', onclick: function () { mvTab = k; paint(); } }, MVT[k][1]); })));
+      if (!rows.length) box.append(h('div', { class: 'note', style: 'color:#f3d3e3;text-align:center;margin:14px 0' }, 'এখনো কেউ নেই'));
+      rows.forEach(function (r) {
+        box.append(h('div', { class: 'mxr' }, r.ph ? h('img', { class: 'mxi', src: r.ph, alt: '' }) : h('div', { class: 'mxi mxn' }, String(r.n).charAt(0).toUpperCase()), h('div', { class: 'mxm' }, h('b', null, r.v), h('span', null, r.n), r.c ? h('em', { class: r.c.charAt(0) === '▲' ? 'up' : 'dn' }, r.c) : null), r.tm ? h('div', { class: 'mxk' }, crest({ n: r.tm.n, logo: r.tm.logo }, 46)) : null));
+      });
+      if (rows.length) box.append(h('button', { class: 'btn gold', style: 'width:100%;margin-top:12px', onclick: function () { openCardSheet('Market Value', function () { return drawMvCard(mvRows(MV, mvTab), mvTab); }, 'tgh-market-value.png'); } }, '📤 শেয়ার করুন'));
+      box.append(h('div', { class: 'note', style: 'margin-top:8px;color:#f3d3e3' }, 'ভার্চুয়াল দাম · শুরু £400k · প্রতিটা গেমের রেটিং অনুযায়ী ওঠানামা'));
+    }
+    paint(); return box;
   }
   function mvSection(e) {
     if (!e) return null; var ch = Math.round((e.v / MV0 - 1) * 100), hi = e.hist, mx = Math.max.apply(null, hi), mn = Math.min.apply(null, hi), W = 280, H = 60, pts = hi.map(function (v, i) { return (hi.length < 2 ? 0 : i * W / (hi.length - 1)).toFixed(1) + ',' + (H - 6 - (mx === mn ? 0.5 : (v - mn) / (mx - mn)) * (H - 12)).toFixed(1); }).join(' ');
@@ -2014,7 +2060,11 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
   }
   function dreamXI(list) {
     var arr = list.slice().sort(function (a, b) { return b.rt - a.rt || b.g - a.g; }), need = { GK: 1, DEF: 4, MID: 3, FWD: 3 }, out = { GK: [], DEF: [], MID: [], FWD: [] }, used = {};
-    arr.forEach(function (p) { if (out[p.pos].length < need[p.pos]) { out[p.pos].push(p); used[p.id] = 1; } });
+    arr.forEach(function (p) { if (out[p.pos].length < need[p.pos]) { out[p.pos].push(p); used[p.id || p.n] = 1; } });
+    function left() { return arr.filter(function (p) { return !used[p.id || p.n]; }); }
+    function take(p, pos) { used[p.id || p.n] = 1; out[pos].push(Object.assign({}, p, { pos: pos })); }
+    if (out.GK.length < need.GK) { var lg = left().sort(function (a, b) { return (b.k || 0) - (a.k || 0) || b.rt - a.rt; }); if (lg[0]) take(lg[0], 'GK'); }
+    ['DEF', 'MID', 'FWD'].forEach(function (pos) { while (out[pos].length < need[pos]) { var l = left(); if (!l.length) break; var key = { DEF: 'd', MID: 'md', FWD: 'a' }[pos]; l.sort(function (a, b) { return (b.rt + (b[key] || 0) * 0.15) - (a.rt + (a[key] || 0) * 0.15); }); take(l[0], pos); } });
     return out;
   }
   function lbCard(title, rows, unit, t) {
