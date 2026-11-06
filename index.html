@@ -302,6 +302,7 @@ html[data-theme=winter] .hero.wt .lg{box-shadow:0 0 0 3px #F6D27A,0 0 34px rgba(
 .ab{text-align:left;padding:14px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,#fff,#EEF5FF);display:flex;flex-direction:column;gap:3px}
 .ab i{font-style:normal;font-size:26px}.ab b{font:700 15px/1.25 var(--f-b);color:var(--navy)}.ab small{color:var(--mute);font-size:12.5px;line-height:1.35}
 
+.dvc{position:relative;margin:22px 0 8px;padding:18px 16px 14px;border-radius:24px;color:#fff;overflow:hidden;background:linear-gradient(135deg,#050E24,#0B2C66 70%,#0E3D86);border:1px solid rgba(246,210,122,.55);box-shadow:0 14px 30px rgba(14,34,80,.25);display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center}.dvg{position:absolute;right:-40px;top:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(246,210,122,.28),transparent 70%)}.dvp{width:84px;height:84px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px #F6D27A,0 8px 20px rgba(0,0,0,.4);background:linear-gradient(135deg,#E3A93A,#a8741a);display:grid;place-items:center;font:700 38px var(--f-d);color:#1a1204;position:relative}.dvp img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block}.dvt{position:relative}.dvt small{display:block;font:600 11px var(--f-d);letter-spacing:.28em;color:#F6D27A}.dvt b{display:block;font:700 24px/1.1 var(--f-d);margin:3px 0;text-transform:uppercase;letter-spacing:.02em}.dvt span{font-size:12.5px;color:#BFD6FF}.dvb{grid-column:1/-1;text-align:center;font:500 11.5px var(--f-d);letter-spacing:.16em;color:#9DBBE0;border-top:1px solid rgba(255,255,255,.14);padding-top:10px;margin-top:6px;position:relative}
 .mx{margin-top:12px;padding:16px 14px 14px;border-radius:24px;color:#fff;background:radial-gradient(90% 40% at 50% 0,rgba(255,90,170,.35),transparent 70%),linear-gradient(160deg,#8e1b52,#a3205c 50%,#5a0f36);border:1px solid rgba(255,255,255,.18);box-shadow:0 16px 36px rgba(90,15,54,.35)}.mxt{text-align:center}.mxt b{display:block;font:700 40px/1 var(--f-d);letter-spacing:.03em}.mxt span{display:block;font:500 15px var(--f-d);letter-spacing:.22em;margin-top:4px}.mxtabs{display:flex;gap:6px;justify-content:center;margin:12px 0;flex-wrap:wrap}.mxtabs button{border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.18);color:#fff;border-radius:99px;padding:7px 12px;font:600 13px var(--f-b)}.mxtabs button[aria-pressed=true]{background:#fff;color:#7a1646}.mxr{position:relative;display:flex;align-items:center;height:76px;margin:12px 0 0;border-radius:99px;background:linear-gradient(90deg,#3c0a24,#5e1038);box-shadow:0 8px 18px rgba(0,0,0,.3);overflow:hidden}.mxi{width:96px;height:100%;object-fit:cover;object-position:50% 18%;flex:none;-webkit-mask:linear-gradient(90deg,#000 55%,transparent);mask:linear-gradient(90deg,#000 55%,transparent)}.mxn{display:grid;place-items:center;background:#7b1d4b;font:700 34px var(--f-d)}.mxm{flex:1;text-align:center;line-height:1.1}.mxm b{display:block;font:700 32px var(--f-d);letter-spacing:.01em}.mxm span{display:block;font:600 12.5px var(--f-b);color:#f3d3e3;text-transform:uppercase;margin-top:2px}.mxm em{font:700 12px var(--f-d);font-style:normal}.mxm em.up{color:#7CF2A6}.mxm em.dn{color:#FF8A8A}.mxk{padding-right:14px;flex:none}
 .mvp{margin-top:12px;padding:14px;border-radius:22px;color:#fff;background:linear-gradient(135deg,#050E24,#0B2C66 70%,#0E3D86);border:1px solid rgba(246,210,122,.5)}
 .mvh{font:700 17px var(--f-b);color:#F6D27A;margin-bottom:8px}
@@ -784,6 +785,10 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
       h('div', { class: 'rdh' }, '🤝 জয়েন বাটন'), field('বাটনের লেখা', jt), field('লিংক (ফাঁকা = বাটন নেই)', ju),
       h('div', { class: 'rdh' }, '🔗 সোশ্যাল লিংক'), field('Facebook পেজ', fb), field('Facebook গ্রুপ', fbg), field('WhatsApp', wa), field('YouTube', yt), go));
   }
+  function devCard() {
+    var av = h('div', { class: 'dvp' }, h('span', null, 'A')), im = new Image(); im.alt = 'Md Abid Hussain'; im.onload = function () { av.replaceChildren(im); }; im.src = 'dev.jpg';
+    return h('section', { class: 'dvc' }, h('div', { class: 'dvg' }), av, h('div', { class: 'dvt' }, h('small', null, 'WEB DEVELOPER'), h('b', null, 'Md Abid Hussain'), h('span', null, 'এই ওয়েবসাইটের ডিজাইন ও ডেভেলপমেন্ট')), h('div', { class: 'dvb' }, '❤ Built for The Goal Hunters'));
+  }
   function homeView() {
     var w = h('div', { class: 'wrap' }, heroBox(), noticeBoard()); var ib = installBanner(); if (ib) w.append(ib);
     var sb = socialBox(); if (sb) w.append(sb);
@@ -799,6 +804,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
       w.append(secTitle('সর্বশেষ চ্যাম্পিয়ন'));
       ['auction', 'solo'].forEach(function (ty) { var c = S.champs.filter(function (z) { return (z.type || 'auction') === ty; }).sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); })[0]; if (c) w.append(champCard(c)); });
     }
+    w.append(devCard());
     return w;
   }
 
@@ -1386,7 +1392,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     try { await Promise.all([document.fonts.load('700 60px Oswald'), document.fonts.load('600 30px Oswald'), document.fonts.load('700 40px Cinzel')]); } catch (e) { /* ignore */ }
     paintCard(x, W, H); x.textAlign = 'center';
     var tg = x.createLinearGradient(0, 90, 0, 190); tg.addColorStop(0, '#FFF0B0'); tg.addColorStop(1, '#C8921F'); x.fillStyle = tg; x.font = '700 120px ' + D; sp(10); x.fillText('DREAM XI', W / 2 + 5, 190); sp(0);
-    x.fillStyle = '#CDE7D4'; x.font = '500 30px ' + D; sp(5); x.fillText(String((t && t.name) || 'THE GOAL HUNTERS').toUpperCase() + (t && t.season ? '  ·  ' + t.season : '') + '  ·  4-3-3', W / 2 + 2, 240); sp(0);
+    x.fillStyle = '#CDE7D4'; x.font = '500 30px ' + D; sp(5); x.fillText(String((t && t.name) || 'THE GOAL HUNTERS').toUpperCase() + (t && t.season ? '  ·  ' + t.season : '') + '  ·  ' + (xi.fm || '4-3-3'), W / 2 + 2, 240); sp(0);
     var px = 76, py = 275, pw = W - 152, ph2 = 900;
     x.save(); x.beginPath(); if (x.roundRect) x.roundRect(px, py, pw, ph2, 34); else x.rect(px, py, pw, ph2); x.clip();
     for (var i = 0; i < 10; i++) { x.fillStyle = i % 2 ? '#1E7A3A' : '#23883F'; x.fillRect(px, py + i * 90, pw, 90); }
@@ -2059,12 +2065,17 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     return list;
   }
   function dreamXI(list) {
-    var arr = list.slice().sort(function (a, b) { return b.rt - a.rt || b.g - a.g; }), need = { GK: 1, DEF: 4, MID: 3, FWD: 3 }, out = { GK: [], DEF: [], MID: [], FWD: [] }, used = {};
-    arr.forEach(function (p) { if (out[p.pos].length < need[p.pos]) { out[p.pos].push(p); used[p.id || p.n] = 1; } });
-    function left() { return arr.filter(function (p) { return !used[p.id || p.n]; }); }
-    function take(p, pos) { used[p.id || p.n] = 1; out[pos].push(Object.assign({}, p, { pos: pos })); }
-    if (out.GK.length < need.GK) { var lg = left().sort(function (a, b) { return (b.k || 0) - (a.k || 0) || b.rt - a.rt; }); if (lg[0]) take(lg[0], 'GK'); }
-    ['DEF', 'MID', 'FWD'].forEach(function (pos) { while (out[pos].length < need[pos]) { var l = left(); if (!l.length) break; var key = { DEF: 'd', MID: 'md', FWD: 'a' }[pos]; l.sort(function (a, b) { return (b.rt + (b[key] || 0) * 0.15) - (a.rt + (a[key] || 0) * 0.15); }); take(l[0], pos); } });
+    var arr = list.slice().sort(function (a, b) { return b.rt - a.rt || b.g - a.g; }).slice(0, 11), out = { GK: [], DEF: [], MID: [], FWD: [] }, KEY = { DEF: 'd', MID: 'md', FWD: 'a', GK: 'k' };
+    var pool = arr.map(function (p) { return Object.assign({}, p); });
+    var gk = pool.filter(function (p) { return p.pos === 'GK'; }).sort(function (a, b) { return b.rt - a.rt; })[0] || pool.slice().sort(function (a, b) { return (b.k || 0) - (a.k || 0) || b.rt - a.rt; })[0];
+    pool.forEach(function (p) { if (p === gk) { p.pos = 'GK'; return; } if (p.pos === 'GK') { var best = 'DEF', bv = -1; ['DEF', 'MID', 'FWD'].forEach(function (q) { var v = p[KEY[q]] || 0; if (v > bv) { bv = v; best = q; } }); p.pos = best; } });
+    function cnt(q) { return pool.filter(function (p) { return p.pos === q; }).length; }
+    [['DEF', 3], ['MID', 2], ['FWD', 1]].forEach(function (z) {
+      while (cnt(z[0]) < z[1]) { var big = ['DEF', 'MID', 'FWD'].filter(function (q) { return q !== z[0]; }).sort(function (a, b) { return cnt(b) - cnt(a); })[0], c = pool.filter(function (p) { return p.pos === big; }).sort(function (a, b) { return (b[KEY[z[0]]] || 0) - (a[KEY[z[0]]] || 0); })[0]; if (!c || cnt(big) <= 1) break; c.pos = z[0]; }
+    });
+    ['FWD', 'MID', 'DEF'].forEach(function (q) { while (cnt(q) > 4) { var sm = ['DEF', 'MID', 'FWD'].filter(function (z) { return z !== q; }).sort(function (a, b) { return cnt(a) - cnt(b); })[0], c = pool.filter(function (p) { return p.pos === q; }).sort(function (a, b) { return (b[KEY[sm]] || 0) - (a[KEY[sm]] || 0); })[0]; c.pos = sm; } });
+    pool.forEach(function (p) { out[p.pos].push(p); });
+    out.fm = out.DEF.length + '-' + out.MID.length + '-' + out.FWD.length;
     return out;
   }
   function lbCard(title, rows, unit, t) {
@@ -2213,7 +2224,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
       var row = h('div', { class: 'pr' }); xi[pos].forEach(function (p) { cnt++; row.append(h('div', { class: 'pp' }, h('div', { class: 'pa' }, p.ph ? h('img', { src: p.ph, alt: '' }) : h('span', { class: 'i' }, p.n.charAt(0).toUpperCase()), h('i', null, p.rt.toFixed(1))), h('b', null, p.n), h('small', null, pos + ' · ' + tn(p)))); });
       pitch.append(row);
     });
-    w.append(h('div', { class: 'sec' }, h('h2', null, 'ড্রিম XI'), h('small', null, '৪-৩-৩')), pitch,
+    w.append(h('div', { class: 'sec' }, h('h2', null, 'ড্রিম XI'), h('small', null, xi.fm)), pitch,
       cnt ? h('button', { class: 'btn', style: 'width:100%;margin-top:10px', onclick: function () { openCardSheet('Dream XI', function () { return drawDreamCard(t, xi); }, 'tgh-dream-xi.png'); } }, '📤 Dream XI শেয়ার করুন') : null,
       h('p', { class: 'note', style: 'margin-top:8px' }, cnt < 11 ? 'আরও গেম জমা হলে ১১ জনের দল পূর্ণ হবে। ' : '', 'রেটিং হয় গোল, ফল, শট, পাস সঠিকতা, পজেশন, ট্যাকল, সেভ ও ফাউল দেখে। পজিশন ঠিক হয় কে কী বেশি করেছে তা দেখে (অ্যাডমিন প্রোফাইলে পজিশন দিলে সেটাই চলে)।'));
     w.append(lbCard('⭐ Top Rated', pl.slice().sort(function (a, b) { return b.rt - a.rt || b.g - a.g; }).map(function (p) { return { n: p.n, s: p.pos + ' · ' + tn(p), v: p.rt.toFixed(1) }; }), 'রেটিং'),
