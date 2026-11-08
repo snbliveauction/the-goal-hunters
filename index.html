@@ -965,8 +965,8 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
         var r = (why.value || '').trim(); if (r.length < 3) { toast('কারণ লিখুন'); return; }
         if (!confirm('এই Swap সবার সামনে লগ হিসেবে দেখা যাবে। নিশ্চিত?')) return;
         var ref = db.collection('matches').doc(m.id), before = JSON.stringify(m.pairs), nm = null; btn.disabled = true;
-        db.runTransaction(function (tx) { return tx.get(ref).then(function (sn) {
-          if (!sn.exists) throw new Error('nomatch'); var d = sn.data(); if (JSON.stringify(d.pairs || []) !== before) throw new Error('stale');
+        txRun(function (tx) { return tx.get(ref).then(function (sn) {
+          if (!sn.exists) throw new Error('nomatch'); var d = sn.data();
           var base = clone(d.pairs), pr = plan(base), ps = pr.w;
           var log = (d.swaps || []).concat([{ at: Date.now(), st: steps.map(function (z) { return { p: z.p, t: z.t }; }), bf: pr.ch.map(function (i) { return { a: base[i].a, b: base[i].b }; }), af: pr.ch.map(function (i) { return { a: ps[i].a, b: ps[i].b }; }), why: r }]);
           var up = { pairs: ps, swaps: log }; if (!d.pairs0) up.pairs0 = d.pairs; tx.update(ref, up); nm = { pairs: ps, swaps: log, pairs0: d.pairs0 || d.pairs };
@@ -2301,16 +2301,29 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
   function leftOf(m, p) { return ((p && p.sq) || []).filter(function (n) { return !hasPlayed(m, n); }); }
   function findMatch(id) { return S.mt.auction.concat(S.mt.solo).filter(function (x) { return x.id === id; })[0]; }
   function goalsOf(gs) { var a = 0, b = 0; (gs || []).forEach(function (g) { a += +g.as || 0; b += +g.bs || 0; }); return { a: a, b: b }; }
-  async function pushGame(t, m, g, shot) {
+  async function txRun(fn, onRetry) {
+    var tries = 8, last;
+    for (var i = 0; i < tries; i++) {
+      try { return await db.runTransaction(fn); }
+      catch (e) {
+        last = e; var c = (e && e.code) || '', msg = String((e && e.message) || e);
+        if (/^(done|dup|nomatch|drawn|bad|played)$/.test(msg) || c === 'permission-denied' || c === 'not-found' || c === 'invalid-argument') throw e;
+        if (i < tries - 1) { if (onRetry) onRetry(i + 2, tries); await new Promise(function (r) { setTimeout(r, 300 * (i + 1) + Math.random() * 700); }); }
+      }
+    }
+    throw last;
+  }
+  async function pushGame(t, m, g, shot, onRetry) {
     var ref = db.collection('matches').doc(m.id), res = {};
-    await db.runTransaction(async function (tx) {
-      var sn = await tx.get(ref); if (!sn.exists) throw new Error('nomatch'); var cur = sn.data();
+    await txRun(async function (tx) {
+      var sn = await tx.get(ref); if (!sn.exists) throw new Error('nomatch'); var cur = sn.data(), g0 = cur.g || [];
+      if (g0.some(function (x) { return x.id === g.id; })) { var n0 = needGames(t, cur); res = { finish: false, complete: n0 > 0 && g0.length >= n0, n: g0.length, need: n0, r: tpts(g0) }; return; }
       if (cur.st === 'done') throw new Error('done');
-      var gs = (cur.g || []).slice(); if (playedIn(gs, g.pa) || playedIn(gs, g.pb)) throw new Error('dup');
+      var gs = g0.slice(); if (playedIn(gs, g.pa) || playedIn(gs, g.pb)) throw new Error('dup');
       gs.push(g); var r = tpts(gs), need = needGames(t, cur), ko = cur.stage !== 'league', complete = need > 0 && gs.length >= need, finish = complete && !(ko && r.a === r.b);
       var upd = { g: gs, as: r.a, bs: r.b, st: 'pending' };
       tx.update(ref, upd); res = { finish: false, complete: complete, n: gs.length, need: need, r: r };
-    });
+    }, onRetry);
     if (shot) db.collection('shots').doc(g.id).set({ tid: t.id, mid: m.id, img: shot, ts: Date.now() }).catch(function () { /* optional */ });
     return res;
   }
@@ -2320,7 +2333,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     if (/dup/.test(s)) return 'এই প্লেয়ারের গেম আগেই জমা হয়েছে';
     if (/nomatch/.test(s)) return 'ম্যাচটা পাওয়া যায়নি';
     if (e && e.code === 'permission-denied') return 'জমা হয়নি (Firebase Rules আপডেট করুন)';
-    return 'জমা হয়নি, ইন্টারনেট দেখে আবার চেষ্টা করুন';
+    return 'অনেকে একসাথে জমা দিচ্ছে বা নেটওয়ার্ক দুর্বল। কয়েক সেকেন্ড পর আবার চাপুন, আপনার দেওয়া তথ্য মোছা হয়নি';
   }
   function pickRow(names, noSquad, val, onPick) {
     var box = h('div');
@@ -2384,7 +2397,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
       if (!K.manual() && !sd) { toast('স্ক্রিনশটে আপনি কোন পাশে, বাছুন'); return; } if (!b) { toast('দুই পাশের স্কোর দিন'); return; } if (!K.manual() && !R.shot) { toast('স্কোরবোর্ডের স্ক্রিনশট দিন বা "শুধু গোল দিয়ে" বাছুন'); return; }
       busy = true; go.disabled = true; go.textContent = 'জমা হচ্ছে…';
       try {
-        var r = await pushGame(t, m, b.g, K.manual() ? '' : R.shot); closeSheet();
+        var r = await pushGame(t, m, b.g, K.manual() ? '' : R.shot, function (n, N) { go.textContent = 'নেটওয়ার্ক ব্যস্ত, আবার চেষ্টা করছি (' + n + '/' + N + ')…'; }); closeSheet();
         if (r.complete) toast('✅ সব গেম জমা হয়েছে। অ্যাডমিন যাচাই করে ম্যাচ শেষ করলে টেবিলে আপডেট হবে');
         else toast('✅ জমা হয়েছে (' + r.n + (r.need ? '/' + r.need : '') + ' গেম)');
       } catch (e) { busy = false; go.disabled = false; go.textContent = 'রেজাল্ট জমা দিন'; toast(errText(e)); }
@@ -2403,7 +2416,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
       busy = true; go.disabled = true;
       try {
         var ref = db.collection('matches').doc(m.id);
-        await db.runTransaction(async function (tx) { var sn = await tx.get(ref); if (!sn.exists) throw new Error('nomatch'); if (sn.data().st === 'done') throw new Error('done'); tx.update(ref, { as: s.a, bs: s.b, st: 'done', pw: ko && s.a === s.b ? pw : '', dt: Date.now() }); });
+        await txRun(async function (tx) { var sn = await tx.get(ref); if (!sn.exists) throw new Error('nomatch'); if (sn.data().st === 'done') throw new Error('done'); tx.update(ref, { as: s.a, bs: s.b, st: 'done', pw: ko && s.a === s.b ? pw : '', dt: Date.now() }); });
         closeSheet(); toast('✅ রেজাল্ট যোগ হয়েছে');
       } catch (e) { busy = false; go.disabled = false; toast(errText(e)); }
     } }, 'রেজাল্ট জমা দিন');
