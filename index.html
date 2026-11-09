@@ -1435,20 +1435,20 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     function rr(a, b, w, hh, r) { x.beginPath(); if (x.roundRect) x.roundRect(a, b, w, hh, r); else x.rect(a, b, w, hh); }
     function fit(txt, wt, size, max, min) { var f = size; x.font = wt + ' ' + f + 'px ' + P; while (x.measureText(txt).width > max && f > (min || 12)) { f -= 2; x.font = wt + ' ' + f + 'px ' + P; } return f; }
     try { await Promise.all([document.fonts.load('800 60px Poppins'), document.fonts.load('700 30px Poppins'), document.fonts.load('600 30px Poppins')]); } catch (e) { /* ignore */ }
-    var MVm = marketValues(), mp = mgrName ? playerOf(mgrName) : null, msrc = mp ? await hdPhoto(mp) : '';
-    var mimg = msrc ? await loadImg(msrc).catch(function () { return null; }) : null, lg = await loadImg(AUC_LOGO).catch(function () { return null; }), tlg = tm && tm.logo ? await loadImg(tm.logo).catch(function () { return null; }) : null;
+    var MVm = marketValues();
+    var lg = await loadImg(AUC_LOGO).catch(function () { return null; }), tlg = tm && tm.logo ? await loadImg(tm.logo).catch(function () { return null; }) : null;
     var list = (names || []).slice(0, 5).map(function (n) { var pl = playerOf(n), o = perfOf(n), e = MVm[norm(n)]; return { n: n, pl: pl, rt: o.g ? o.rt : 0, g: o.g, v: e ? e.v : MV0 }; });
     var imgs = await Promise.all(list.map(function (e) { return e.pl && e.pl.photo ? loadImg(e.pl.photo).catch(function () { return null; }) : Promise.resolve(null); }));
     var g = x.createRadialGradient(W / 2, 400, 60, W / 2, 400, 1100); g.addColorStop(0, '#1B49C9'); g.addColorStop(0.55, '#0A1F6E'); g.addColorStop(1, '#050E38'); x.fillStyle = g; x.fillRect(0, 0, W, H);
-    var oc = document.createElement('canvas'); oc.width = W; oc.height = 880; var o2 = oc.getContext('2d');
-    if (mimg) {
-      var sc = Math.max(W / mimg.width, 880 / mimg.height), cw = W / sc, ch = 880 / sc; try { o2.imageSmoothingQuality = 'high'; } catch (e) { /* ignore */ }
-      o2.drawImage(mimg, (mimg.width - cw) / 2, (mimg.height - ch) * 0.1, cw, ch, 0, 0, W, 880);
-      o2.globalCompositeOperation = 'source-atop'; o2.fillStyle = 'rgba(20,72,224,.22)'; o2.fillRect(0, 0, W, 880);
-    } else if (lg) { o2.globalAlpha = .25; o2.drawImage(lg, 240, 40, 600, 600); o2.globalAlpha = 1; }
-    o2.globalCompositeOperation = 'destination-in'; var vg = o2.createLinearGradient(0, 0, 0, 880); vg.addColorStop(0, '#000'); vg.addColorStop(0.62, '#000'); vg.addColorStop(1, 'rgba(0,0,0,0)'); o2.fillStyle = vg; o2.fillRect(0, 0, W, 880);
-    var hg = o2.createLinearGradient(0, 0, W, 0); hg.addColorStop(0, 'rgba(0,0,0,0)'); hg.addColorStop(0.12, '#000'); hg.addColorStop(0.88, '#000'); hg.addColorStop(1, 'rgba(0,0,0,0)'); o2.fillStyle = hg; o2.fillRect(0, 0, W, 880);
-    x.drawImage(oc, 0, 0);
+    var big = tlg || lg, bs = tlg ? 380 : 470;
+    if (big) {
+      var sm = document.createElement('canvas'); sm.width = 28; sm.height = 28; sm.getContext('2d').drawImage(big, 0, 0, 28, 28);
+      x.save(); x.globalAlpha = .55; try { x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; } catch (e) { /* ignore */ } x.drawImage(sm, -140, -120, 1360, 1160); x.restore(); var fb = x.createLinearGradient(0, 600, 0, 920); fb.addColorStop(0, 'rgba(8,24,90,0)'); fb.addColorStop(1, 'rgba(8,24,90,.95)'); x.fillStyle = fb; x.fillRect(0, 600, W, 320);
+      var rg = x.createRadialGradient(W / 2, 400, 120, W / 2, 400, 560); rg.addColorStop(0, 'rgba(60,120,255,.55)'); rg.addColorStop(1, 'rgba(10,31,110,0)'); x.fillStyle = rg; x.fillRect(0, 0, W, 900);
+      x.save(); x.shadowColor = 'rgba(120,180,255,.9)'; x.shadowBlur = 80; x.beginPath(); x.arc(W / 2, 410, bs / 2 + 10, 0, 7); x.fillStyle = '#fff'; x.fill(); x.restore();
+      x.save(); x.beginPath(); x.arc(W / 2, 410, bs / 2, 0, 7); x.clip(); try { x.imageSmoothingQuality = 'high'; } catch (e) { /* ignore */ } x.drawImage(big, W / 2 - bs / 2, 410 - bs / 2, bs, bs); x.restore();
+      x.strokeStyle = '#F6D27A'; x.lineWidth = 8; x.beginPath(); x.arc(W / 2, 410, bs / 2 + 4, 0, 7); x.stroke();
+    }
     x.save(); x.strokeStyle = '#fff'; x.lineCap = 'round'; x.lineJoin = 'round'; x.shadowColor = '#8FB4FF'; x.shadowBlur = 14; x.lineWidth = 5;
     [[[150, 40], [120, 200], [190, 260], [110, 420], [170, 470], [120, 600]], [[1000, 420], [930, 520], [980, 560], [900, 700]]].forEach(function (pl) { x.beginPath(); pl.forEach(function (q, i) { i ? x.lineTo(q[0], q[1]) : x.moveTo(q[0], q[1]); }); x.stroke(); }); x.restore();
     var cr = tlg || lg; if (cr) { x.save(); x.beginPath(); x.arc(94, 88, 42, 0, 7); x.fillStyle = '#fff'; x.fill(); x.clip(); x.drawImage(cr, 52, 46, 84, 84); x.restore(); x.strokeStyle = '#fff'; x.lineWidth = 4; x.beginPath(); x.arc(94, 88, 42, 0, 7); x.stroke(); }
@@ -1483,7 +1483,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
       try { localStorage.setItem(key, msel.value); } catch (e) { /* ignore */ }
       var chosen = sel.slice(), mg = msel.value; openCardSheet('Fantastic Four', function () { return drawBestCard(t, p, mg, chosen); }, 'tgh-best-' + norm(p.n) + '.png');
     } }, '🎴 কার্ড বানান');
-    openSheet(h('div', null, xbtn(), h('h3', null, p.n + ': Fantastic Four'), field('ম্যানেজার (কার্ডের পিছনের ছবি)', msel), h('div', { class: 'rdh', style: 'margin-top:10px' }, 'সেরা প্লেয়ার বাছুন (ডিফল্ট: সবচেয়ে দামী ৪ জন)'), chips, cnt, go));
+    openSheet(h('div', null, xbtn(), h('h3', null, p.n + ': Fantastic Four'), field('ম্যানেজারের নাম (ঐচ্ছিক)', msel), h('div', { class: 'rdh', style: 'margin-top:10px' }, 'সেরা প্লেয়ার বাছুন (ডিফল্ট: সবচেয়ে দামী ৪ জন)'), chips, cnt, go));
   }
   async function drawDreamCard(t, xi) {
     var W = 1080, H = 1450, cv = document.createElement('canvas'); cv.width = W; cv.height = H; var x = cv.getContext('2d'), D = 'Oswald,"Arial Narrow",Impact,sans-serif', pm = partMap(t);
@@ -1667,7 +1667,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     var type = t.type, name = h('input', { type: 'text', value: p ? p.n : '', maxlength: '40', placeholder: type === 'solo' ? 'প্লেয়ারের নাম' : 'টিমের নাম' }), pick = {}, chips = h('div', { class: 'chips' }), extra = h('textarea', { placeholder: type === 'solo' ? 'বাইরের প্লেয়ার (প্রতি লাইনে একজন)' : 'রেজিস্টার তালিকায় নেই এমন প্লেয়ারের নাম (প্রতি লাইনে একজন)' });
     var logo = (p && p.logo) || '', lp = h('span'), lfin = h('input', { type: 'file', accept: 'image/*', style: 'display:none' });
     function lpDraw() { lp.replaceChildren(crest({ n: name.value || '?', logo: logo }, 56)); }
-    lfin.onchange = async function () { if (!lfin.files[0]) return; try { logo = await logoUrl(lfin.files[0], 144); } catch (e) { toast('ছবি পড়া যায়নি'); } lpDraw(); };
+    lfin.onchange = async function () { if (!lfin.files[0]) return; try { logo = await logoUrl(lfin.files[0], 320); } catch (e) { toast('ছবি পড়া যায়নি'); } lpDraw(); };
     name.addEventListener('input', lpDraw); lpDraw();
     var logoRow = h('div', { class: 'row', style: 'align-items:center;gap:12px' }, lp, h('button', { type: 'button', class: 'btn ghost sm', onclick: function () { lfin.click(); } }, '🖼 লোগো বাছুন'), h('button', { type: 'button', class: 'btn ghost sm', onclick: function () { logo = ''; lpDraw(); } }, 'মুছুন'), lfin);
     var mgrSel = h('select', null, [h('option', { value: '' }, '— বাছুন (ঐচ্ছিক) —')].concat(S.players.map(function (pl) { return h('option', { value: pl.name, selected: !!(p && p.mgr === pl.name) }, pl.name); })));
@@ -1691,7 +1691,7 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
     openSheet(h('div', null, xbtn(), h('h3', null, type === 'auction' ? (p ? 'টিম / স্কোয়াড' : 'নতুন টিম') : (p ? 'নাম বদল' : 'প্লেয়ার যোগ')),
       (type === 'auction' || p) ? field(type === 'auction' ? 'টিমের নাম' : 'নাম', name) : null,
       type === 'auction' ? field('টিম লোগো', logoRow) : null,
-      type === 'auction' ? field('ম্যানেজার (ঐচ্ছিক, সেরা প্লেয়ার কার্ডে পিছনের ছবি)', mgrSel) : null,
+      type === 'auction' ? field('ম্যানেজার (ঐচ্ছিক, Fantastic Four কার্ডে নাম দেখাতে)', mgrSel) : null,
       (type === 'auction' || !p) ? field(type === 'auction' ? 'স্কোয়াড: Auction Registered Players (' + S.players.length + ' জন)' : 'ক্লাবের প্লেয়ার বাছুন', searchable(chips)) : null,
       (type === 'auction' || !p) ? field(type === 'auction' ? 'রেজিস্টার তালিকায় নেই (ঐচ্ছিক)' : 'বাইরের (গেস্ট) প্লেয়ার', extra) : null, go));
   }
