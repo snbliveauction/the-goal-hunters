@@ -214,6 +214,31 @@ td:nth-child(2) .tn{justify-content:flex-start;text-align:left}
 .stepl li:before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font:600 14px var(--f-d)}
 .skel{height:84px;border-radius:18px;background:linear-gradient(90deg,#E9EEF7 25%,#F5F8FD 50%,#E9EEF7 75%);background-size:200% 100%;animation:sk 1.3s infinite}
 @keyframes sk{to{background-position:-200% 0}}
+/* ===== premium group draw ===== */
+.gdw{position:relative;margin:14px 0 12px;border-radius:22px;padding:16px 14px 14px;background:radial-gradient(circle at 50% 0,#2a5cc4 0,#14306f 45%,#0a1a45 100%);color:#fff;text-align:center;overflow:hidden;box-shadow:0 10px 30px rgba(14,34,80,.35),inset 0 0 0 1px rgba(255,255,255,.12)}
+.gdw:before{content:"";position:absolute;inset:-60%;background:conic-gradient(from 0deg,transparent 0 70%,rgba(198,232,111,.28) 82%,transparent 94%);animation:gdsp 3.2s linear infinite}
+.gdw.done:before{animation-duration:8s;opacity:.6}
+.gdw>*{position:relative}
+@keyframes gdsp{to{transform:rotate(360deg)}}
+.gdl{font:600 12px var(--f-d);letter-spacing:.22em;color:var(--lime);text-transform:uppercase}
+.gdn{height:62px;display:flex;align-items:center;justify-content:center;margin:8px auto 4px;max-width:100%;padding:0 18px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);font:700 26px/1.1 var(--f-b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gdn.spin{filter:blur(1.3px);color:#cfe0ff}
+.gdn.lock{color:#fff;animation:gdlk .4s cubic-bezier(.2,1.6,.4,1);box-shadow:0 0 0 2px var(--lime),0 0 28px rgba(198,232,111,.55)}
+@keyframes gdlk{from{transform:scale(.86)}}
+.gdg{height:30px;font:700 18px/30px var(--f-d);letter-spacing:.12em;color:var(--gold)}
+.gdp{height:5px;border-radius:9px;background:rgba(255,255,255,.15);overflow:hidden;margin-top:6px}
+.gdp b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--lime));border-radius:9px;transition:width .25s}
+.gdc{margin-top:6px;font:600 12px var(--f-b);color:#b9c9ee;min-height:18px}
+.gdk{margin-top:8px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:6px 16px;font:600 13px var(--f-b)}
+.gdgr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gdb{border-radius:18px;background:#fff;border:1.5px solid var(--line);padding:10px 10px 10px;min-height:150px;transition:box-shadow .25s,border-color .25s,transform .25s}
+.gdb.hit{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,158,72,.22),0 8px 22px rgba(46,158,72,.25);transform:translateY(-2px)}
+.gdb h4{margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;font:700 15px var(--f-d);letter-spacing:.1em;color:var(--green2);text-transform:uppercase}
+.gdb h4 small{font:600 11px var(--f-b);letter-spacing:0;color:var(--mute);background:var(--paper);border-radius:99px;padding:1px 8px}
+.gdb .cp{padding:4px 10px;font-size:13px;line-height:1.3;background:linear-gradient(90deg,rgba(46,158,72,.10),rgba(198,232,111,.14));border-color:rgba(46,158,72,.35)}
+.gdb .cp.gdpop{animation:gdpop .42s cubic-bezier(.2,1.5,.4,1)}
+@keyframes gdpop{from{transform:scale(.7);opacity:.2}}
+.gdfly{position:fixed;left:0;top:0;z-index:90;pointer-events:none;border-radius:14px;padding:8px 14px;background:linear-gradient(135deg,#2E9E48,#1F7A36);color:#fff;font:700 15px var(--f-b);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.35);will-change:transform}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* ===== v5 ===== */
@@ -640,20 +665,84 @@ html[data-theme=winter] .stats.hs .stat{background:linear-gradient(160deg,#0b1d4
   }
   function gshuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
   function openGroupDraw(t) {
-    var ids = (t.parts || []).map(function (p) { return p.id; }), groups = null, box = h('div');
+    var ids = (t.parts || []).map(function (p) { return p.id; }), groups = null, order = [], boards = {}, busy = false, token = 0, skipped = false;
     if (ids.length < 16) { toast('গ্রুপ ফরম্যাটে কমপক্ষে ১৬ জন লাগবে (আদর্শ ৩৬)'); return; }
-    function paint() {
-      box.replaceChildren();
+    var names = ids.map(function (id) { return pname(t, id); });
+    function rr(n) { return Math.floor(Math.random() * n); }
+    var stL = h('div', { class: 'gdl' }, '🎲 লাকি গ্রুপ ড্র'), stN = h('div', { class: 'gdn' }, '—'), stG = h('div', { class: 'gdg' }), stBar = h('b'), stC = h('div', { class: 'gdc' });
+    var skip = h('button', { type: 'button', class: 'gdk', onclick: function () { skipped = true; } }, '⏭ স্কিপ করুন');
+    var stage = h('div', { class: 'gdw' }, stL, stN, stG, h('div', { class: 'gdp' }, stBar), stC, skip);
+    var box = h('div', { class: 'gdgr' });
+    var again = h('button', { class: 'btn alt', style: 'width:100%;margin-top:12px', onclick: function () { if (!busy) run(); } }, '🎲 আবার ড্র');
+    var ok = h('button', { class: 'btn', style: 'width:100%;margin-top:14px', onclick: async function () { if (busy) return; ok.disabled = true; var r = await makeGroupFixtures(t, groups); if (r) closeSheet(); else ok.disabled = false; } }, '✅ নিশ্চিত করে ফিক্সচার তৈরি করুন');
+    function setBusy(b) { busy = b; if (b) { ok.setAttribute('disabled', ''); again.setAttribute('disabled', ''); } else { ok.removeAttribute('disabled'); again.removeAttribute('disabled'); } }
+    function build() { groups = { A: [], B: [], C: [], D: [] }; order = []; gshuffle(ids).forEach(function (id, i) { var g = GRPS[i % 4]; groups[g].push(id); order.push({ id: id, g: g }); }); }
+    function frame(filled) {
+      box.replaceChildren(); boards = {};
       GRPS.forEach(function (g) {
-        var ch = h('div', { class: 'chips' }); groups[g].forEach(function (id) { ch.append(h('span', { class: 'cp' }, pname(t, id))); });
-        box.append(h('div', { class: 'rdh' }, '🏟 গ্রুপ ' + g + ' · ' + groups[g].length + ' জন'), ch);
+        var cnt = h('small', null, (filled ? groups[g].length : 0) + '/' + groups[g].length), chips = h('div', { class: 'chips' }), el = h('div', { class: 'gdb' }, h('h4', null, h('span', null, '🏟 গ্রুপ ' + g), cnt), chips);
+        if (filled) groups[g].forEach(function (id) { chips.append(h('span', { class: 'cp' }, pname(t, id))); });
+        boards[g] = { el: el, chips: chips, cnt: cnt, n: filled ? groups[g].length : 0 }; box.append(el);
       });
     }
-    function draw4() { groups = { A: [], B: [], C: [], D: [] }; gshuffle(ids).forEach(function (id, i) { groups[GRPS[i % 4]].push(id); }); paint(); }
-    draw4();
-    var ok = h('button', { class: 'btn', style: 'width:100%;margin-top:14px', onclick: async function () { ok.disabled = true; var r = await makeGroupFixtures(t, groups); if (r) closeSheet(); else ok.disabled = false; } }, '✅ নিশ্চিত করে ফিক্সচার তৈরি করুন');
-    openSheet(h('div', null, xbtn(), h('h3', null, '🎲 গ্রুপ ড্র'), h('div', { class: 'note' }, ids.length + ' জন · ৪ গ্রুপ · প্রতি গ্রুপে সবাই সবার সাথে একবার (সিঙ্গেল লেগ)। পছন্দ না হলে আবার ড্র করুন।'), box,
-      h('button', { class: 'btn alt', style: 'width:100%;margin-top:12px', onclick: draw4 }, '🎲 আবার ড্র'), ok));
+    function pop(cls) { stN.className = 'gdn'; void stN.offsetWidth; stN.className = cls; }
+    function fly(chip, bd) {
+      var fr = stN.getBoundingClientRect(), tr = chip.getBoundingClientRect(), clone = h('div', { class: 'gdfly' }, chip.textContent);
+      if (!clone.animate) { chip.style.visibility = ''; return; }
+      document.body.append(clone);
+      var cw = clone.offsetWidth, ch = clone.offsetHeight, vh = window.innerHeight, off = tr.top > vh - ch - 6;
+      var x0 = fr.left + fr.width / 2 - cw / 2, y0 = fr.top + fr.height / 2 - ch / 2, x1 = tr.left + tr.width / 2 - cw / 2, y1 = Math.max(0, Math.min(tr.top + tr.height / 2 - ch / 2, vh - ch - 6));
+      var an = clone.animate([
+        { transform: 'translate(' + x0 + 'px,' + y0 + 'px) scale(1.15)', opacity: 1 },
+        { transform: 'translate(' + ((x0 + x1) / 2) + 'px,' + (Math.min(y0, y1) - 36) + 'px) scale(1.05)', opacity: 1, offset: 0.45 },
+        { transform: 'translate(' + x1 + 'px,' + y1 + 'px) scale(.9)', opacity: off ? 0 : 1 }
+      ], { duration: 480, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'forwards' });
+      an.onfinish = function () {
+        clone.remove(); chip.style.visibility = ''; chip.classList.add('gdpop'); bd.el.classList.add('hit'); setTimeout(function () { bd.el.classList.remove('hit'); }, 280);
+        try { if (navigator.vibrate) navigator.vibrate(8); } catch (e) { /* ignore */ }
+      };
+    }
+    function finish(my, instant) {
+      if (my !== token) return;
+      Array.prototype.forEach.call(document.querySelectorAll('.gdfly'), function (n) { n.remove(); });
+      if (instant) frame(true); else Array.prototype.forEach.call(box.querySelectorAll('.cp'), function (c) { c.style.visibility = ''; });
+      stage.classList.add('done'); stL.textContent = '🏆 ৪টা গ্রুপ প্রস্তুত'; pop('gdn lock'); stN.textContent = '✅ ড্র সম্পন্ন!'; stG.textContent = '';
+      stBar.style.width = '100%'; stC.textContent = order.length + ' / ' + order.length; skip.hidden = true; setBusy(false);
+      if (!reduceMo) confetti();
+    }
+    function run() {
+      var my = ++token, i = 0, c = 0, cd = ['৩', '২', '১']; skipped = false; build(); frame(false); setBusy(true);
+      stage.classList.remove('done'); skip.hidden = false; stBar.style.width = '0'; stC.textContent = ''; stG.textContent = ''; stL.textContent = '🎲 ড্র শুরু হচ্ছে…'; stN.className = 'gdn'; stN.textContent = '—';
+      if (reduceMo) { finish(my, true); return; }
+      function dead() { return my !== token || !stage.isConnected; }
+      function next() {
+        if (dead()) return;
+        if (skipped) { finish(my, true); return; }
+        if (i >= order.length) { setTimeout(function () { finish(my, false); }, 560); return; }
+        var o = order[i], k = 0, ticks = i < 4 ? 10 : (i < 12 ? 7 : 5), gap = i < 4 ? 55 : 38;
+        stN.className = 'gdn spin'; stG.textContent = '';
+        var iv = setInterval(function () {
+          if (dead()) { clearInterval(iv); return; }
+          if (skipped) { clearInterval(iv); finish(my, true); return; }
+          if (++k < ticks) { stN.textContent = names[rr(names.length)]; return; }
+          clearInterval(iv);
+          var bd = boards[o.g], chip = h('span', { class: 'cp' }, pname(t, o.id)); chip.style.visibility = 'hidden';
+          stN.textContent = pname(t, o.id); pop('gdn lock'); stG.textContent = '→ গ্রুপ ' + o.g;
+          bd.chips.append(chip); bd.n++; bd.cnt.textContent = bd.n + '/' + groups[o.g].length;
+          i++; stBar.style.width = Math.round(i / order.length * 100) + '%'; stC.textContent = i + ' / ' + order.length;
+          fly(chip, bd); setTimeout(next, i < 5 ? 340 : 190);
+        }, gap);
+      }
+      function count() {
+        if (dead()) return;
+        if (skipped) { finish(my, true); return; }
+        if (c >= 3) { stL.textContent = '🎲 ড্র চলছে…'; next(); return; }
+        stN.textContent = cd[c++]; pop('gdn lock'); setTimeout(count, 480);
+      }
+      setTimeout(count, 350);
+    }
+    openSheet(h('div', null, xbtn(), h('h3', null, '🎲 গ্রুপ ড্র'), h('div', { class: 'note' }, ids.length + ' জন · ৪ গ্রুপ · প্রতি গ্রুপে সবাই সবার সাথে একবার (সিঙ্গেল লেগ)। পছন্দ না হলে আবার ড্র করুন।'), stage, box, again, ok));
+    run();
   }
   async function makeGroupKO(t) {
     var ms = S.mt[t.type], q = {}, now = Date.now(), batch = db.batch();
